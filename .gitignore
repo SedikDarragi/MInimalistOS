@@ -1,0 +1,24 @@
+# Object files
+*.o
+*.elf
+*.bin
+
+# QEMU files
+qemu.log
+qemu_debug.log
+qemu_output.txt
+
+# Build artifacts
+os.bin
+kernel.bin
+boot/boot.bin
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS specific
+.DS_Store
+Thumbs.db
