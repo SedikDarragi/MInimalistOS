@@ -12,7 +12,6 @@ A minimalist operating system written in C and Assembly with kernel, bootloader,
 - **Shell System**: Interactive command-line interface with built-in commands
 - **File Manager**: Basic filesystem with file operations
 - **Network Stack**: TCP/IP stack with ping and network configuration
-- **Graphical UI**: Desktop environment with windows and applications
 
 ## Getting Started
 
