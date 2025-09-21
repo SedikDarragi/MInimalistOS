@@ -12,7 +12,6 @@ A minimalist operating system written in C and Assembly with kernel, bootloader,
 - **Shell System**: Interactive command-line interface with built-in commands
 - **File Manager**: Basic filesystem with file operations
 - **Network Stack**: TCP/IP stack with ping and network configuration
-- **Graphical UI**: Desktop environment with windows and applications
 
 ## Getting Started
 
@@ -100,10 +99,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Acknowledgments
 
 - [OSDev Wiki](https://wiki.osdev.org/) for invaluable OS development resources
@@ -132,4 +127,4 @@ This is a educational/demonstration OS with the following limitations:
 
 ## License
 
-This project is for educational purposes and should be used for commercial reasons without my permission first , Feel free to use and modify as needed.
+This project is licensed under the Central National d'informatique (CNI) and is for educational purposes and should be used for commercial reasons without my permission first , Feel free to use and modify as needed.
