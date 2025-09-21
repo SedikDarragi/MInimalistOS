@@ -1,4 +1,5 @@
 #include "kernel.h"
+#include "utils.h"
 
 // Simple memory allocator
 static char heap[65536]; // 64KB heap
@@ -113,4 +114,45 @@ void enable_interrupts(void) {
 
 void disable_interrupts(void) {
     __asm__ volatile ("cli");
+}
+
+// Integer to string conversion
+char* itoa(int value, char* str, int base) {
+    char* ptr = str;
+    char* ptr1 = str;
+    char tmp_char;
+    int tmp_value;
+    
+    // Handle 0 explicitly
+    if (value == 0) {
+        *ptr++ = '0';
+        *ptr = '\0';
+        return str;
+    }
+    
+    // Handle negative numbers for base 10
+    if (value < 0 && base == 10) {
+        *ptr++ = '-';
+        value = -value;
+        ptr1++;
+    }
+    
+    // Process individual digits
+    while (value != 0) {
+        int remainder = value % base;
+        *ptr++ = (remainder > 9) ? (remainder - 10) + 'a' : remainder + '0';
+        value = value / base;
+    }
+    
+    // Terminate string
+    *ptr-- = '\0';
+    
+    // Reverse the string
+    while (ptr1 < ptr) {
+        tmp_char = *ptr;
+        *ptr-- = *ptr1;
+        *ptr1++ = tmp_char;
+    }
+    
+    return str;
 }

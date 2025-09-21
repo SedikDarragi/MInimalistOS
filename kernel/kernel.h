@@ -1,22 +1,16 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
-// Basic types
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int uint32_t;
-typedef unsigned long long uint64_t;
+#include <stdint.h>
+#include <stddef.h>
 
-typedef signed char int8_t;
-typedef signed short int16_t;
-typedef signed int int32_t;
-typedef signed long long int64_t;
+// Common macros
+#define UNUSED(x) (void)(x)
 
-typedef unsigned int size_t;
-
-#ifndef NULL
-#define NULL ((void*)0)
-#endif
+// Memory management constants
+#define KERNEL_HEAP_START 0xC0000000
+#define KERNEL_HEAP_END   0xFFBFFFFF
+#define PAGE_SIZE         4096
 
 // Memory management
 void* kmalloc(size_t size);

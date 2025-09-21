@@ -2,11 +2,27 @@ CC = gcc
 AS = nasm
 LD = ld
 
-CFLAGS = -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Werror -c
-LDFLAGS = -m elf_i386 -T link.ld
+# Cross-compiler for 32-bit
+ifneq (,$(findstring i686-elf-,$(shell which i686-elf-gcc 2>/dev/null)))
+    CC = i686-elf-gcc
+    LD = i686-elf-ld
+else
+    CFLAGS += -m32
+    LDFLAGS += -m elf_i386
+endif
+
+# Base compiler flags
+INCLUDES = -I./include -I./kernel
+CFLAGS += -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs \
+          -Wall -Wextra -Werror $(INCLUDES) -g
+
+# Linker flags
+LDFLAGS += -T link.ld -nostdlib
+
+# Assembler flags
 ASFLAGS = -f elf32
 
-SOURCES_C = $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard fs/*.c) $(wildcard net/*.c) $(wildcard ui/*.c)
+SOURCES_C = $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard fs/*.c) $(wildcard net/*.c) $(wildcard ui/*.c) kernel/process.c kernel/utils.c
 SOURCES_ASM = $(wildcard kernel/*.asm)
 OBJECTS_C = $(SOURCES_C:.c=.o)
 OBJECTS_ASM = $(SOURCES_ASM:.asm=.o)
@@ -21,7 +37,7 @@ kernel.bin: kernel/start.o $(OBJECTS_C)
 	objcopy -O binary kernel.elf kernel.bin
 
 %.o: %.c
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.asm
 	$(AS) $(ASFLAGS) $< -o $@

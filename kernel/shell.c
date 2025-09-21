@@ -4,9 +4,82 @@
 #include "../fs/filesystem.h"
 #include "../net/network.h"
 #include "../ui/ui.h"
+#include "process.h"
 
 static char shell_buffer[SHELL_BUFFER_SIZE];
 static int buffer_pos = 0;
+static command_history_t history = {0};
+
+// Tab completion
+static void complete_command(const char* prefix) {
+    int matches = 0;
+    const char* match = NULL;
+    int prefix_len = strlen(prefix);
+    
+    // Find matching commands
+    for (int i = 0; commands[i].name; i++) {
+        if (strncmp(prefix, commands[i].name, prefix_len) == 0) {
+            matches++;
+            match = commands[i].name;
+        }
+    }
+    
+    if (matches == 1 && match) {
+        // Complete the command
+        int match_len = strlen(match);
+        for (int i = prefix_len; i < match_len; i++) {
+            if (buffer_pos < SHELL_BUFFER_SIZE - 1) {
+                shell_buffer[buffer_pos++] = match[i];
+                vga_putchar(match[i]);
+            }
+        }
+    } else if (matches > 1) {
+        // Show possible completions
+        vga_print("\n");
+        for (int i = 0; commands[i].name; i++) {
+            if (strncmp(prefix, commands[i].name, prefix_len) == 0) {
+                vga_print(commands[i].name);
+                vga_print(" ");
+            }
+        }
+        vga_print("\n$ ");
+        vga_print(shell_buffer);
+    }
+}
+
+// Command history functions
+void shell_add_to_history(const char* command) {
+    if (history.count < MAX_HISTORY) {
+        strncpy(history.commands[history.count], command, MAX_CMD_LENGTH - 1);
+        history.commands[history.count][MAX_CMD_LENGTH - 1] = '\0';
+        history.count++;
+    } else {
+        // Shift all commands down
+        for (int i = 0; i < MAX_HISTORY - 1; i++) {
+            strcpy(history.commands[i], history.commands[i + 1]);
+        }
+        strncpy(history.commands[MAX_HISTORY - 1], command, MAX_CMD_LENGTH - 1);
+        history.commands[MAX_HISTORY - 1][MAX_CMD_LENGTH - 1] = '\0';
+    }
+    history.current = history.count;
+}
+
+const char* shell_get_previous_command(void) {
+    if (history.current > 0) {
+        history.current--;
+        return history.commands[history.current];
+    }
+    return NULL;
+}
+
+const char* shell_get_next_command(void) {
+    if (history.current < history.count - 1) {
+        history.current++;
+        return history.commands[history.current];
+    }
+    history.current = history.count;
+    return "";
+}
 
 typedef struct {
     const char* name;
@@ -36,7 +109,15 @@ void shell_init(void) {
     memset(shell_buffer, 0, SHELL_BUFFER_SIZE);
     vga_print("MinimalOS Shell v1.0\n");
     vga_print("Made by Sedik Darragi IMSET/CNI\n");
-    vga_print("Type 'help' for available commands\n\n");
+    vga_print("Type 'help' for available commands\n");
+    vga_print("Use up/down arrows for command history\n");
+    vga_print("Use Tab for command completion\n\n");
+    
+    // Initialize process management
+    process_init();
+    
+    // Create initial processes
+    process_create("shell", NULL);
 }
 
 void shell_run(void) {
@@ -50,16 +131,61 @@ void shell_run(void) {
             vga_putchar('\n');
             shell_buffer[buffer_pos] = '\0';
             if (buffer_pos > 0) {
+                shell_add_to_history(shell_buffer);
                 shell_execute_command(shell_buffer);
             }
             buffer_pos = 0;
             vga_print("$ ");
-        } else if (c == '\b') {
+        } 
+        else if (c == '\b') {
             if (buffer_pos > 0) {
                 buffer_pos--;
                 vga_putchar('\b');
+                vga_putchar(' ');
+                vga_putchar('\b');
             }
-        } else if (buffer_pos < SHELL_BUFFER_SIZE - 1) {
+        }
+        // Handle up arrow (previous command)
+        else if (c == 0x48) {  // Up arrow
+            const char* prev_cmd = shell_get_previous_command();
+            if (prev_cmd) {
+                // Clear current line
+                for (int i = 0; i < buffer_pos; i++) {
+                    vga_putchar('\b');
+                    vga_putchar(' ');
+                    vga_putchar('\b');
+                }
+                // Copy previous command to buffer
+                strncpy(shell_buffer, prev_cmd, SHELL_BUFFER_SIZE - 1);
+                buffer_pos = strlen(shell_buffer);
+                vga_print(shell_buffer);
+            }
+        }
+        // Handle down arrow (next command)
+        else if (c == 0x50) {  // Down arrow
+            const char* next_cmd = shell_get_next_command();
+            // Clear current line
+            for (int i = 0; i < buffer_pos; i++) {
+                vga_putchar('\b');
+                vga_putchar(' ');
+                vga_putchar('\b');
+            }
+            // Copy next command to buffer or clear
+            if (next_cmd) {
+                strncpy(shell_buffer, next_cmd, SHELL_BUFFER_SIZE - 1);
+                buffer_pos = strlen(shell_buffer);
+                vga_print(shell_buffer);
+            } else {
+                shell_buffer[0] = '\0';
+                buffer_pos = 0;
+            }
+        }
+        // Handle tab completion
+        else if (c == '\t') {  // Tab key
+            shell_buffer[buffer_pos] = '\0';
+            complete_command(shell_buffer);
+        }
+        else if (buffer_pos < SHELL_BUFFER_SIZE - 1) {
             shell_buffer[buffer_pos++] = c;
             vga_putchar(c);
         }
@@ -179,9 +305,7 @@ void cmd_pwd(int argc, char* argv[]) {
 
 void cmd_ps(int argc, char* argv[]) {
     (void)argc; (void)argv;
-    vga_print("PID  NAME\n");
-    vga_print("1    kernel\n");
-    vga_print("2    shell\n");
+    process_print_list();
 }
 
 void cmd_kill(int argc, char* argv[]) {
