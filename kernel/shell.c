@@ -1,4 +1,4 @@
-#include "shell.h"
+#include "../include/shell.h"
 #include "../drivers/vga.h"
 #include "../drivers/keyboard.h"
 #include "../fs/filesystem.h"
@@ -6,8 +6,8 @@
 #include "../ui/ui.h"
 #include "process.h"
 
-// Command definitions
-static command_t commands[] = {
+// Command implementations array
+static const command_t commands[] = {
     {"help", cmd_help, "Show this help message"},
     {"clear", cmd_clear, "Clear the screen"},
     {"echo", cmd_echo, "Print arguments to the screen"},
@@ -67,19 +67,19 @@ static void complete_command(const char* prefix) {
 
 // Command history functions
 void shell_add_to_history(const char* command) {
-    if (history.count < MAX_HISTORY) {
-        strncpy(history.commands[history.count], command, MAX_CMD_LENGTH - 1);
-        history.commands[history.count][MAX_CMD_LENGTH - 1] = '\0';
+    if (strlen(command) > 0) {
+        strncpy(history.commands[history.count], command, SHELL_BUFFER_SIZE - 1);
+        history.commands[history.count][SHELL_BUFFER_SIZE - 1] = '\0';
         history.count++;
-    } else {
-        // Shift all commands down
-        for (int i = 0; i < MAX_HISTORY - 1; i++) {
-            strcpy(history.commands[i], history.commands[i + 1]);
+        if (history.count >= MAX_HISTORY) {
+            // Shift history down if we've reached max
+            for (int i = 1; i < MAX_HISTORY; i++) {
+                strncpy(history.commands[i-1], history.commands[i], SHELL_BUFFER_SIZE);
+            }
+            history.count--;
         }
-        strncpy(history.commands[MAX_HISTORY - 1], command, MAX_CMD_LENGTH - 1);
-        history.commands[MAX_HISTORY - 1][MAX_CMD_LENGTH - 1] = '\0';
+        history.current = history.count;
     }
-    history.current = history.count;
 }
 
 const char* shell_get_previous_command(void) {
@@ -98,13 +98,6 @@ const char* shell_get_next_command(void) {
     history.current = history.count;
     return "";
 }
-
-// Command structure definition
-typedef struct {
-    const char* name;
-    void (*function)(int argc, char* argv[]);
-    const char* description;
-} command_t;
 
 void shell_init(void) {
     buffer_pos = 0;

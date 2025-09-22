@@ -27,13 +27,17 @@ SOURCES_ASM = $(wildcard kernel/*.asm)
 OBJECTS_C = $(SOURCES_C:.c=.o)
 OBJECTS_ASM = $(SOURCES_ASM:.asm=.o)
 
+KERNEL_OBJS = kernel/start.o kernel/kernel.o kernel/process.o kernel/shell.o kernel/utils.o \
+              drivers/keyboard.o drivers/timer.o drivers/vga.o \
+              fs/filesystem.o net/network.o ui/ui.o
+
 all: os.bin
 
 os.bin: boot/boot.bin kernel.bin
 	cat boot/boot.bin kernel.bin > os.bin
 
-kernel.bin: kernel/start.o $(OBJECTS_C)
-	$(LD) $(LDFLAGS) kernel/start.o $(OBJECTS_C) -o kernel.elf
+kernel.bin: $(KERNEL_OBJS)
+	$(LD) $(LDFLAGS) $(KERNEL_OBJS) -o kernel.elf
 	objcopy -O binary kernel.elf kernel.bin
 
 %.o: %.c

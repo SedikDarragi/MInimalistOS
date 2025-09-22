@@ -20,9 +20,11 @@ void kfree(void* ptr) {
 }
 
 // String functions
-int strlen(const char* str) {
-    int len = 0;
-    while (str[len]) len++;
+size_t strlen(const char* str) {
+    size_t len = 0;
+    while (str[len] != '\0') {
+        len++;
+    }
     return len;
 }
 
@@ -121,7 +123,7 @@ char* itoa(int value, char* str, int base) {
     char* ptr = str;
     char* ptr1 = str;
     char tmp_char;
-    int tmp_value;
+    // tmp_value was unused, removed
     
     // Handle 0 explicitly
     if (value == 0) {
