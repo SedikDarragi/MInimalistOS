@@ -53,15 +53,15 @@ clean:
 	rm -f $(OBJECTS_C) $(OBJECTS_ASM) kernel/start.o kernel.elf kernel.bin os.bin boot/boot.bin
 
 run: os.bin
-	qemu-system-i386 -fda os.bin -vnc :1 -k en-us
+	qemu-system-i386 -fda os.bin -snapshot -vnc :1 -k en-us
 
 run-vnc: os.bin
-	qemu-system-i386 -fda os.bin -vnc :1 -k en-us
+	qemu-system-i386 -fda os.bin -snapshot -vnc :1 -k en-us
 
 run-debug: os.bin
-	qemu-system-i386 -fda os.bin -nographic -serial stdio
+	qemu-system-i386 -fda os.bin -snapshot -nographic -serial stdio
 
 run-monitor: os.bin
-	qemu-system-i386 -fda os.bin -monitor stdio
+	qemu-system-i386 -fda os.bin -snapshot -monitor stdio
 
 .PHONY: all clean run
