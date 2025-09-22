@@ -6,6 +6,24 @@
 #include "../ui/ui.h"
 #include "process.h"
 
+// Command definitions
+static command_t commands[] = {
+    {"help", cmd_help, "Show this help message"},
+    {"clear", cmd_clear, "Clear the screen"},
+    {"echo", cmd_echo, "Print arguments to the screen"},
+    {"ls", cmd_ls, "List directory contents"},
+    {"cat", cmd_cat, "Display file contents"},
+    {"mkdir", cmd_mkdir, "Create a directory"},
+    {"rm", cmd_rm, "Remove a file or directory"},
+    {"cd", cmd_cd, "Change directory"},
+    {"pwd", cmd_pwd, "Print working directory"},
+    {"ps", cmd_ps, "List processes"},
+    {"kill", cmd_kill, "Terminate a process"},
+    {"ping", cmd_ping, "Ping a network host"},
+    {"ifconfig", cmd_ifconfig, "Show network configuration"},
+    {0, 0, 0}  // Null terminator
+};
+
 static char shell_buffer[SHELL_BUFFER_SIZE];
 static int buffer_pos = 0;
 static command_history_t history = {0};
@@ -81,28 +99,12 @@ const char* shell_get_next_command(void) {
     return "";
 }
 
+// Command structure definition
 typedef struct {
     const char* name;
     void (*function)(int argc, char* argv[]);
     const char* description;
 } command_t;
-
-static command_t commands[] = {
-    {"help", cmd_help, "Show available commands"},
-    {"clear", cmd_clear, "Clear the screen"},
-    {"echo", cmd_echo, "Print text to screen"},
-    {"ls", cmd_ls, "List directory contents"},
-    {"cat", cmd_cat, "Display file contents"},
-    {"mkdir", cmd_mkdir, "Create directory"},
-    {"rm", cmd_rm, "Remove file or directory"},
-    {"cd", cmd_cd, "Change directory"},
-    {"pwd", cmd_pwd, "Print working directory"},
-    {"ps", cmd_ps, "List running processes"},
-    {"kill", cmd_kill, "Kill a process"},
-    {"ping", cmd_ping, "Ping a network host"},
-    {"ifconfig", cmd_ifconfig, "Configure network interface"},
-    {0, 0, 0}
-};
 
 void shell_init(void) {
     buffer_pos = 0;

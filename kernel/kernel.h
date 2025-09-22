@@ -17,7 +17,8 @@ void* kmalloc(size_t size);
 void kfree(void* ptr);
 
 // String functions
-int strlen(const char* str);
+#include <stddef.h>  // for size_t
+size_t strlen(const char* str);
 int strcmp(const char* str1, const char* str2);
 int strncmp(const char* str1, const char* str2, size_t n);
 char* strcpy(char* dest, const char* src);

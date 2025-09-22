@@ -2,6 +2,9 @@
 #include "../drivers/vga.h"
 #include "utils.h"
 
+// Suppress unused parameter warnings
+#define UNUSED(x) (void)(x)
+
 static process_t processes[MAX_PROCESSES];
 static int next_pid = 1;
 
@@ -13,6 +16,7 @@ void process_init(void) {
 }
 
 int process_create(const char* name, void (*entry_point)()) {
+    UNUSED(entry_point);  // Will be used when process scheduling is implemented
     if (next_pid >= MAX_PROCESSES) {
         return -1; // No more process slots
     }
@@ -31,6 +35,7 @@ int process_create(const char* name, void (*entry_point)()) {
 }
 
 void process_exit(int status) {
+    UNUSED(status);  // Will be used when process cleanup is implemented
     // TODO: Clean up process resources
     // For now, just mark as zombie
     process_t* current = &processes[0]; // Get current process
