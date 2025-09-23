@@ -21,10 +21,13 @@ else
               -I./include -I./kernel
     LDFLAGS += -m elf_i386 -T link.ld -nostdlib
     
-    # Check if 32-bit libraries are installed
-    ifeq (,$(wildcard /usr/include/i386-linux-gnu/gnu/stubs-32.h))
-        $(warning 32-bit development libraries not found. Please install them with:)
-        $(warning sudo apt-get install gcc-multilib)
+    # Check if 32-bit libraries are installed (check for Arch Linux first, then Debian/Ubuntu)
+    ifeq (,$(wildcard /usr/lib32/libc.so))
+        ifeq (,$(wildcard /usr/include/i386-linux-gnu/gnu/stubs-32.h))
+            $(warning 32-bit development libraries not found. Please install them with:)
+            $(warning For Arch Linux: sudo pacman -S lib32-gcc-libs lib32-glibc)
+            $(warning For Debian/Ubuntu: sudo apt-get install gcc-multilib)
+        endif
     endif
 endif
 
@@ -72,7 +75,10 @@ clean:
 	rm -f $(OBJECTS_C) $(OBJECTS_ASM) kernel/start.o kernel.elf kernel.bin os.bin boot/boot.bin
 
 run: os.bin
-	qemu-system-i386 -fda os.bin -snapshot -vnc :1 -k en-us
+	@echo "Make sure no other QEMU instances are running..."
+	-@pkill -f "qemu-system-i386.*os\.bin" 2>/dev/null || true
+	@echo "Starting QEMU..."
+	qemu-system-i386 -fda os.bin -snapshot -nographic -monitor none -serial stdio
 
 run-vnc: os.bin
 	qemu-system-i386 -fda os.bin -snapshot -vnc :1 -k en-us
