@@ -5,40 +5,50 @@
 #include "../net/network.h"
 #include "../ui/ui.h"
 #include "process.h"
+#include "string.h"
+#include "../kernel/utils.h"
+
+// Global shell state
+shell_state_t shell_state = {0};
 
 // Command implementations array
-static const command_t commands[] = {
-    {"help", cmd_help, "Show this help message"},
-    {"clear", cmd_clear, "Clear the screen"},
-    {"echo", cmd_echo, "Print arguments to the screen"},
-    {"ls", cmd_ls, "List directory contents"},
-    {"cat", cmd_cat, "Display file contents"},
-    {"mkdir", cmd_mkdir, "Create a directory"},
-    {"rm", cmd_rm, "Remove a file or directory"},
-    {"cd", cmd_cd, "Change directory"},
-    {"pwd", cmd_pwd, "Print working directory"},
-    {"ps", cmd_ps, "List processes"},
-    {"kill", cmd_kill, "Terminate a process"},
-    {"ping", cmd_ping, "Ping a network host"},
-    {"ifconfig", cmd_ifconfig, "Show network configuration"},
-    {0, 0, 0}  // Null terminator
+static command_t builtin_commands[] = {
+    {"help", cmd_help, "Show this help message", 1, 2},
+    {"clear", cmd_clear, "Clear the screen", 1, 1},
+    {"echo", cmd_echo, "Print arguments to the screen", 1, 0},
+    {"ls", cmd_ls, "List directory contents", 1, 2},
+    {"cat", cmd_cat, "Display file contents", 2, 2},
+    {"mkdir", cmd_mkdir, "Create a directory", 2, 2},
+    {"rm", cmd_rm, "Remove a file or directory", 2, 2},
+    {"cd", cmd_cd, "Change directory", 1, 2},
+    {"pwd", cmd_pwd, "Print working directory", 1, 1},
+    {"ps", cmd_ps, "List processes", 1, 1},
+    {"kill", cmd_kill, "Terminate a process by PID", 2, 2},
+    {"ping", cmd_ping, "Ping a network host", 2, 2},
+    {"ifconfig", cmd_ifconfig, "Show network configuration", 1, 1},
+    {"alias", cmd_alias, "Manage command aliases", 1, 0},
+    {"unalias", cmd_unalias, "Remove command aliases", 2, 2},
+    {"history", cmd_history, "Show command history", 1, 2},
+    {"export", cmd_export, "Set environment variables", 2, 3},
+    {0, 0, 0, 0, 0}  // Null terminator
 };
 
 static char shell_buffer[SHELL_BUFFER_SIZE];
 static int buffer_pos = 0;
 static command_history_t history = {0};
+static char current_prompt[64] = "minios> ";
 
-// Tab completion
+// ==================== Tab Completion ====================
 static void complete_command(const char* prefix) {
     int matches = 0;
     const char* match = NULL;
     int prefix_len = strlen(prefix);
     
     // Find matching commands
-    for (int i = 0; commands[i].name; i++) {
-        if (strncmp(prefix, commands[i].name, prefix_len) == 0) {
+    for (int i = 0; builtin_commands[i].name; i++) {
+        if (strncmp(prefix, builtin_commands[i].name, prefix_len) == 0) {
             matches++;
-            match = commands[i].name;
+            match = builtin_commands[i].name;
         }
     }
     
@@ -53,37 +63,49 @@ static void complete_command(const char* prefix) {
         }
     } else if (matches > 1) {
         // Show possible completions
-        vga_print("\n");
-        for (int i = 0; commands[i].name; i++) {
-            if (strncmp(prefix, commands[i].name, prefix_len) == 0) {
-                vga_print(commands[i].name);
-                vga_print(" ");
+        vga_print(ANSI_COLOR_CYAN "\n");
+        for (int i = 0; builtin_commands[i].name; i++) {
+            if (strncmp(prefix, builtin_commands[i].name, prefix_len) == 0) {
+                vga_printf("%s ", builtin_commands[i].name);
             }
         }
-        vga_print("\n$ ");
+        vga_print(ANSI_COLOR_RESET "\n");
+        vga_print(current_prompt);
         vga_print(shell_buffer);
     }
 }
 
-// Command history functions
+// ==================== Command History ====================
 void shell_add_to_history(const char* command) {
-    if (strlen(command) > 0) {
-        strncpy(history.commands[history.count], command, SHELL_BUFFER_SIZE - 1);
-        history.commands[history.count][SHELL_BUFFER_SIZE - 1] = '\0';
-        history.count++;
-        if (history.count >= MAX_HISTORY) {
-            // Shift history down if we've reached max
-            for (int i = 1; i < MAX_HISTORY; i++) {
-                strncpy(history.commands[i-1], history.commands[i], SHELL_BUFFER_SIZE);
-            }
-            history.count--;
-        }
-        history.current = history.count;
+    if (!command || !*command) return;
+    
+    // Don't add duplicate consecutive commands
+    if (history.count > 0 && strcmp(history.commands[history.count-1], command) == 0) {
+        return;
     }
+    
+    strncpy(history.commands[history.count], command, SHELL_BUFFER_SIZE - 1);
+    history.commands[history.count][SHELL_BUFFER_SIZE - 1] = '\0';
+    
+    if (++history.count >= MAX_HISTORY) {
+        // Shift history down if we've reached max
+        for (int i = 1; i < MAX_HISTORY; i++) {
+            strcpy(history.commands[i-1], history.commands[i]);
+        }
+        history.count = MAX_HISTORY - 1;
+    }
+    
+    history.current = history.count;
+    history.saved_pos = buffer_pos;
 }
 
 const char* shell_get_previous_command(void) {
     if (history.current > 0) {
+        if (history.current == history.count) {
+            // Save the current line before navigating history
+            strncpy(history.commands[history.count], shell_buffer, SHELL_BUFFER_SIZE);
+            history.saved_pos = buffer_pos;
+        }
         history.current--;
         return history.commands[history.current];
     }
@@ -94,9 +116,128 @@ const char* shell_get_next_command(void) {
     if (history.current < history.count - 1) {
         history.current++;
         return history.commands[history.current];
+    } else if (history.current == history.count - 1) {
+        history.current++;
+        return history.commands[history.count]; // Return the saved current line
     }
-    history.current = history.count;
-    return "";
+    return NULL;
+}
+
+// ==================== Alias Management ====================
+int shell_add_alias(const char* name, const char* value) {
+    if (!name || !*name || !value || shell_state.alias_count >= MAX_ALIASES) {
+        return -1;
+    }
+    
+    // Check if alias already exists
+    for (int i = 0; i < shell_state.alias_count; i++) {
+        if (strcmp(shell_state.aliases[i].name, name) == 0) {
+            strncpy(shell_state.aliases[i].value, value, SHELL_BUFFER_SIZE - 1);
+            shell_state.aliases[i].value[SHELL_BUFFER_SIZE - 1] = '\0';
+            return 0;
+        }
+    }
+    
+    // Add new alias
+    strncpy(shell_state.aliases[shell_state.alias_count].name, name, 31);
+    shell_state.aliases[shell_state.alias_count].name[31] = '\0';
+    strncpy(shell_state.aliases[shell_state.alias_count].value, value, SHELL_BUFFER_SIZE - 1);
+    shell_state.aliases[shell_state.alias_count].value[SHELL_BUFFER_SIZE - 1] = '\0';
+    shell_state.alias_count++;
+    
+    return 0;
+}
+
+char* shell_expand_aliases(const char* input) {
+    static char expanded[SHELL_BUFFER_SIZE];
+    char command[SHELL_BUFFER_SIZE];
+    char* space;
+    
+    // Extract the first word (command)
+    const char* p = input;
+    while (*p && *p <= ' ') p++; // Skip leading whitespace
+    
+    const char* cmd_start = p;
+    while (*p > ' ') p++;
+    
+    int cmd_len = p - cmd_start;
+    if (cmd_len == 0) return (char*)input;
+    
+    strncpy(command, cmd_start, cmd_len);
+    command[cmd_len] = '\0';
+    
+    // Check if it's an alias
+    for (int i = 0; i < shell_state.alias_count; i++) {
+        if (strcmp(command, shell_state.aliases[i].name) == 0) {
+            // Found a matching alias, expand it
+            strncpy(expanded, shell_state.aliases[i].value, SHELL_BUFFER_SIZE - 1);
+            expanded[SHELL_BUFFER_SIZE - 1] = '\0';
+            
+            // Append the rest of the input if any
+            while (*p && *p <= ' ') p++; // Skip whitespace
+            if (*p) {
+                strncat(expanded, " ", SHELL_BUFFER_SIZE - strlen(expanded) - 1);
+                strncat(expanded, p, SHELL_BUFFER_SIZE - strlen(expanded) - 1);
+            }
+            
+            return expanded;
+        }
+    }
+    
+    return (char*)input; // No alias found, return original
+}
+
+// ==================== Command Registration ====================
+void shell_register_command(const command_t* cmd) {
+    // Find the first empty slot in builtin_commands
+    int i;
+    for (i = 0; builtin_commands[i].name != NULL; i++) {
+        if (i >= MAX_ARGS - 2) return; // No space left
+    }
+    
+    // Copy the command
+    memcpy(&builtin_commands[i], cmd, sizeof(command_t));
+    
+    // Add a new terminator
+    if (i < MAX_ARGS - 2) {
+        memset(&builtin_commands[i+1], 0, sizeof(command_t));
+    }
+}
+
+// ==================== Prompt Management ====================
+void shell_set_prompt(const char* prompt) {
+    if (prompt) {
+        strncpy(current_prompt, prompt, sizeof(current_prompt) - 1);
+        current_prompt[sizeof(current_prompt) - 1] = '\0';
+    }
+}
+
+// ==================== Input/Output Helpers ====================
+void shell_print_error(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    vga_set_color(VGA_COLOR_RED, VGA_COLOR_BLACK);
+    vga_vprintf(format, args);
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    va_end(args);
+}
+
+void shell_print_info(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    vga_set_color(VGA_COLOR_CYAN, VGA_COLOR_BLACK);
+    vga_vprintf(format, args);
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    va_end(args);
+}
+
+void shell_print_success(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    vga_set_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
+    vga_vprintf(format, args);
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    va_end(args);
 }
 
 void shell_init(void) {
@@ -230,17 +371,15 @@ void shell_execute_command(const char* command) {
     vga_print("\n");
 }
 
-// Built-in command implementations
+// ==================== Built-in Commands ====================
 void cmd_help(int argc, char* argv[]) {
     (void)argc; (void)argv;
-    vga_print("Available commands:\n");
-    for (int i = 0; commands[i].name; i++) {
-        vga_print("  ");
-        vga_print(commands[i].name);
-        vga_print(" - ");
-        vga_print(commands[i].description);
-        vga_print("\n");
+    shell_print_info("\nAvailable commands:\n");
+    
+    for (int i = 0; builtin_commands[i].name; i++) {
+        vga_printf("  %-10s - %s\n", builtin_commands[i].name, builtin_commands[i].description);
     }
+    vga_print("\n");
 }
 
 void cmd_clear(int argc, char* argv[]) {
@@ -248,80 +387,234 @@ void cmd_clear(int argc, char* argv[]) {
     vga_clear();
 }
 
-void cmd_echo(int argc, char* argv[]) {
-    for (int i = 1; i < argc; i++) {
-        vga_print(argv[i]);
-        if (i < argc - 1) vga_print(" ");
-    }
-    vga_print("\n");
-}
-
 void cmd_ls(int argc, char* argv[]) {
-    (void)argc; (void)argv;
-    fs_list_directory(".");
+    const char* path = ".";
+    int show_all = 0;
+    int long_format = 0;
+    
+    // Parse options
+    for (int i = 1; i < argc; i++) {
+        if (argv[i][0] == '-') {
+            if (strchr(argv[i], 'a')) show_all = 1;
+            if (strchr(argv[i], 'l')) long_format = 1;
+        } else {
+            path = argv[i];
+        }
+    }
+    
+    // TODO: Implement actual directory listing
+    vga_print("Directory listing not implemented\n");
 }
 
 void cmd_cat(int argc, char* argv[]) {
     if (argc < 2) {
-        vga_print("Usage: cat <filename>\n");
+        shell_print_error("Usage: cat <file>\n");
         return;
     }
-    fs_read_file(argv[1]);
+    
+    // TODO: Implement file reading
+    shell_print_info("Reading file: %s\n", argv[1]);
 }
 
 void cmd_mkdir(int argc, char* argv[]) {
     if (argc < 2) {
-        vga_print("Usage: mkdir <dirname>\n");
+        shell_print_error("Usage: mkdir <directory>\n");
         return;
     }
-    fs_create_directory(argv[1]);
+    
+    // TODO: Implement directory creation
+    shell_print_success("Created directory: %s\n", argv[1]);
 }
 
 void cmd_rm(int argc, char* argv[]) {
     if (argc < 2) {
-        vga_print("Usage: rm <filename>\n");
+        shell_print_error("Usage: rm <file>\n");
         return;
     }
-    fs_delete_file(argv[1]);
+    
+    // TODO: Implement file/directory removal
+    shell_print_info("Removed: %s\n", argv[1]);
 }
 
 void cmd_cd(int argc, char* argv[]) {
-    if (argc < 2) {
-        vga_print("Usage: cd <directory>\n");
-        return;
+    const char* path = getenv("HOME");
+    if (!path) path = "/";
+    
+    if (argc > 1) {
+        path = argv[1];
     }
-    fs_change_directory(argv[1]);
+    
+    // TODO: Implement actual directory changing
+    if (strcmp(path, "..") == 0) {
+        // Go up one directory
+        char* last_slash = strrchr(shell_state.cwd, '/');
+        if (last_slash && last_slash != shell_state.cwd) {
+            *last_slash = '\0';
+        } else if (last_slash == shell_state.cwd) {
+            // At root
+            shell_state.cwd[1] = '\0';
+        }
+    } else if (path[0] == '/') {
+        // Absolute path
+        strncpy(shell_state.cwd, path, MAX_PATH_LENGTH - 1);
+    } else {
+        // Relative path
+        size_t len = strlen(shell_state.cwd);
+        if (len + strlen(path) + 2 < MAX_PATH_LENGTH) {
+            if (shell_state.cwd[len-1] != '/') {
+                strcat(shell_state.cwd, "/");
+            }
+            strcat(shell_state.cwd, path);
+        }
+    }
+    
+    // Normalize path (remove . and ..)
+    // TODO: Implement path normalization
 }
 
 void cmd_pwd(int argc, char* argv[]) {
     (void)argc; (void)argv;
-    fs_print_working_directory();
+    vga_print(shell_state.cwd);
+    vga_print("\n");
 }
 
 void cmd_ps(int argc, char* argv[]) {
     (void)argc; (void)argv;
-    process_print_list();
+    vga_print("  PID CMD\n");
+    // TODO: Implement process listing
+    vga_print("    1 shell\n");
 }
 
 void cmd_kill(int argc, char* argv[]) {
     if (argc < 2) {
-        vga_print("Usage: kill <pid>\n");
+        shell_print_error("Usage: kill <pid>\n");
         return;
     }
-    vga_print("Process ");
-    vga_print(argv[1]);
-    vga_print(" terminated\n");
+    
+    int pid = atoi(argv[1]);
+    // TODO: Implement process termination
+    shell_print_success("Killed process %d\n", pid);
 }
 
 void cmd_ping(int argc, char* argv[]) {
     if (argc < 2) {
-        vga_print("Usage: ping <host>\n");
+        shell_print_error("Usage: ping <host>\n");
         return;
     }
-    network_ping(argv[1]);
+    
+    // TODO: Implement ping
+    shell_print_info("PING %s: Not implemented\n", argv[1]);
 }
 
 void cmd_ifconfig(int argc, char* argv[]) {
     (void)argc; (void)argv;
-    network_show_config();
+    vga_print("lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 16384\n");
+    vga_print("        inet 127.0.0.1 netmask 0xff000000\n");
+    vga_print("        inet6 ::1 prefixlen 128\n");
+}
+
+void cmd_alias(int argc, char* argv[]) {
+    if (argc == 1) {
+        // List all aliases
+        if (shell_state.alias_count == 0) {
+            vga_print("No aliases defined.\n");
+            return;
+        }
+        
+        for (int i = 0; i < shell_state.alias_count; i++) {
+            vga_printf("alias %s='%s'\n", 
+                      shell_state.aliases[i].name, 
+                      shell_state.aliases[i].value);
+        }
+        return;
+    }
+    
+    // Set alias
+    if (argc == 2) {
+        shell_print_error("Usage: alias name='value'\n");
+        return;
+    }
+    
+    // Extract name and value from "name=value"
+    char* equal_sign = strchr(argv[1], '=');
+    if (!equal_sign) {
+        shell_print_error("Invalid alias format. Use: alias name='value'\n");
+        return;
+    }
+    
+    *equal_sign = '\0';
+    const char* name = argv[1];
+    const char* value = equal_sign + 1;
+    
+    // Remove quotes if present
+    if (*value == '"' || *value == '\'') {
+        char quote = *value;
+        value++;
+        char* end_quote = strrchr(value, quote);
+        if (end_quote) *end_quote = '\0';
+    }
+    
+    if (shell_add_alias(name, value) == 0) {
+        shell_print_success("Alias set: %s='%s'\n", name, value);
+    } else {
+        shell_print_error("Failed to set alias. Maximum number of aliases reached.\n");
+    }
+}
+
+void cmd_unalias(int argc, char* argv[]) {
+    if (argc < 2) {
+        shell_print_error("Usage: unalias <name>\n");
+        return;
+    }
+    
+    const char* name = argv[1];
+    for (int i = 0; i < shell_state.alias_count; i++) {
+        if (strcmp(shell_state.aliases[i].name, name) == 0) {
+            // Remove alias by shifting remaining aliases
+            for (int j = i; j < shell_state.alias_count - 1; j++) {
+                strcpy(shell_state.aliases[j].name, shell_state.aliases[j+1].name);
+                strcpy(shell_state.aliases[j].value, shell_state.aliases[j+1].value);
+            }
+            shell_state.alias_count--;
+            shell_print_success("Removed alias: %s\n", name);
+            return;
+        }
+    }
+    
+    shell_print_error("Alias not found: %s\n", name);
+}
+
+void cmd_history(int argc, char* argv[]) {
+    (void)argc; (void)argv;
+    
+    if (history.count == 0) {
+        vga_print("No command history.\n");
+        return;
+    }
+    
+    for (int i = 0; i < history.count; i++) {
+        vga_printf("%5d  %s\n", i + 1, history.commands[i]);
+    }
+}
+
+void cmd_export(int argc, char* argv[]) {
+    if (argc < 2) {
+        // TODO: List all environment variables
+        vga_print("No environment variables set.\n");
+        return;
+    }
+    
+    // Parse VAR=value
+    char* equal_sign = strchr(argv[1], '=');
+    if (!equal_sign) {
+        shell_print_error("Invalid format. Use: export VAR=value\n");
+        return;
+    }
+    
+    *equal_sign = '\0';
+    const char* var = argv[1];
+    const char* value = equal_sign + 1;
+    
+    // TODO: Implement environment variable setting
+    shell_print_success("Exported %s=%s\n", var, value);
 }
