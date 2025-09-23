@@ -1,3 +1,252 @@
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdarg.h>
+
+// Forward declarations for string functions
+static size_t strlen(const char* str);
+static char* strpbrk(const char* s, const char* accept);
+static size_t strspn(const char* s, const char* accept);
+static int strncmp(const char* s1, const char* s2, size_t n);
+
+// Simple strtok implementation
+static char* strtok_r(char* str, const char* delim, char** saveptr) {
+    char* token;
+    
+    if (str == NULL) {
+        str = *saveptr;
+    }
+    
+    // Skip leading delimiters
+    str += strspn(str, delim);
+    if (*str == '\0') {
+        *saveptr = str;
+        return NULL;
+    }
+    
+    // Find the end of the token
+    token = str;
+    str = strpbrk(token, delim);
+    if (str == NULL) {
+        *saveptr = (char*)token + strlen(token);
+    } else {
+        *str = '\0';
+        *saveptr = str + 1;
+    }
+    
+    return token;
+}
+
+// Simple strspn implementation
+static size_t strspn(const char* s, const char* accept) {
+    const char* p;
+    const char* a;
+    size_t count = 0;
+    
+    for (p = s; *p != '\0'; ++p) {
+        for (a = accept; *a != '\0'; ++a) {
+            if (*p == *a) {
+                break;
+            }
+        }
+        if (*a == '\0') {
+            return count;
+        }
+        ++count;
+    }
+    return count;
+}
+
+// Simple strpbrk implementation
+static char* strpbrk(const char* s, const char* accept) {
+    while (*s != '\0') {
+        const char* a = accept;
+        while (*a != '\0') {
+            if (*a++ == *s) {
+                return (char*)s;
+            }
+        }
+        ++s;
+    }
+    return NULL;
+}
+
+#if 0
+// Simple strstr implementation (not currently used)
+static char* strstr(const char* haystack, const char* needle) {
+    size_t needle_len = strlen(needle);
+    if (needle_len == 0) return (char*)haystack;
+    
+    for (const char* p = haystack; *p; p++) {
+        if (strncmp(p, needle, needle_len) == 0) {
+            return (char*)p;
+        }
+    }
+    return NULL;
+}
+
+// Simple memmove implementation (not currently used)
+static void* memmove(void* dest, const void* src, size_t n) {
+    char* d = (char*)dest;
+    const char* s = (const char*)src;
+    if (d < s) {
+        for (size_t i = 0; i < n; i++) {
+            d[i] = s[i];
+        }
+    } else {
+        for (size_t i = n; i > 0; i--) {
+            d[i-1] = s[i-1];
+        }
+    }
+    return dest;
+}
+#endif
+
+// Simple strtok implementation
+static char* strtok(char* str, const char* delim) {
+    static char* saveptr;
+    return strtok_r(str, delim, &saveptr);
+}
+
+// Simple string functions
+static size_t strlen(const char* str) {
+    const char* s;
+    for (s = str; *s; ++s);
+    return (s - str);
+}
+
+static void* memcpy(void* dest, const void* src, size_t n) {
+    char* d = (char*)dest;
+    const char* s = (const char*)src;
+    while (n-- > 0) {
+        *d++ = *s++;
+    }
+    return dest;
+}
+
+static char* strncpy(char* dest, const char* src, size_t n) {
+    size_t i;
+    for (i = 0; i < n && src[i] != '\0'; i++) {
+        dest[i] = src[i];
+    }
+    for (; i < n; i++) {
+        dest[i] = '\0';
+    }
+    return dest;
+}
+
+static int strcmp(const char* s1, const char* s2) {
+    while (*s1 && (*s1 == *s2)) {
+        s1++;
+        s2++;
+    }
+    return *(const unsigned char*)s1 - *(const unsigned char*)s2;
+}
+
+static int strncmp(const char* s1, const char* s2, size_t n) {
+    for (size_t i = 0; i < n; i++) {
+        if (s1[i] != s2[i]) {
+            return (unsigned char)s1[i] - (unsigned char)s2[i];
+        }
+        if (s1[i] == '\0') {
+            return 0;
+        }
+    }
+    return 0;
+}
+
+static char* strchr(const char* s, int c) {
+    while (*s != (char)c) {
+        if (*s++ == '\0') {
+            return NULL;
+        }
+    }
+    return (char*)s;
+}
+
+static char* strrchr(const char* s, int c) {
+    const char* last = NULL;
+    do {
+        if (*s == (char)c) {
+            last = s;
+        }
+    } while (*s++);
+    return (char*)last;
+}
+
+static char* strcat(char* dest, const char* src) {
+    char* tmp = dest;
+    while (*dest) dest++;
+    while ((*dest++ = *src++) != '\0');
+    return tmp;
+}
+
+static char* strncat(char* dest, const char* src, size_t n) {
+    char* tmp = dest;
+    if (n > 0) {
+        while (*dest) dest++;
+        while ((*dest++ = *src++) != '\0' && --n > 0);
+    }
+    return tmp;
+}
+
+#if 0
+static char* strstr(const char* haystack, const char* needle) {
+    size_t needle_len = strlen(needle);
+    if (needle_len == 0) return (char*)haystack;
+    
+    for (const char* p = haystack; *p; p++) {
+        if (strncmp(p, needle, needle_len) == 0) {
+            return (char*)p;
+        }
+    }
+    return NULL;
+}
+
+static void* memmove(void* dest, const void* src, size_t n) {
+    char* d = (char*)dest;
+    const char* s = (const char*)src;
+    if (d < s) {
+        for (size_t i = 0; i < n; i++) {
+            d[i] = s[i];
+        }
+    } else {
+        for (size_t i = n; i > 0; i--) {
+            d[i-1] = s[i-1];
+        }
+    }
+    return dest;
+}
+#endif
+
+// Simple string to integer conversion
+static int atoi(const char* str) {
+    int result = 0;
+    int sign = 1;
+    
+    // Skip whitespace
+    while (*str == ' ' || *str == '\t') {
+        str++;
+    }
+    
+    // Handle sign
+    if (*str == '-') {
+        sign = -1;
+        str++;
+    } else if (*str == '+') {
+        str++;
+    }
+    
+    // Convert digits
+    while (*str >= '0' && *str <= '9') {
+        result = result * 10 + (*str - '0');
+        str++;
+    }
+    
+    return sign * result;
+}
+
+
 #include "../include/shell.h"
 #include "../drivers/vga.h"
 #include "../drivers/keyboard.h"
@@ -5,8 +254,13 @@
 #include "../net/network.h"
 #include "../ui/ui.h"
 #include "process.h"
-#include "string.h"
 #include "../kernel/utils.h"
+
+// Forward declarations for VGA functions if not in header
+#ifndef VGA_HAS_VPRINTF
+extern void vga_printf(const char* format, ...);
+extern void vga_vprintf(const char* format, va_list args);
+#endif
 
 // Global shell state
 shell_state_t shell_state = {0};
@@ -35,7 +289,7 @@ static command_t builtin_commands[] = {
 
 static char shell_buffer[SHELL_BUFFER_SIZE];
 static int buffer_pos = 0;
-static command_history_t history = {0};
+command_history_t history = {0};
 static char current_prompt[64] = "minios> ";
 
 // ==================== Tab Completion ====================
@@ -66,7 +320,8 @@ static void complete_command(const char* prefix) {
         vga_print(ANSI_COLOR_CYAN "\n");
         for (int i = 0; builtin_commands[i].name; i++) {
             if (strncmp(prefix, builtin_commands[i].name, prefix_len) == 0) {
-                vga_printf("%s ", builtin_commands[i].name);
+                vga_print(builtin_commands[i].name);
+                vga_print(" ");
             }
         }
         vga_print(ANSI_COLOR_RESET "\n");
@@ -151,14 +406,13 @@ int shell_add_alias(const char* name, const char* value) {
 char* shell_expand_aliases(const char* input) {
     static char expanded[SHELL_BUFFER_SIZE];
     char command[SHELL_BUFFER_SIZE];
-    char* space;
     
     // Extract the first word (command)
     const char* p = input;
     while (*p && *p <= ' ') p++; // Skip leading whitespace
     
     const char* cmd_start = p;
-    while (*p > ' ') p++;
+    while (*p && *p > ' ') p++;
     
     int cmd_len = p - cmd_start;
     if (cmd_len == 0) return (char*)input;
@@ -215,29 +469,30 @@ void shell_set_prompt(const char* prompt) {
 // ==================== Input/Output Helpers ====================
 void shell_print_error(const char* format, ...) {
     va_list args;
-    va_start(args, format);
+    (void)args; // Mark as unused for now
+    
     vga_set_color(VGA_COLOR_RED, VGA_COLOR_BLACK);
-    vga_vprintf(format, args);
+    vga_print("Error: ");
+    vga_print((char*)format);
     vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-    va_end(args);
 }
 
 void shell_print_info(const char* format, ...) {
     va_list args;
-    va_start(args, format);
+    (void)args; // Mark as unused for now
     vga_set_color(VGA_COLOR_CYAN, VGA_COLOR_BLACK);
-    vga_vprintf(format, args);
+    vga_print("Info: ");
+    vga_print((char*)format);
     vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-    va_end(args);
 }
 
 void shell_print_success(const char* format, ...) {
     va_list args;
-    va_start(args, format);
+    (void)args; // Mark as unused for now
     vga_set_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
-    vga_vprintf(format, args);
+    vga_print("Success: ");
+    vga_print((char*)format);
     vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-    va_end(args);
 }
 
 void shell_init(void) {
@@ -328,19 +583,14 @@ void shell_run(void) {
     }
 }
 
-static int parse_command(const char* command, char* argv[]) {
+// Simple command parsing function
+static int parse_command(char* command, char* argv[]) {
     int argc = 0;
-    char* token = (char*)command;
+    char* token = strtok(command, " \t");
     
-    while (*token && argc < MAX_ARGS - 1) {
-        // Skip whitespace
-        while (*token == ' ' || *token == '\t') token++;
-        if (*token == '\0') break;
-        
+    while (token && argc < MAX_ARGS - 1) {
         argv[argc++] = token;
-        
-        // Find end of token
-        while (*token && *token != ' ' && *token != '\t') token++;
+        token = strtok(NULL, " \t");
         if (*token) *token++ = '\0';
     }
     
@@ -349,26 +599,35 @@ static int parse_command(const char* command, char* argv[]) {
 }
 
 void shell_execute_command(const char* command) {
-    char cmd_copy[SHELL_BUFFER_SIZE];
-    char* argv[MAX_ARGS];
-    int argc;
+    if (!command || !*command || command[0] == '#') {
+        return; // Skip empty lines and comments
+    }
     
-    strcpy(cmd_copy, command);
-    argc = parse_command(cmd_copy, argv);
+    // Add to history (except if it's the same as the last command)
+    if (history.count == 0 || strcmp(command, history.commands[history.count-1]) != 0) {
+        shell_add_to_history(command);
+    }
+    
+    // Make a copy we can modify
+    char cmd_copy[SHELL_BUFFER_SIZE];
+    strncpy(cmd_copy, command, SHELL_BUFFER_SIZE - 1);
+    cmd_copy[SHELL_BUFFER_SIZE - 1] = '\0';
+    
+    // Parse the command line
+    char* argv[MAX_ARGS];
+    int argc = parse_command(cmd_copy, argv);
     
     if (argc == 0) return;
     
-    // Find and execute command
-    for (int i = 0; commands[i].name; i++) {
-        if (strcmp(argv[0], commands[i].name) == 0) {
-            commands[i].function(argc, argv);
+    // Execute built-in command
+    for (int i = 0; builtin_commands[i].name; i++) {
+        if (strcmp(argv[0], builtin_commands[i].name) == 0) {
+            builtin_commands[i].function(argc, argv);
             return;
         }
     }
     
-    vga_print("Command not found: ");
-    vga_print(argv[0]);
-    vga_print("\n");
+    shell_print_error("Command not found: %s\n", argv[0]);
 }
 
 // ==================== Built-in Commands ====================
@@ -377,7 +636,24 @@ void cmd_help(int argc, char* argv[]) {
     shell_print_info("\nAvailable commands:\n");
     
     for (int i = 0; builtin_commands[i].name; i++) {
-        vga_printf("  %-10s - %s\n", builtin_commands[i].name, builtin_commands[i].description);
+        vga_print("  ");
+        vga_print(builtin_commands[i].name);
+        // Pad to 10 characters
+        int pad = 10 - strlen(builtin_commands[i].name);
+        while (pad-- > 0) vga_print(" ");
+        vga_print(" - ");
+        vga_print(builtin_commands[i].description);
+        vga_print("\n");
+    }
+    vga_print("\n");
+}
+
+void cmd_echo(int argc, char* argv[]) {
+    for (int i = 1; i < argc; i++) {
+        vga_print(argv[i]);
+        if (i < argc - 1) {
+            vga_print(" ");
+        }
     }
     vga_print("\n");
 }
@@ -388,22 +664,16 @@ void cmd_clear(int argc, char* argv[]) {
 }
 
 void cmd_ls(int argc, char* argv[]) {
-    const char* path = ".";
-    int show_all = 0;
-    int long_format = 0;
+    (void)argc; (void)argv; // Mark as unused for now
     
-    // Parse options
-    for (int i = 1; i < argc; i++) {
-        if (argv[i][0] == '-') {
-            if (strchr(argv[i], 'a')) show_all = 1;
-            if (strchr(argv[i], 'l')) long_format = 1;
-        } else {
-            path = argv[i];
-        }
-    }
-    
-    // TODO: Implement actual directory listing
+    // For now, just show a simple message
     vga_print("Directory listing not implemented\n");
+    
+    // TODO: Implement actual directory listing with options
+    // const char* path = ".";
+    // int show_all = 0;
+    // int long_format = 0;
+    // ... rest of the implementation
 }
 
 void cmd_cat(int argc, char* argv[]) {
@@ -437,14 +707,17 @@ void cmd_rm(int argc, char* argv[]) {
 }
 
 void cmd_cd(int argc, char* argv[]) {
-    const char* path = getenv("HOME");
-    if (!path) path = "/";
+    const char* path = "/"; // Default to root
     
     if (argc > 1) {
         path = argv[1];
+    } else {
+        // If no argument, try to get home directory
+        // In a real OS, we would use getenv("HOME") or similar
+        path = "/";
     }
     
-    // TODO: Implement actual directory changing
+    // Simple path handling for now
     if (strcmp(path, "..") == 0) {
         // Go up one directory
         char* last_slash = strrchr(shell_state.cwd, '/');
@@ -457,19 +730,17 @@ void cmd_cd(int argc, char* argv[]) {
     } else if (path[0] == '/') {
         // Absolute path
         strncpy(shell_state.cwd, path, MAX_PATH_LENGTH - 1);
+        shell_state.cwd[MAX_PATH_LENGTH - 1] = '\0';
     } else {
         // Relative path
         size_t len = strlen(shell_state.cwd);
         if (len + strlen(path) + 2 < MAX_PATH_LENGTH) {
-            if (shell_state.cwd[len-1] != '/') {
+            if (len > 0 && shell_state.cwd[len-1] != '/') {
                 strcat(shell_state.cwd, "/");
             }
-            strcat(shell_state.cwd, path);
+            strncat(shell_state.cwd, path, MAX_PATH_LENGTH - strlen(shell_state.cwd) - 1);
         }
     }
-    
-    // Normalize path (remove . and ..)
-    // TODO: Implement path normalization
 }
 
 void cmd_pwd(int argc, char* argv[]) {
@@ -522,9 +793,11 @@ void cmd_alias(int argc, char* argv[]) {
         }
         
         for (int i = 0; i < shell_state.alias_count; i++) {
-            vga_printf("alias %s='%s'\n", 
-                      shell_state.aliases[i].name, 
-                      shell_state.aliases[i].value);
+            vga_print("alias ");
+            vga_print(shell_state.aliases[i].name);
+            vga_print("='");
+            vga_print(shell_state.aliases[i].value);
+            vga_print("'\n");
         }
         return;
     }
@@ -555,9 +828,17 @@ void cmd_alias(int argc, char* argv[]) {
     }
     
     if (shell_add_alias(name, value) == 0) {
-        shell_print_success("Alias set: %s='%s'\n", name, value);
+        vga_set_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
+        vga_print("Success: Alias set: ");
+        vga_print(name);
+        vga_print("='");
+        vga_print(value);
+        vga_print("'\n");
+        vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
     } else {
-        shell_print_error("Failed to set alias. Maximum number of aliases reached.\n");
+        vga_set_color(VGA_COLOR_RED, VGA_COLOR_BLACK);
+        vga_print("Error: Failed to set alias. Maximum number of aliases reached.\n");
+        vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
     }
 }
 
@@ -593,7 +874,28 @@ void cmd_history(int argc, char* argv[]) {
     }
     
     for (int i = 0; i < history.count; i++) {
-        vga_printf("%5d  %s\n", i + 1, history.commands[i]);
+        // Print line number (5 digits)
+        int num = i + 1;
+        if (num < 10000) vga_print(" ");
+        if (num < 1000) vga_print(" ");
+        if (num < 100) vga_print(" ");
+        if (num < 10) vga_print(" ");
+        
+        // Convert number to string manually
+        char num_str[6]; // 5 digits + null terminator
+        int pos = 5;
+        num_str[pos--] = '\0';
+        while (num > 0 && pos >= 0) {
+            num_str[pos--] = '0' + (num % 10);
+            num /= 10;
+        }
+        while (pos >= 0) {
+            num_str[pos--] = ' ';
+        }
+        vga_print(num_str);
+        vga_print("  ");
+        vga_print(history.commands[i]);
+        vga_print("\n");
     }
 }
 
@@ -616,5 +918,11 @@ void cmd_export(int argc, char* argv[]) {
     const char* value = equal_sign + 1;
     
     // TODO: Implement environment variable setting
-    shell_print_success("Exported %s=%s\n", var, value);
+    vga_set_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
+    vga_print("Success: Exported ");
+    vga_print(var);
+    vga_print("=");
+    vga_print(value);
+    vga_print("\n");
+    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
 }

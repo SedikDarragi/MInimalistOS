@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdarg.h>
 
 #define SHELL_BUFFER_SIZE 256
 #define MAX_ARGS 32
@@ -93,5 +94,8 @@ void shell_print_success(const char* format, ...);
 
 // Global shell state
 extern shell_state_t shell_state;
+
+// Command history
+extern command_history_t history;
 
 #endif // SHELL_H

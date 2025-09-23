@@ -5,19 +5,38 @@ LD = ld
 # Cross-compiler for 32-bit
 ifneq (,$(findstring i686-elf-,$(shell which i686-elf-gcc 2>/dev/null)))
     CC = i686-elf-gcc
+    AS = i686-elf-as
     LD = i686-elf-ld
+    CFLAGS += -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs \
+              -Wall -Wextra -Werror $(INCLUDES) -g -D__is_kernel -I.\
+              -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
 else
-    CFLAGS += -m32
-    LDFLAGS += -m elf_i386
+    # Try to use system gcc with 32-bit support
+    CC = gcc
+    AS = nasm
+    LD = ld
+    CFLAGS += -m32 -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs \
+              -Wall -Wextra -Werror $(INCLUDES) -g -D__is_kernel -I.\
+              -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx \
+              -I./include -I./kernel
+    LDFLAGS += -m elf_i386 -T link.ld -nostdlib
+    
+    # Check if 32-bit libraries are installed
+    ifeq (,$(wildcard /usr/include/i386-linux-gnu/gnu/stubs-32.h))
+        $(warning 32-bit development libraries not found. Please install them with:)
+        $(warning sudo apt-get install gcc-multilib)
+    endif
 endif
 
 # Base compiler flags
-INCLUDES = -I./include -I./kernel
-CFLAGS += -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs \
-          -Wall -Wextra -Werror $(INCLUDES) -g
+INCLUDES = -I./include -I./kernel -I.
 
-# Linker flags
-LDFLAGS += -T link.ld -nostdlib
+# Linker flags (only set once)
+LDFLAGS = -m elf_i386 -T link.ld -nostdlib
+
+# Compiler flags
+CFLAGS += -nostdinc -fno-builtin -fno-common -fno-strict-aliasing -fomit-frame-pointer \
+          -I./include -I./kernel -I.
 
 # Assembler flags
 ASFLAGS = -f elf32
