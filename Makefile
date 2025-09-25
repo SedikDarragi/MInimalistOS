@@ -84,7 +84,7 @@ run-vnc: os.bin
 	@echo "Make sure no other QEMU instances are running..."
 	-@pkill -f "qemu-system-i386.*os\.bin" 2>/dev/null || true
 	@echo "Starting QEMU with VNC (connect with vncviewer localhost:1) and serial output..."
-	qemu-system-i386 -fda os.bin -snapshot -vnc :1 -k en-us -serial stdio
+	qemu-system-i386 -fda os.bin -snapshot -vnc :1 -k en-us -serial stdio -no-kvm -d int,cpu_reset -D qemu.log
 
 run-debug: os.bin
 	qemu-system-i386 -fda os.bin -snapshot -nographic -serial stdio
