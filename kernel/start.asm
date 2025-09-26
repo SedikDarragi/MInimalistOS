@@ -23,31 +23,14 @@ _start:
     ; Clear direction flag
     cld
     
-    ; Write debug message directly to VGA
-    mov edi, 0xb8000
-    mov al, 'K'
-    mov ah, 0x0F
-    mov [edi], ax
-    mov al, 'E'
-    mov [edi+2], ax
-    mov al, 'R'
-    mov [edi+4], ax
-    mov al, 'N'
-    mov [edi+6], ax
-    mov al, 'E'
-    mov [edi+8], ax
-    mov al, 'L'
-    mov [edi+10], ax
+    ; Call the C kernel main function
+    call kmain
     
-    ; Write "ASM OK" message to test if assembly works
-    mov al, ' '
-    mov [edi+12], ax
-    mov al, 'A'
-    mov [edi+14], ax
-    mov al, 'S'
-    mov [edi+16], ax
-    mov al, 'M'
-    mov [edi+18], ax
+    ; If kmain returns (it shouldn't), halt the system
+    cli
+.halt:
+    hlt
+    jmp .halt
     mov al, ' '
     mov [edi+20], ax
     mov al, 'O'

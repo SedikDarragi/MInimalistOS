@@ -11,22 +11,23 @@ ifneq (,$(findstring i686-elf-,$(shell which i686-elf-gcc 2>/dev/null)))
               -Wall -Wextra -Werror $(INCLUDES) -g -D__is_kernel -I.\
               -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
 else
-    # Try to use system gcc with 32-bit support
+    # Try to use system gcc with 32-bit
     CC = gcc
     AS = nasm
     LD = ld
     CFLAGS += -m32 -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs \
               -Wall -Wextra -Werror $(INCLUDES) -g -D__is_kernel -I.\
               -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx \
-              -I./include -I./kernel
-    LDFLAGS += -m elf_i386 -T link.ld -nostdlib
+              -I./include -I./kernel \
+              -O0 -fno-omit-frame-pointer -fno-pie -fno-pic \
+              -fno-common -fno-strict-aliasing -fomit-frame-pointer
+
+    LDFLAGS += -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
     
     # Check if 32-bit libraries are installed (check for Arch Linux first, then Debian/Ubuntu)
     ifeq (,$(wildcard /usr/lib32/libc.so))
-        ifeq (,$(wildcard /usr/include/i386-linux-gnu/gnu/stubs-32.h))
-            $(warning 32-bit development libraries not found. Please install them with:)
-            $(warning For Arch Linux: sudo pacman -S lib32-gcc-libs lib32-glibc)
-            $(warning For Debian/Ubuntu: sudo apt-get install gcc-multilib)
+        ifeq (,$(wildcard /usr/lib/i386-linux-gnu/libc.so))
+            $(error 32-bit libraries not found! On Arch Linux: sudo pacman -S lib32-gcc-libs lib32-glibc. On Debian/Ubuntu: sudo apt install gcc-multilib)
         endif
     endif
 endif
