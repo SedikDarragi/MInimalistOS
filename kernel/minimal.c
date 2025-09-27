@@ -24,38 +24,42 @@ void vga_puts(const char* str) {
             cursor_y++;
         }
         
-        if (y >= 25) {
-            // Simple scroll
-            for (int j = 0; j < 24 * 80; j++) {
-                vga_memory[j] = vga_memory[j + 80];
+        // Simple screen scrolling
+        if (cursor_y >= 25) {
+            // Move all lines up
+            for (int y = 0; y < 24; y++) {
+                for (int x = 0; x < 80; x++) {
+                    vga_buffer[y * 80 + x] = vga_buffer[(y + 1) * 80 + x];
+                }
             }
             // Clear the last line
-            for (int j = 24 * 80; j < 25 * 80; j++) {
-                vga_memory[j] = 0x1F00;
+            for (int x = 0; x < 80; x++) {
+                vga_buffer[24 * 80 + x] = (0x0F << 8) | ' ';
             }
-            y = 24;
+            cursor_y = 24;
         }
     }
 }
 
-void __attribute__((noreturn)) kmain(void) {
-    // Clear screen with blue background
-    volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
+// Clear the screen
+void vga_clear(void) {
     for (int i = 0; i < 80 * 25; i++) {
-        vga[i] = 0x1F00;  // Blue background, black space
+        vga_buffer[i] = (0x0F << 8) | ' ';
     }
+}
+
+// Kernel entry point
+void _start(void) {
+    // Clear the screen
+    vga_clear();
     
-    // Display a simple message
-    vga_write("\n\n  MinimalOS v1.0 - Kernel is running!\n");
-    vga_write("  ================================\n\n");
-    vga_write("  Kernel initialized successfully!\n\n");
-    vga_write("  System Halted.\n");
+    // Print welcome message
+    vga_puts("MinimalOS Kernel Loaded!\n");
+    vga_puts("Successfully booted into protected mode.\n");
+    vga_puts("System is running...\n");
     
     // Halt the CPU
     while (1) {
         asm volatile ("hlt");
     }
-    
-    // This should never be reached due to the infinite loop above
-    __builtin_unreachable();
 }

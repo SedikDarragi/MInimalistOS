@@ -45,23 +45,25 @@ CFLAGS += -nostdinc -fno-builtin -fno-common -fno-strict-aliasing -fomit-frame-p
 # Assembler flags
 ASFLAGS = -f elf32
 
-SOURCES_C = $(wildcard kernel/*.c) $(wildcard drivers/*.c) $(wildcard fs/*.c) $(wildcard net/*.c) $(wildcard ui/*.c) kernel/process.c kernel/utils.c
-SOURCES_ASM = $(wildcard kernel/*.asm)
-OBJECTS_C = $(SOURCES_C:.c=.o)
-OBJECTS_ASM = $(SOURCES_ASM:.asm=.o)
+# Source files
+KERNEL_SRCS = kernel/minimal.c
+KERNEL_ASM_SRCS = kernel/entry.asm
 
-KERNEL_OBJS = kernel/start.o kernel/kernel.o kernel/process.o kernel/shell.o kernel/utils.o \
-              drivers/keyboard.o drivers/timer.o drivers/vga.o \
-              fs/filesystem.o net/network.o ui/ui.o
+# Object files
+KERNEL_OBJS = $(KERNEL_SRCS:.c=.o) $(KERNEL_ASM_SRCS:.asm=.o)
 
-all: os.bin
+all: os.img
 
-os.bin: boot/boot.bin kernel.bin
-	cat boot/boot.bin kernel.bin > os.bin
+os.img: boot/boot.bin kernel.bin
+	dd if=/dev/zero of=os.img bs=512 count=2880
+	dd if=boot/boot.bin of=os.img conv=notrunc
+	dd if=kernel.bin of=os.img bs=512 seek=1 conv=notrunc
 
-kernel.bin: $(KERNEL_OBJS)
-	$(LD) $(LDFLAGS) $(KERNEL_OBJS) -o kernel.elf
-	objcopy -O binary kernel.elf kernel.bin
+kernel.bin: kernel.elf
+	objcopy -O binary $< $@
+
+kernel.elf: $(KERNEL_OBJS)
+	$(LD) $(LDFLAGS) -o $@ $^
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -73,24 +75,24 @@ boot/boot.bin: boot/boot.asm
 	$(AS) -f bin $< -o $@
 
 clean:
-	rm -f $(OBJECTS_C) $(OBJECTS_ASM) kernel/start.o kernel.elf kernel.bin os.bin boot/boot.bin
+	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/boot.bin
 
-run: os.bin
+run: os.img
 	@echo "Make sure no other QEMU instances are running..."
-	-@pkill -f "qemu-system-i386.*os\.bin" 2>/dev/null || true
+	-@pkill -f "qemu-system-i386.*os\.img" 2>/dev/null || true
 	@echo "Starting QEMU..."
-	qemu-system-i386 -fda os.bin -snapshot -nographic -monitor none -serial stdio
+	qemu-system-i386 -fda os.img -snapshot -nographic -monitor none -serial stdio
 
-run-vnc: os.bin
+run-vnc: os.img
 	@echo "Make sure no other QEMU instances are running..."
-	-@pkill -f "qemu-system-i386.*os\.bin" 2>/dev/null || true
+	-@pkill -f "qemu-system-i386.*os\.img" 2>/dev/null || true
 	@echo "Starting QEMU with VNC (connect with vncviewer localhost:1) and serial output..."
-	qemu-system-i386 -fda os.bin -snapshot -vnc :1 -k en-us -serial stdio -no-kvm -d int,cpu_reset -D qemu.log
+	qemu-system-i386 -fda os.img -snapshot -vnc :1 -k en-us -serial stdio -no-kvm -d int,cpu_reset -D qemu.log
 
-run-debug: os.bin
-	qemu-system-i386 -fda os.bin -snapshot -nographic -serial stdio
+run-debug: os.img
+	qemu-system-i386 -fda os.img -snapshot -nographic -serial stdio -d int -D qemu_debug.log
 
-run-monitor: os.bin
-	qemu-system-i386 -fda os.bin -snapshot -monitor stdio
+run-monitor: os.img
+	qemu-system-i386 -fda os.img -snapshot -monitor stdio
 
-.PHONY: all clean run
+.PHONY: all clean run run-vnc run-debug run-monitor

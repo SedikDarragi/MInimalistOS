@@ -2,31 +2,28 @@ ENTRY(_start)
 
 SECTIONS
 {
-    /* Load the kernel at 1MB mark (0x100000) */
-    . = 0x100000;
+    /* Load the kernel at 0x10000 (64KB) */
+    . = 0x10000;
     
     /* Kernel code section */
-    .text ALIGN(4K) : AT(ADDR(.text) - 0x100000) {
-        *(.multiboot)
+    .text : AT(0x10000) {
         *(.text)
-    }
-    
-    /* Read-only data */
-    .rodata ALIGN(4K) : AT(ADDR(.rodata) - 0x100000) {
-        *(.rodata)
+        *(.rodata*)
     }
     
     /* Read-write data (initialized) */
-    .data ALIGN(4K) : AT(ADDR(.data) - 0x100000) {
+    .data : {
         *(.data)
     }
     
     /* Read-write data (uninitialized) and stack */
-    .bss ALIGN(4K) : AT(ADDR(.bss) - 0x100000) {
+    .bss : {
         *(COMMON)
         *(.bss)
-        *(.stack)
     }
+    
+    /* End of kernel */
+    _end = .;
     
     /* Remove unnecessary sections */
     /DISCARD/ : {

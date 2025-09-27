@@ -23,22 +23,18 @@ start:
     mov si, loading_kernel_msg
     call print_string
     
-    ; Enable A20 line before loading kernel to 1MB
-    call enable_a20
-    
-    ; Load kernel to 1MB (0x100000)
-    ; We'll use ES:EDI for the target address
+    ; Load kernel to 0x10000 (64KB)
     mov ax, 0x1000
     mov es, ax
     xor bx, bx      ; ES:BX = 0x1000:0x0000 (0x10000 physical)
     
     ; Set up disk read parameters
     mov ah, 0x02    ; Read sectors function
-    mov al, 64      ; Number of sectors to read (32KB)
+    mov al, 32      ; Number of sectors to read (16KB)
     mov ch, 0       ; Cylinder 0
     mov cl, 2       ; Sector 2 (1-based)
     mov dh, 0       ; Head 0
-    mov dl, 0x80    ; Drive 0x80 (first hard disk)
+    mov dl, 0x00    ; Drive 0x00 (first floppy)
     
     ; Try reading from hard disk first
     int 0x13
@@ -56,6 +52,8 @@ start:
     
     ; Switch to protected mode
     cli
+    
+    ; Load GDT
     lgdt [gdt_descriptor]
     
     ; Enable A20 line
@@ -66,7 +64,7 @@ start:
     or eax, 1
     mov cr0, eax
     
-    ; Far jump to clear pipeline and set CS
+    ; Far jump to 32-bit code segment
     jmp 0x08:protected_mode
 
 ; Function to enable A20 line
@@ -131,17 +129,42 @@ print_string:
 
 BITS 32
 protected_mode:
-    ; Set up protected mode segments
-    mov ax, 0x10
+    ; Set up segment registers
+    mov ax, 0x10    ; Data segment selector
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
+    
+    ; Set up stack
     mov esp, 0x90000
     
-    ; Jump directly to kernel at 0x8000
-    jmp 0x8000
+    ; Print message
+    mov esi, pmode_msg
+    call print_string_pm
+    
+    ; Jump to kernel
+    jmp 0x1000:0x0000  ; Jump to 0x10000 physical
+
+; Print string in protected mode
+; Input: ESI = pointer to string
+print_string_pm:
+    pusha
+    mov edi, 0xB8000  ; VGA text buffer
+    mov ah, 0x0F      ; White on black
+.loop:
+    lodsb
+    test al, al
+    jz .done
+    stosw
+    jmp .loop
+.done:
+    popa
+    ret
+
+; Protected mode data
+pmode_msg db 'Entered protected mode!',0
 
 ; GDT
 gdt_start:
