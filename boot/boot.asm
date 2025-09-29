@@ -1,202 +1,135 @@
 BITS 16
 ORG 0x7C00
 
-start:
-    ; Set up segments
+_start:
+    ; Minimal setup - no stack, no segments, no interrupts
     cli
+    cld
     xor ax, ax
     mov ds, ax
     mov es, ax
     mov ss, ax
     mov sp, 0x7C00
-    sti
     
-    ; Set video mode to 80x25 text mode
-    mov ax, 0x0003  ; 80x25 text mode
+    ; Save boot drive
+    mov [boot_drive], dl
+    
+    ; Set text mode
+    mov ax, 0x0003
     int 0x10
     
-    ; Print boot message
-    mov si, boot_msg
-    call print_string
-    
-    ; Print loading kernel message
-    mov si, loading_kernel_msg
+    ; Print loading message
+    mov si, loading_msg
     call print_string
     
     ; Load kernel to 0x10000 (64KB)
     mov ax, 0x1000
     mov es, ax
-    xor bx, bx      ; ES:BX = 0x1000:0x0000 (0x10000 physical)
+    xor bx, bx
     
-    ; Set up disk read parameters
-    mov ah, 0x02    ; Read sectors function
-    mov al, 32      ; Number of sectors to read (16KB)
-    mov ch, 0       ; Cylinder 0
-    mov cl, 2       ; Sector 2 (1-based)
-    mov dh, 0       ; Head 0
-    mov dl, 0x00    ; Drive 0x00 (first floppy)
-    
-    ; Try reading from hard disk first
+    ; Reset disk system
+    mov ah, 0x00
+    mov dl, [boot_drive]
     int 0x13
-    jnc .read_success
     
-    ; If hard disk read failed, try floppy
-    mov dl, 0x00    ; Drive 0x00 (first floppy)
+    ; Read kernel from disk
+    mov ah, 0x02    ; Read sectors
+    mov al, 8       ; Sectors to read (4KB)
+    mov ch, 0       ; Cylinder
+    mov cl, 2       ; Sector (1-based)
+    mov dh, 0       ; Head
+    mov dl, [boot_drive]
+    
     int 0x13
-    jc disk_error   ; If both fail, show error
+    jc disk_error
     
-.read_success:
-    ; Print success message
-    mov si, kernel_loaded_msg
+    ; Print dot for success
+    mov si, dot_msg
     call print_string
     
-    ; Switch to protected mode
-    cli
-    
-    ; Load GDT
-    lgdt [gdt_descriptor]
-    
-    ; Enable A20 line
+    ; Enable A20
     call enable_a20
     
-    ; Set protected mode bit
+    ; Set up GDT and enter protected mode
+    cli
+    lgdt [gdt_descriptor]
+    
+    ; Set PE bit in CR0
     mov eax, cr0
-    or eax, 1
+    or eax, 0x1
     mov cr0, eax
     
-    ; Far jump to 32-bit code segment
-    jmp 0x08:protected_mode
+    ; Far jump to 32-bit code
+    jmp CODE_SEG:protected_mode
 
-; Function to enable A20 line
+; Function to enable A20 line (minimal method)
 enable_a20:
-    ; Try BIOS method first
-    mov ax, 0x2401
-    int 0x15
+    in al, 0x92
+    or al, 2
+    out 0x92, al
     ret
-    
-    ; If BIOS method fails, try keyboard controller method
-    cli
-    call .wait_kbd
-    mov al, 0xAD    ; Disable keyboard
-    out 0x64, al
-    call .wait_kbd
-    mov al, 0xD0    ; Read output port
-    out 0x64, al
-    call .wait_kbd2
-    in al, 0x60     ; Read output port value
-    push eax
-    call .wait_kbd
-    mov al, 0xD1    ; Write output port
-    out 0x64, al
-    call .wait_kbd
-    pop eax
-    or al, 2        ; Set A20 bit
-    out 0x60, al    ; Write back to output port
-    call .wait_kbd
-    mov al, 0xAE    ; Enable keyboard
-    out 0x64, al
-    call .wait_kbd
-    sti
-    ret
-    
-.wait_kbd:
-    in al, 0x64
-    test al, 2
-    jnz .wait_kbd
-    ret
-    
-.wait_kbd2:
-    in al, 0x64
-    test al, 1
-    jz .wait_kbd2
-    ret
-
-disk_error:
-    mov si, disk_error_msg
-    call print_string
-    hlt
 
 print_string:
-    mov ah, 0x0E
-.loop:
     lodsb
-    cmp al, 0
-    je .done
+    or al, al
+    jz .done
+    mov ah, 0x0E
     int 0x10
-    jmp .loop
+    jmp print_string
 .done:
     ret
 
-BITS 32
-protected_mode:
-    ; Set up segment registers
-    mov ax, 0x10    ; Data segment selector
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    
-    ; Set up stack
-    mov esp, 0x90000
-    
-    ; Print message
-    mov esi, pmode_msg
-    call print_string_pm
-    
-    ; Jump to kernel
-    jmp 0x1000:0x0000  ; Jump to 0x10000 physical
+; Print error and halt
+disk_error:
+    mov si, error_msg
+    call print_string
+    cli
+    hlt
 
-; Print string in protected mode
-; Input: ESI = pointer to string
-print_string_pm:
-    pusha
-    mov edi, 0xB8000  ; VGA text buffer
-    mov ah, 0x0F      ; White on black
-.loop:
-    lodsb
-    test al, al
-    jz .done
-    stosw
-    jmp .loop
-.done:
-    popa
+; Print character (destroys AX, BX)
+print_char:
+    mov ah, 0x0E
+    int 0x10
     ret
 
 ; Protected mode data
-pmode_msg db 'Entered protected mode!',0
+pmode_msg db 0x0A, 0x0D, 'Protected mode!', 0x0A, 0x0D, 0
 
 ; GDT
 gdt_start:
-    ; Null descriptor
-    dd 0x0
-    dd 0x0
-    
+    dq 0x0
     ; Code segment
     dw 0xFFFF       ; Limit low
     dw 0x0000       ; Base low
     db 0x00         ; Base middle
-    db 10011010b    ; Access byte
-    db 11001111b    ; Granularity
+    db 0x9A         ; Access byte
+    db 0xCF         ; Granularity
     db 0x00         ; Base high
-    
     ; Data segment
     dw 0xFFFF       ; Limit low
     dw 0x0000       ; Base low
     db 0x00         ; Base middle
-    db 10010010b    ; Access byte
-    db 11001111b    ; Granularity
+    db 0x92         ; Access byte
+    db 0xCF         ; Granularity
     db 0x00         ; Base high
+
 gdt_end:
 
 gdt_descriptor:
     dw gdt_end - gdt_start - 1
     dd gdt_start
+    
+    ; Segment selectors
+    CODE_SEG equ 0x08
+    DATA_SEG equ 0x10
 
-boot_msg db 'MinimalOS Bootloader v1.0', 0x0D, 0x0A, 0
-loading_kernel_msg db 'Loading kernel from disk... ', 0x0D, 0x0A, 0
-kernel_loaded_msg db 'Kernel loaded successfully!', 0x0D, 0x0A, 'Switching to protected mode...', 0x0D, 0x0A, 0
-disk_error_msg db 'Disk read error!', 0x0D, 0x0A, 0
+loading_msg db 'Loading...', 0
+dot_msg db '.', 0
+error_msg db 0x0D, 0x0A, 'Boot error!', 0
+boot_drive db 0
+
+times 510-($-$$) db 0
+dw 0xAA55
 
 times 510-($-$$) db 0
 dw 0xAA55

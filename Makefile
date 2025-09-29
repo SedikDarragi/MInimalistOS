@@ -36,11 +36,13 @@ endif
 INCLUDES = -I./include -I./kernel -I.
 
 # Linker flags (only set once)
-LDFLAGS = -m elf_i386 -T link.ld -nostdlib
+LDFLAGS = -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
 
 # Compiler flags
-CFLAGS += -nostdinc -fno-builtin -fno-common -fno-strict-aliasing -fomit-frame-pointer \
-          -I./include -I./kernel -I.
+CFLAGS += -m32 -ffreestanding -fno-builtin -fno-stack-protector \
+          -Wall -Wextra -Werror -nostdlib -nostartfiles -nodefaultlibs \
+          -fno-pie -fno-pic -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx \
+          -I./include -I./kernel -I. -g
 
 # Assembler flags
 ASFLAGS = -f elf32
@@ -54,16 +56,21 @@ KERNEL_OBJS = $(KERNEL_SRCS:.c=.o) $(KERNEL_ASM_SRCS:.asm=.o)
 
 all: os.img
 
-os.img: boot/boot.bin kernel.bin
+os.img: boot/minimal_boot.bin kernel.bin
 	dd if=/dev/zero of=os.img bs=512 count=2880
-	dd if=boot/boot.bin of=os.img conv=notrunc
+	dd if=boot/minimal_boot.bin of=os.img conv=notrunc
 	dd if=kernel.bin of=os.img bs=512 seek=1 conv=notrunc
+
+boot/minimal_boot.bin: boot/minimal_boot.asm
+	nasm -f bin $< -o $@
 
 kernel.bin: kernel.elf
 	objcopy -O binary $< $@
+	# Ensure the binary is properly aligned
+	truncate -s 4K $@
 
-kernel.elf: $(KERNEL_OBJS)
-	$(LD) $(LDFLAGS) -o $@ $^
+kernel.elf: $(KERNEL_OBJS) link.ld
+	$(LD) $(LDFLAGS) -o $@ $(KERNEL_OBJS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -75,7 +82,7 @@ boot/boot.bin: boot/boot.asm
 	$(AS) -f bin $< -o $@
 
 clean:
-	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/boot.bin
+	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/boot.bin boot/minimal_boot.bin
 
 run: os.img
 	@echo "Make sure no other QEMU instances are running..."
