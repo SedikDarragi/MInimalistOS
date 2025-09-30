@@ -57,9 +57,19 @@ KERNEL_OBJS = $(KERNEL_SRCS:.c=.o) $(KERNEL_ASM_SRCS:.asm=.o)
 all: os.img
 
 os.img: boot/minimal_boot.bin kernel.bin
-	dd if=/dev/zero of=os.img bs=512 count=2880
-	dd if=boot/minimal_boot.bin of=os.img conv=notrunc
-	dd if=kernel.bin of=os.img bs=512 seek=1 conv=notrunc
+	echo "Creating disk image..."
+	dd if=/dev/zero of=os.img bs=512 count=2880 status=none
+	echo "Writing bootloader..."
+	dd if=boot/minimal_boot.bin of=os.img conv=notrunc status=none
+	echo "Writing kernel..."
+	dd if=kernel.bin of=os.img bs=512 seek=1 conv=notrunc status=none
+	echo "Verifying boot signature..."
+	@if ! dd if=os.img bs=1 skip=510 count=2 2>/dev/null | hexdump -v -e '1/1 "%02x"' | grep -q '55aa'; then \
+		echo "ERROR: Boot signature missing or incorrect!" 1>&2; \
+		hexdump -C -s 510 -n 2 os.img 1>&2; \
+		exit 1; \
+	fi
+	echo "Disk image created successfully"
 
 boot/minimal_boot.bin: boot/minimal_boot.asm
 	nasm -f bin $< -o $@
@@ -88,7 +98,7 @@ run: os.img
 	@echo "Make sure no other QEMU instances are running..."
 	-@pkill -f "qemu-system-i386.*os\.img" 2>/dev/null || true
 	@echo "Starting QEMU..."
-	qemu-system-i386 -fda os.img -snapshot -nographic -monitor none -serial stdio
+	qemu-system-i386 -fda os.img -snapshot -nographic -monitor none -serial stdio -d int -no-reboot
 
 run-vnc: os.img
 	@echo "Make sure no other QEMU instances are running..."

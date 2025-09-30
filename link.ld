@@ -1,5 +1,5 @@
 /* Entry point of the kernel */
-ENTRY(_start_asm)
+ENTRY(_start)
 
 /* Define the program headers to ensure the bootloader loads us where we want */
 PHDRS
