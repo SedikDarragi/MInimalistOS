@@ -128,6 +128,37 @@ print_string:
     popa
     ret
 
+; Print newline
+print_nl:
+    pusha
+    mov si, crlf
+    call print_string
+    popa
+    ret
+
+; Print 32-bit value in EAX (in hex)
+print_hex:
+    pusha
+    mov ecx, 8        ; 8 hex digits
+    mov edi, hex_buf + 1
+
+.digit_loop:
+    mov edx, eax
+    and edx, 0x0F
+    cmp dl, 9
+    jbe .is_digit
+    add dl, 7         ; 'A' - '0' - 10
+.is_digit:
+    add dl, '0'
+    mov [edi + ecx - 1], dl
+    shr eax, 4
+    loop .digit_loop
+
+    mov si, hex_buf
+    call print_string
+    popa
+    ret
+
 ; Error handler
 disk_error:
     mov si, error_msg
@@ -245,7 +276,8 @@ boot_msg        db 'Booting...', 0x0D, 0x0A, 0
 read_ok_msg     db 'Kernel loaded', 0x0D, 0x0A, 0
 error_msg       db 'Error: 0x', 0
 crlf            db 0x0D, 0x0A, 0
-pm_msg          db 'Entered protected mode!', 0
+pm_msg          db 'PM', 0x0D, 0x0A, 0
+hex_buf         db '0x00000000', 0
 
 boot_drive db 0
 
