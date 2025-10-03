@@ -9,45 +9,55 @@ extern kmain
 
 section .text
 _start:
-    ; Set up segment registers for protected mode
-    mov ax, 0x10    ; Data segment selector (points to GDT entry 2, RPL 0)
+    ; Set up segment registers for flat memory model
+    mov ax, 0x10        ; Data segment selector (0x10 points to our data segment in GDT)
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
-    
-    ; Set up stack (grows down from 0x90000)
-    mov esp, stack_top
-    
+    mov esp, 0x90000    ; Set up stack at 0x90000 (grows down)
+
     ; Clear direction flag (string operations increment)
     cld
-    
-    ; Clear screen with blue background
-    mov edi, 0xB8000
-    mov ecx, 80*25
-    mov eax, 0x1F201F20  ; Blue background, white spaces
-    rep stosd
-    
-    ; Print kernel message
-    mov esi, kernel_msg
-    mov edi, 0xB8000 + (80 * 2 + 20) * 2  ; Row 2, column 20
-    mov ah, 0x1F  ; White on blue
+
+    ; Early debug output: print "Kernel start" to VGA text buffer
+    mov edi, 0xB8000 + (80 * 1) * 2  ; Row 1, column 0
+    mov esi, kernel_start_msg
+    mov ah, 0x1F        ; White on blue
 .print_loop:
     lodsb
-    or al, al
+    or al, al           ; Check for null terminator
     jz .done_print
-    stosw
+    stosw               ; Write character and attribute
     jmp .print_loop
 .done_print:
-    
+
+    ; Clear screen with blue background
+    mov edi, 0xB8000    ; VGA text buffer
+    mov ecx, 80*25      ; 80x25 characters
+    mov eax, 0x1F201F20 ; Blue background, white spaces (two characters at a time)
+    rep stosd
+
+    ; Print kernel running message
+    mov esi, kernel_msg
+    mov edi, 0xB8000 + (80 * 2 + 20) * 2  ; Row 2, column 20
+    mov ah, 0x1F        ; White on blue
+.print_loop2:
+    lodsb
+    or al, al           ; Check for null terminator
+    jz .done_print2
+    stosw               ; Write character and attribute
+    jmp .print_loop2
+.done_print2:
+
     ; Call the C kernel entry point
     call kmain
-    
+
     ; If we get here, something went wrong
     mov esi, panic_msg
     mov edi, 0xB8000 + (80 * 4 + 10) * 2  ; Row 4, column 10
-    mov ah, 0x4F  ; White on red
+    mov ah, 0x4F        ; White on red
 .panic_loop:
     lodsb
     or al, al
@@ -62,6 +72,7 @@ _start:
     jmp .hang
 
 section .data
+kernel_start_msg db "Kernel start", 0
 kernel_msg db "MinimalOS Kernel is running!", 0
 panic_msg db "Kernel panic: kmain returned!", 0
 
