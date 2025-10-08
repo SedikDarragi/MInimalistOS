@@ -3,136 +3,83 @@
 #include <stdbool.h>
 #include <stdarg.h>
 
-// Forward declarations for string functions
-static size_t strlen(const char* str);
-static char* strpbrk(const char* s, const char* accept);
-static size_t strspn(const char* s, const char* accept);
-static int strncmp(const char* s1, const char* s2, size_t n);
+// Simple VGA text mode implementation
+#define VGA_WIDTH 80
+#define VGA_HEIGHT 25
+static uint16_t* const VGA_MEMORY = (uint16_t*)0xB8000;
 
-// Simple strtok implementation
-static char* strtok_r(char* str, const char* delim, char** saveptr) {
-    char* token;
-    
-    if (str == NULL) {
-        str = *saveptr;
-    }
-    
-    // Skip leading delimiters
-    str += strspn(str, delim);
-    if (*str == '\0') {
-        *saveptr = str;
-        return NULL;
-    }
-    
-    // Find the end of the token
-    token = str;
-    str = strpbrk(token, delim);
-    if (str == NULL) {
-        *saveptr = (char*)token + strlen(token);
-    } else {
-        *str = '\0';
-        *saveptr = str + 1;
-    }
-    
-    return token;
+static size_t terminal_row = 0;
+static size_t terminal_column = 0;
+static uint8_t terminal_color = 0x0F; // White on black
+
+static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
+    return (uint16_t) uc | (uint16_t) color << 8;
 }
 
-// Simple strspn implementation
-static size_t strspn(const char* s, const char* accept) {
-    const char* p;
-    const char* a;
-    size_t count = 0;
-    
-    for (p = s; *p != '\0'; ++p) {
-        for (a = accept; *a != '\0'; ++a) {
-            if (*p == *a) {
-                break;
+static void vga_putchar(char c) {
+    if (c == '\n') {
+        terminal_column = 0;
+        if (++terminal_row == VGA_HEIGHT) {
+            // Scroll up
+            for (size_t y = 1; y < VGA_HEIGHT; y++) {
+                for (size_t x = 0; x < VGA_WIDTH; x++) {
+                    VGA_MEMORY[(y-1) * VGA_WIDTH + x] = VGA_MEMORY[y * VGA_WIDTH + x];
+                }
             }
-        }
-        if (*a == '\0') {
-            return count;
-        }
-        ++count;
-    }
-    return count;
-}
-
-// Simple strpbrk implementation
-static char* strpbrk(const char* s, const char* accept) {
-    while (*s != '\0') {
-        const char* a = accept;
-        while (*a != '\0') {
-            if (*a++ == *s) {
-                return (char*)s;
+            // Clear bottom line
+            for (size_t x = 0; x < VGA_WIDTH; x++) {
+                VGA_MEMORY[(VGA_HEIGHT-1) * VGA_WIDTH + x] = vga_entry(' ', terminal_color);
             }
-        }
-        ++s;
-    }
-    return NULL;
-}
-
-#if 0
-// Simple strstr implementation (not currently used)
-static char* strstr(const char* haystack, const char* needle) {
-    size_t needle_len = strlen(needle);
-    if (needle_len == 0) return (char*)haystack;
-    
-    for (const char* p = haystack; *p; p++) {
-        if (strncmp(p, needle, needle_len) == 0) {
-            return (char*)p;
-        }
-    }
-    return NULL;
-}
-
-// Simple memmove implementation (not currently used)
-static void* memmove(void* dest, const void* src, size_t n) {
-    char* d = (char*)dest;
-    const char* s = (const char*)src;
-    if (d < s) {
-        for (size_t i = 0; i < n; i++) {
-            d[i] = s[i];
+            terminal_row = VGA_HEIGHT - 1;
         }
     } else {
-        for (size_t i = n; i > 0; i--) {
-            d[i-1] = s[i-1];
+        const size_t index = terminal_row * VGA_WIDTH + terminal_column;
+        VGA_MEMORY[index] = vga_entry(c, terminal_color);
+        if (++terminal_column == VGA_WIDTH) {
+            terminal_column = 0;
+            if (++terminal_row == VGA_HEIGHT) {
+                terminal_row = 0;
+            }
         }
     }
-    return dest;
 }
-#endif
 
-// Simple strtok implementation
-static char* strtok(char* str, const char* delim) {
-    static char* saveptr;
-    return strtok_r(str, delim, &saveptr);
+static void vga_print(const char* data) {
+    for (size_t i = 0; data[i] != '\0'; i++) {
+        vga_putchar(data[i]);
+    }
+}
+
+static void vga_clear(void) {
+    for (size_t y = 0; y < VGA_HEIGHT; y++) {
+        for (size_t x = 0; x < VGA_WIDTH; x++) {
+            const size_t index = y * VGA_WIDTH + x;
+            VGA_MEMORY[index] = vga_entry(' ', terminal_color);
+        }
+    }
+    terminal_row = 0;
+    terminal_column = 0;
+}
+
+// Simple keyboard input (simulated for now)
+static char keyboard_getchar(void) {
+    // In a real implementation, this would read from the keyboard controller
+    // For now, we'll simulate a simple command sequence
+    static const char* test_input = "help\necho Hello, World!\nclear\n";
+    static size_t pos = 0;
+    
+    // Return the next character from our test input
+    if (test_input[pos] == '\0') {
+        pos = 0; // Loop the test input
+    }
+    return test_input[pos++];
 }
 
 // Simple string functions
 static size_t strlen(const char* str) {
-    const char* s;
-    for (s = str; *s; ++s);
-    return (s - str);
-}
-
-static void* memcpy(void* dest, const void* src, size_t n) {
-    char* d = (char*)dest;
-    const char* s = (const char*)src;
-    while (n-- > 0) {
-        *d++ = *s++;
-    }
-    return dest;
-}
-
-static char* strncpy(char* dest, const char* src, size_t n) {
-    size_t i;
-    for (i = 0; i < n && src[i] != '\0'; i++) {
-        dest[i] = src[i];
-    }
-    for (; i < n; i++) {
-        dest[i] = '\0';
-    }
-    return dest;
+    size_t len = 0;
+    while (str[len] != '\0') len++;
+    return len;
 }
 
 static int strcmp(const char* s1, const char* s2) {
@@ -143,117 +90,125 @@ static int strcmp(const char* s1, const char* s2) {
     return *(const unsigned char*)s1 - *(const unsigned char*)s2;
 }
 
-static int strncmp(const char* s1, const char* s2, size_t n) {
-    for (size_t i = 0; i < n; i++) {
-        if (s1[i] != s2[i]) {
-            return (unsigned char)s1[i] - (unsigned char)s2[i];
-        }
-        if (s1[i] == '\0') {
-            return 0;
+// Command structure
+typedef struct {
+    const char* name;
+    void (*func)(int argc, char** argv);
+    const char* help;
+} command_t;
+
+// Command implementations
+static void cmd_help(int argc, char** argv) {
+    vga_print("Available commands:\n");
+    vga_print("  help    - Show this help message\n");
+    vga_print("  echo    - Print a test message\n");
+    vga_print("  clear   - Clear the screen\n");
+}
+
+static void cmd_echo(int argc, char** argv) {
+    for (int i = 1; i < argc; i++) {
+        vga_print(argv[i]);
+        if (i < argc - 1) {
+            vga_print(" ");
         }
     }
-    return 0;
+    vga_print("\n");
 }
 
-static char* strchr(const char* s, int c) {
-    while (*s != (char)c) {
-        if (*s++ == '\0') {
-            return NULL;
-        }
-    }
-    return (char*)s;
+static void cmd_clear(int argc, char** argv) {
+    vga_clear();
 }
 
-static char* strrchr(const char* s, int c) {
-    const char* last = NULL;
-    do {
-        if (*s == (char)c) {
-            last = s;
-        }
-    } while (*s++);
-    return (char*)last;
-}
+// Command table
+static const command_t commands[] = {
+    {"help", cmd_help, "Show this help message"},
+    {"echo", cmd_echo, "Print a test message"},
+    {"clear", cmd_clear, "Clear the screen"},
+    {NULL, NULL, NULL} // Sentinel
+};
 
-static char* strcat(char* dest, const char* src) {
-    char* tmp = dest;
-    while (*dest) dest++;
-    while ((*dest++ = *src++) != '\0');
-    return tmp;
-}
-
-static char* strncat(char* dest, const char* src, size_t n) {
-    char* tmp = dest;
-    if (n > 0) {
-        while (*dest) dest++;
-        while ((*dest++ = *src++) != '\0' && --n > 0);
-    }
-    return tmp;
-}
-
-#if 0
-static char* strstr(const char* haystack, const char* needle) {
-    size_t needle_len = strlen(needle);
-    if (needle_len == 0) return (char*)haystack;
-    
-    for (const char* p = haystack; *p; p++) {
-        if (strncmp(p, needle, needle_len) == 0) {
-            return (char*)p;
+// Find a command by name
+static const command_t* find_command(const char* name) {
+    for (const command_t* cmd = commands; cmd->name != NULL; cmd++) {
+        if (strcmp(cmd->name, name) == 0) {
+            return cmd;
         }
     }
     return NULL;
 }
 
-static void* memmove(void* dest, const void* src, size_t n) {
-    char* d = (char*)dest;
-    const char* s = (const char*)src;
-    if (d < s) {
-        for (size_t i = 0; i < n; i++) {
-            d[i] = s[i];
-        }
+// Execute a command
+static void execute_command(const char* line) {
+    char* args[32];
+    int argc = 0;
+    char* saveptr;
+    char* token = strtok_r((char*)line, " \t\n", &saveptr);
+    
+    // Parse arguments
+    while (token != NULL && argc < 31) {
+        args[argc++] = token;
+        token = strtok_r(NULL, " \t\n", &saveptr);
+    }
+    args[argc] = NULL;
+    
+    if (argc == 0) {
+        return; // Empty command
+    }
+    
+    // Find and execute the command
+    const command_t* cmd = find_command(args[0]);
+    if (cmd != NULL) {
+        cmd->func(argc, args);
     } else {
-        for (size_t i = n; i > 0; i--) {
-            d[i-1] = s[i-1];
+        vga_print("Command not found: ");
+        vga_print(args[0]);
+        vga_print("\n");
+    }
+}
+
+// Shell main function
+void shell_run(void) {
+    char input[256];
+    size_t pos = 0;
+    
+    vga_print("MinimalOS Shell\n");
+    vga_print("Type 'help' for a list of commands\n");
+    
+    while (1) {
+        vga_print("> ");
+        
+        // Read a line of input
+        pos = 0;
+        while (1) {
+            char c = keyboard_getchar();
+            
+            if (c == '\n' || c == '\r') {
+                vga_putchar('\n');
+                input[pos] = '\0';
+                break;
+            } else if ((c == '\b' || c == 127) && pos > 0) { // Backspace or Delete
+                pos--;
+                vga_putchar('\b');
+                vga_putchar(' ');
+                vga_putchar('\b');
+            } else if (pos < sizeof(input) - 1 && c >= 32 && c <= 126) {
+                // Only accept printable ASCII characters
+                input[pos++] = c;
+                vga_putchar(c);
+            }
+        }
+        
+        // Execute the command
+        if (pos > 0) {
+            execute_command(input);
         }
     }
-    return dest;
-}
-#endif
-
-// Simple string to integer conversion
-static int atoi(const char* str) {
-    int result = 0;
-    int sign = 1;
-    
-    // Skip whitespace
-    while (*str == ' ' || *str == '\t') {
-        str++;
-    }
-    
-    // Handle sign
-    if (*str == '-') {
-        sign = -1;
-        str++;
-    } else if (*str == '+') {
-        str++;
-    }
-    
-    // Convert digits
-    while (*str >= '0' && *str <= '9') {
-        result = result * 10 + (*str - '0');
-        str++;
-    }
-    
-    return sign * result;
 }
 
-
-#include "../include/shell.h"
-#include "../drivers/vga.h"
-#include "../drivers/keyboard.h"
-#include "../fs/filesystem.h"
-#include "../net/network.h"
-#include "../ui/ui.h"
-#include "process.h"
+// Shell initialization
+void shell_init(void) {
+    vga_clear();
+    vga_print("MinimalOS Shell Initialized\n");
 #include "../kernel/utils.h"
 
 // Forward declarations for VGA functions if not in header

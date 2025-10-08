@@ -48,7 +48,9 @@ CFLAGS += -m32 -ffreestanding -fno-builtin -fno-stack-protector \
 ASFLAGS = -f elf32
 
 # Source files
-KERNEL_SRCS = kernel/minimal.c
+KERNEL_SRCS = kernel/minimal.c kernel/shell.c \
+              drivers/vga.c drivers/keyboard.c \
+              kernel/process.c
 KERNEL_ASM_SRCS = kernel/entry.asm
 
 # Object files
