@@ -30,7 +30,8 @@ start:
     mov al, 'B'
     int 0x10
     
-    ; Set up destination (0x10000 for temporary storage)
+    ; Set up destination (0x1000:0x0000 = 0x10000 for temporary storage)
+    ; We'll load the kernel at 1MB (0x100000) in chunks
     mov ax, 0x1000
     mov es, ax
     xor bx, bx
@@ -44,6 +45,23 @@ start:
     mov dl, [boot_drive]
     int 0x13
     jc disk_error
+    
+    ; Enable A20 line to access memory above 1MB
+    call enable_a20
+    
+    ; Set up to copy kernel to 1MB (0x100000)
+    mov ax, 0x1000
+    mov ds, ax
+    xor si, si          ; Source: 0x10000 (0x1000:0x0000)
+    
+    mov ax, 0x1000
+    mov es, ax
+    mov di, 0x0000      ; Destination: 0x100000 (0x1000:0x0000)
+    
+    ; Copy 8KB (16 sectors * 512 bytes) from 0x10000 to 0x100000
+    mov cx, 0x2000      ; 8KB = 0x2000 bytes
+    cld
+    rep movsb
     
     ; Print 'K' to indicate kernel loaded
     mov ah, 0x0E
@@ -125,18 +143,6 @@ print_hex_byte:
     popa
     ret
 
-; Error handler
-disk_error:
-    mov si, .err_msg
-    call print_string
-    mov al, ah
-    call print_hex_byte
-    cli
-.hang:
-    hlt
-    jmp .hang
-.err_msg db 'E', 0
-
 BITS 32
 protected_mode:
     ; Set up segment registers for flat memory model
@@ -158,8 +164,8 @@ protected_mode:
     mov ecx, 0x2000     ; 8KB (16 sectors * 512 bytes)
     rep movsd
     
-    ; Jump to kernel
-    jmp 0x08:0x100000
+    ; Jump to kernel at 1MB (0x100000)
+    jmp 0x1000:0x00008:0x100000
 
 ; GDT
 gdt_start:

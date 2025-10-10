@@ -4,8 +4,14 @@
 ; Export the entry point to the linker
 global _start
 
-; The C entry point
+; External functions
 extern kmain
+extern idt_init
+
+section .data
+align 4
+kernel_msg db "MinimalOS Kernel is running!", 0
+panic_msg db "Kernel panic: kmain returned!", 0
 
 section .text
 _start:
@@ -21,42 +27,33 @@ _start:
     ; Clear direction flag (string operations increment)
     cld
 
-    ; Early debug output: print "Kernel start" to VGA text buffer
-    mov edi, 0xB8000 + (80 * 1) * 2  ; Row 1, column 0
-    mov esi, kernel_start_msg
-    mov ah, 0x1F        ; White on blue
-.print_loop:
-    lodsb
-    or al, al           ; Check for null terminator
-    jz .done_print
-    stosw               ; Write character and attribute
-    jmp .print_loop
-.done_print:
-
     ; Clear screen with blue background
     mov edi, 0xB8000    ; VGA text buffer
     mov ecx, 80*25      ; 80x25 characters
     mov eax, 0x1F201F20 ; Blue background, white spaces (two characters at a time)
     rep stosd
 
-    ; Print kernel running message
+    ; Print kernel message
     mov esi, kernel_msg
-    mov edi, 0xB8000 + (80 * 2 + 20) * 2  ; Row 2, column 20
+    mov edi, 0xB8000 + (80 * 1 + 10) * 2  ; Row 1, column 10
     mov ah, 0x1F        ; White on blue
-.print_loop2:
+.print_loop:
     lodsb
-    or al, al           ; Check for null terminator
-    jz .done_print2
-    stosw               ; Write character and attribute
-    jmp .print_loop2
-.done_print2:
+    or al, al
+    jz .print_done
+    stosw
+    jmp .print_loop
+.print_done:
 
-    ; Call the C kernel entry point
+    ; Initialize IDT
+    call idt_init
+
+    ; Call the C kernel main function
     call kmain
 
-    ; If we get here, something went wrong
+    ; If kmain returns, show panic message
     mov esi, panic_msg
-    mov edi, 0xB8000 + (80 * 4 + 10) * 2  ; Row 4, column 10
+    mov edi, 0xB8000 + (80 * 3 + 10) * 2  ; Row 3, column 10
     mov ah, 0x4F        ; White on red
 .panic_loop:
     lodsb
@@ -65,16 +62,11 @@ _start:
     stosw
     jmp .panic_loop
 
+    ; Halt the CPU if we get here
 .halt:
     cli
-.hang:
     hlt
-    jmp .hang
-
-section .data
-kernel_start_msg db "Kernel start", 0
-kernel_msg db "MinimalOS Kernel is running!", 0
-panic_msg db "Kernel panic: kmain returned!", 0
+    jmp .halt
 
 section .bss
 align 16

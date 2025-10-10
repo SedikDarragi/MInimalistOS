@@ -48,21 +48,19 @@ CFLAGS += -m32 -ffreestanding -fno-builtin -fno-stack-protector \
 ASFLAGS = -f elf32
 
 # Source files
-KERNEL_SRCS = kernel/minimal.c kernel/shell.c \
-              drivers/vga.c drivers/keyboard.c \
-              kernel/process.c
-KERNEL_ASM_SRCS = kernel/entry.asm
+KERNEL_SRCS = kernel/minimal.c kernel/shell_new.c kernel/idt.c
+KERNEL_ASM_SRCS = kernel/entry.asm kernel/idt_asm.s
 
 # Object files
-KERNEL_OBJS = $(KERNEL_SRCS:.c=.o) $(KERNEL_ASM_SRCS:.asm=.o)
+KERNEL_OBJS = $(KERNEL_SRCS:.c=.o) $(patsubst %.asm,%.o,$(filter %.asm,$(KERNEL_ASM_SRCS))) $(patsubst %.s,%.o,$(filter %.s,$(KERNEL_ASM_SRCS)))
 
 all: os.img
 
-os.img: boot/minimal_boot.bin kernel.bin
+os.img: boot/minimal_boot_new.bin kernel.bin
 	echo "Creating disk image..."
 	dd if=/dev/zero of=os.img bs=512 count=2880 status=none
 	echo "Writing bootloader..."
-	dd if=boot/minimal_boot.bin of=os.img conv=notrunc status=none
+	dd if=boot/minimal_boot_new.bin of=os.img conv=notrunc status=none
 	echo "Writing kernel..."
 	dd if=kernel.bin of=os.img bs=512 seek=1 conv=notrunc status=none
 	echo "Verifying boot signature..."
@@ -73,7 +71,7 @@ os.img: boot/minimal_boot.bin kernel.bin
 	fi
 	echo "Disk image created successfully"
 
-boot/minimal_boot.bin: boot/minimal_boot.asm
+boot/minimal_boot_new.bin: boot/minimal_boot_new.asm
 	nasm -f bin $< -o $@
 
 kernel.bin: kernel.elf
@@ -88,13 +86,16 @@ kernel.elf: $(KERNEL_OBJS) link.ld
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.asm
-	$(AS) $(ASFLAGS) $< -o $@
+	$(AS) -f elf32 $< -o $@
+
+%.o: %.s
+	$(AS) -f elf32 $< -o $@
 
 boot/boot.bin: boot/boot.asm
 	$(AS) -f bin $< -o $@
 
 clean:
-	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/boot.bin boot/minimal_boot.bin
+	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/boot.bin boot/minimal_boot.bin boot/minimal_boot_new.bin
 
 run: os.img
 	@echo "Make sure no other QEMU instances are running..."
