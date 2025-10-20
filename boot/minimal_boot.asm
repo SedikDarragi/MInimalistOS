@@ -77,14 +77,15 @@ start:
     out 0x92, al
     
     ; Load GDT
+    cli
     lgdt [gdt_descriptor]
     
-    ; Set protected mode bit
+    ; Enable protected mode
     mov eax, cr0
-    or eax, 1
+    or eax, 0x1
     mov cr0, eax
     
-    ; Far jump to 32-bit code to flush the pipeline
+    ; Far jump to flush pipeline and set CS
     jmp 0x08:protected_mode
     
 enable_a20:
@@ -164,8 +165,26 @@ protected_mode:
     mov ecx, 0x2000     ; 8KB (16 sectors * 512 bytes)
     rep movsd
     
-    ; Jump to kernel at 1MB (0x100000)
-    jmp 0x1000:0x00008:0x100000
+    ; Set up a basic stack
+    mov esp, 0x9FFFF    ; Stack grows down from 0x9FFFF
+    
+    ; Print 'K' to indicate we're about to jump to kernel
+    mov byte [0xB8000 + 160], 'K'
+    mov byte [0xB8001 + 160], 0x0E  ; Yellow on black
+    
+    ; Small delay to see the message
+    mov ecx, 0x00FFFFFF
+.delay_loop:
+    dec ecx
+    jnz .delay_loop
+    
+    ; Jump to kernel entry point
+    jmp 0x08:0x100000   ; Use code segment selector 0x08 (from GDT)
+    
+    ; This will be reached only if the jump fails
+    mov byte [0xB8000 + 320], '!'
+    mov byte [0xB8001 + 320], 0x0C  ; Red on black
+    jmp $
 
 ; GDT
 gdt_start:

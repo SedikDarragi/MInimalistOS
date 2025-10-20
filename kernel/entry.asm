@@ -8,13 +8,13 @@ global _start
 extern kmain
 extern idt_init
 
-section .data
-align 4
-kernel_msg db "MinimalOS Kernel is running!", 0
-panic_msg db "Kernel panic: kmain returned!", 0
-
 section .text
+; Entry point
 _start:
+    ; Print 'E' to indicate we've entered the kernel
+    mov byte [0xB8000 + 0], 'E'
+    mov byte [0xB8001 + 0], 0x0A  ; Green on black
+    
     ; Set up segment registers for flat memory model
     mov ax, 0x10        ; Data segment selector (0x10 points to our data segment in GDT)
     mov ds, ax
@@ -22,10 +22,18 @@ _start:
     mov fs, ax
     mov gs, ax
     mov ss, ax
-    mov esp, 0x90000    ; Set up stack at 0x90000 (grows down)
-
+    mov esp, 0x9FFFF    ; Set up stack at 0x9FFFF (grows down)
+    
+    ; Print 'S' to indicate segment registers are set
+    mov byte [0xB8000 + 2], 'S'
+    mov byte [0xB8001 + 2], 0x0A  ; Green on black
+    
     ; Clear direction flag (string operations increment)
     cld
+    
+    ; Print 'C' to indicate direction flag is cleared
+    mov byte [0xB8000 + 4], 'C'
+    mov byte [0xB8001 + 4], 0x0A  ; Green on black
 
     ; Clear screen with blue background
     mov edi, 0xB8000    ; VGA text buffer
@@ -47,12 +55,18 @@ _start:
 
     ; Initialize IDT
     call idt_init
-
-    ; Call the C kernel main function
+    
+    ; Call the main kernel function
     call kmain
-
-    ; If kmain returns, show panic message
+    
+    ; If kmain returns, show panic message and halt
     mov esi, panic_msg
+
+
+section .data
+align 4
+kernel_msg db "MinimalOS Kernel is running!", 0
+panic_msg db "Kernel panic: kmain returned!", 0
     mov edi, 0xB8000 + (80 * 3 + 10) * 2  ; Row 3, column 10
     mov ah, 0x4F        ; White on red
 .panic_loop:
