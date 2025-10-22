@@ -61,8 +61,8 @@ start:
     or al, 1
     mov cr0, eax
     
-    ; Far jump to 32-bit code
-    jmp 0x08:pm_start
+    ; Far jump to 32-bit code (use explicit 32-bit operand size)
+    jmp dword 0x08:pm_start
 
 error:
     mov si, msg_err
