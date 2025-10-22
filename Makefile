@@ -110,7 +110,7 @@ run-vnc: os.img
 	qemu-system-i386 -fda os.img -snapshot -vnc :1 -k en-us -serial stdio -no-kvm -d int,cpu_reset -D qemu.log
 
 run-debug: os.img
-	qemu-system-i386 -fda os.img -snapshot -nographic -serial stdio -d int -D qemu_debug.log
+	qemu-system-i386 -fda os.img -snapshot -nographic -serial mon:stdio -d int -D qemu_debug.log
 
 run-monitor: os.img
 	qemu-system-i386 -fda os.img -snapshot -monitor stdio

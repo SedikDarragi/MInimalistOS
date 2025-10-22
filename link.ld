@@ -1,5 +1,5 @@
 /* Entry point of the kernel */
-ENTRY(kmain)
+ENTRY(_start)
 
 /* Define the program headers to ensure the bootloader loads us where we want */
 PHDRS
@@ -14,6 +14,12 @@ SECTIONS
 {
     /* The kernel will be loaded at 1MB (0x100000) */
     . = 0x100000;
+    
+    /* Ensure the entry point is at the beginning */
+    .text : ALIGN(4K) {
+        *(.text.entry)
+        *(.text)
+    } :text
     
     /* Kernel code section */
     .text : ALIGN(4K) {
