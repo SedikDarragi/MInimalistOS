@@ -50,16 +50,35 @@ start:
     mov si, msg4
     call print
     
-    ; Print '5'
+    ; Print '5' (last BIOS call)
     mov si, msg5
     call print
     
-    ; Switch to protected mode
+    ; Enable A20 line with debug
+    in al, 0x92
+    or al, 2
+    out 0x92, al
+    
+    ; Print 'A' if A20 enabled
+    mov si, msg_a
+    call print
+    
+    ; Load GDT with debug
     cli
     lgdt [gdt_desc]
+    
+    ; Print 'B' if GDT loaded
+    mov si, msg_b
+    call print
+    
+    ; Enable protected mode
     mov eax, cr0
     or al, 1
     mov cr0, eax
+    
+    ; Print 'C' if protected mode enabled (this might not print if we're in protected mode)
+    mov si, msg_c
+    call print
     
     ; Far jump to 32-bit code (use explicit 32-bit operand size)
     jmp dword 0x08:pm_start
@@ -85,6 +104,9 @@ msg2: db '2', 0
 msg3: db '3', 0
 msg4: db '4', 0
 msg5: db '5', 0
+msg_a:  db 'A', 0
+msg_b:  db 'B', 0
+msg_c:  db 'C', 0
 msg_err: db 'E', 0
 
 ; GDT
@@ -123,9 +145,13 @@ pm_start:
     mov ss, ax
     mov esp, 0x90000
     
-    ; Print '6' to VGA
-    mov byte [0xB8000], '6'
+    ; Print 'D' to VGA (first protected mode code)
+    mov byte [0xB8000], 'D'
     mov byte [0xB8001], 0x0F
+    
+    ; Print '6' to VGA
+    mov byte [0xB8002], '6'
+    mov byte [0xB8003], 0x0F
     
     ; Copy kernel to 1MB
     mov esi, 0x10000
