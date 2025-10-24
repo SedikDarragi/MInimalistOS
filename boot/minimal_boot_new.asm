@@ -41,29 +41,23 @@ start:
     mov si, msg3
     call print
     
-    ; Enable A20
-    in al, 0x92
-    or al, 2
-    out 0x92, al
-    
     ; Print '4'
     mov si, msg4
     call print
     
-    ; Print '5' (last BIOS call)
+    ; Print '5' (last BIOS call before protected mode)
     mov si, msg5
     call print
     
-    ; Enable A20 line with debug
-    in al, 0x92
-    or al, 2
-    out 0x92, al
+    ; Try to enable A20 line using different methods
+    call enable_a20
+    jc error_a20
     
     ; Print 'A' if A20 enabled
     mov si, msg_a
     call print
     
-    ; Load GDT with debug
+    ; Load GDT
     cli
     lgdt [gdt_desc]
     
@@ -76,9 +70,8 @@ start:
     or al, 1
     mov cr0, eax
     
-    ; Print 'C' if protected mode enabled (this might not print if we're in protected mode)
-    mov si, msg_c
-    call print
+    ; Far jump to 32-bit code (this is where we switch to protected mode)
+    jmp 0x08:pm_start
     
     ; Far jump to 32-bit code (use explicit 32-bit operand size)
     jmp dword 0x08:pm_start
@@ -87,6 +80,100 @@ error:
     mov si, msg_err
     call print
     jmp $
+    
+error_a20:
+    mov si, msg_a20_err
+    call print
+    jmp $
+    
+; Function to enable A20 line
+; Returns with carry set on error
+enable_a20:
+    ; Try BIOS method first
+    mov ax, 0x2401
+    int 0x15
+    jnc .success
+    
+    ; Try keyboard controller method
+    cli
+    call .wait_kbd
+    mov al, 0xAD    ; Disable keyboard
+    out 0x64, al
+    
+    call .wait_kbd
+    mov al, 0xD0    ; Read output port
+    out 0x64, al
+    
+    call .wait_kbd2
+    in al, 0x60
+    push eax
+    
+    call .wait_kbd
+    mov al, 0xD1    ; Write output port
+    out 0x64, al
+    
+    call .wait_kbd
+    pop eax
+    or al, 2        ; Set A20 bit
+    out 0x60, al
+    
+    call .wait_kbd
+    mov al, 0xAE    ; Enable keyboard
+    out 0x64, al
+    
+    sti
+    
+    ; Try fast A20 method
+    in al, 0x92
+    test al, 2
+    jnz .success
+    or al, 2
+    out 0x92, al
+    
+    ; Verify A20 is enabled
+    call .test_a20
+    jc .error
+    
+.success:
+    clc
+    ret
+    
+.error:
+    stc
+    ret
+    
+.wait_kbd:
+    in al, 0x64
+    test al, 2
+    jnz .wait_kbd
+    ret
+    
+.wait_kbd2:
+    in al, 0x64
+    test al, 1
+    jz .wait_kbd2
+    ret
+    
+.test_a20:
+    pushad
+    
+    ; Save old values
+    mov edi, 0x112345  ; Odd megabyte address
+    mov esi, 0x012345  ; Even megabyte address
+    mov [es:edi], byte 0x00
+    mov [ds:esi], byte 0xFF
+    cmpsb
+    
+    ; Restore values and set carry if A20 is not enabled
+    mov [es:edi], byte 0x00
+    mov [ds:esi], byte 0x00
+    stc
+    jne .test_done
+    clc
+    
+.test_done:
+    popad
+    ret
 
 print:
     lodsb
@@ -108,6 +195,7 @@ msg_a:  db 'A', 0
 msg_b:  db 'B', 0
 msg_c:  db 'C', 0
 msg_err: db 'E', 0
+msg_a20_err: db 'F', 0
 
 ; GDT
 gdt_start:
