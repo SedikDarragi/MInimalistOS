@@ -57,20 +57,36 @@ start:
     mov si, msg_a
     call print
     
-    ; Load GDT
+    ; Load GDT with debug
     cli
+    mov si, msg_loading_gdt
+    call print
+    
     lgdt [gdt_desc]
     
     ; Print 'B' if GDT loaded
     mov si, msg_b
     call print
     
+    ; Debug: Check GDT was loaded correctly
+    mov si, msg_gdt_loaded
+    call print
+    
     ; Enable protected mode
+    mov si, msg_enabling_pm
+    call print
+    
     mov eax, cr0
     or al, 1
     mov cr0, eax
     
+    ; Debug: Protected mode should be enabled now
+    mov si, msg_pm_enabled
+    call print
+    
     ; Far jump to 32-bit code (this is where we switch to protected mode)
+    mov si, msg_jumping_to_pm
+    call print
     jmp 0x08:pm_start
     
     ; Far jump to 32-bit code (use explicit 32-bit operand size)
@@ -196,6 +212,13 @@ msg_b:  db 'B', 0
 msg_c:  db 'C', 0
 msg_err: db 'E', 0
 msg_a20_err: db 'F', 0
+
+; Debug messages
+msg_loading_gdt: db ' [Loading GDT]', 0
+msg_gdt_loaded: db ' [GDT Loaded]', 0
+msg_enabling_pm: db ' [Enabling PM]', 0
+msg_pm_enabled: db ' [PM Enabled]', 0
+msg_jumping_to_pm: db ' [Jumping to PM]', 0
 
 ; GDT
 gdt_start:
