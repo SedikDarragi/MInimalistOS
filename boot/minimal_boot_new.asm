@@ -2,7 +2,7 @@
 [ORG 0x7C00]
 
 start:
-    ; Initialize segments
+    ; Initialize segments and stack
     xor ax, ax
     mov ds, ax
     mov es, ax
@@ -28,177 +28,92 @@ start:
     mov ax, 0x1000
     mov es, ax
     xor bx, bx
-    mov ah, 0x02
-    mov al, 16
-    mov ch, 0
-    mov cl, 2
-    mov dh, 0
+    
+    ; Reset disk system first
+    mov ah, 0x00
     mov dl, [boot_drive]
     int 0x13
-    jc error
+    jc disk_error
+    
+    ; Read disk sectors
+    mov ah, 0x02    ; Read sectors
+    mov al, 8        ; Number of sectors to read
+    mov ch, 0        ; Cylinder 0
+    mov cl, 2        ; Sector 2 (1-based)
+    mov dh, 0        ; Head 0
+    mov dl, [boot_drive]
+    int 0x13
+    jc disk_error    ; Jump if error (carry flag set)
+    
+    ; Verify number of sectors read
+    cmp al, 8
+    jl disk_error
     
     ; Print '3'
     mov si, msg3
     call print
     
-    ; Print '4'
-    mov si, msg4
-    call print
-    
-    ; Print '5' (last BIOS call before protected mode)
-    mov si, msg5
-    call print
-    
-    ; Try to enable A20 line using different methods
-    call enable_a20
-    jc error_a20
-    
-    ; Print 'A' if A20 enabled
+    ; Print 'A' before A20
     mov si, msg_a
     call print
     
-    ; Load GDT with debug
-    cli
-    mov si, msg_loading_gdt
+    ; Enable A20 line (fast method)
+    in al, 0x92
+    test al, 2
+    jnz .a20_done
+    or al, 2
+    out 0x92, al
+.a20_done:
+    
+    ; Print '4' if A20 enabled
+    mov si, msg4
     call print
     
-    lgdt [gdt_desc]
-    
-    ; Print 'B' if GDT loaded
+    ; Print 'B' before GDT
     mov si, msg_b
     call print
     
-    ; Debug: Check GDT was loaded correctly
-    mov si, msg_gdt_loaded
+    ; Load GDT and enter protected mode
+    cli
+    lgdt [gdt_desc]
+    
+    ; Print 'C' before PM
+    mov si, msg_c
     call print
     
     ; Enable protected mode
-    mov si, msg_enabling_pm
-    call print
-    
     mov eax, cr0
     or al, 1
     mov cr0, eax
     
-    ; Debug: Protected mode should be enabled now
-    mov si, msg_pm_enabled
+    ; Print 'D' after PM enable (shouldn't be reached if PM works)
+    mov si, msg_d
     call print
-    
-    ; Far jump to 32-bit code (this is where we switch to protected mode)
-    mov si, msg_jumping_to_pm
-    call print
-    jmp 0x08:pm_start
     
     ; Far jump to 32-bit code (use explicit 32-bit operand size)
     jmp dword 0x08:pm_start
+
+disk_error:
+    mov si, disk_err_msg
+    call print
+    jmp $
 
 error:
     mov si, msg_err
     call print
     jmp $
-    
-error_a20:
-    mov si, msg_a20_err
-    call print
-    jmp $
-    
-; Function to enable A20 line
-; Returns with carry set on error
-enable_a20:
-    ; Try BIOS method first
-    mov ax, 0x2401
-    int 0x15
-    jnc .success
-    
-    ; Try keyboard controller method
-    cli
-    call .wait_kbd
-    mov al, 0xAD    ; Disable keyboard
-    out 0x64, al
-    
-    call .wait_kbd
-    mov al, 0xD0    ; Read output port
-    out 0x64, al
-    
-    call .wait_kbd2
-    in al, 0x60
-    push eax
-    
-    call .wait_kbd
-    mov al, 0xD1    ; Write output port
-    out 0x64, al
-    
-    call .wait_kbd
-    pop eax
-    or al, 2        ; Set A20 bit
-    out 0x60, al
-    
-    call .wait_kbd
-    mov al, 0xAE    ; Enable keyboard
-    out 0x64, al
-    
-    sti
-    
-    ; Try fast A20 method
-    in al, 0x92
-    test al, 2
-    jnz .success
-    or al, 2
-    out 0x92, al
-    
-    ; Verify A20 is enabled
-    call .test_a20
-    jc .error
-    
-.success:
-    clc
-    ret
-    
-.error:
-    stc
-    ret
-    
-.wait_kbd:
-    in al, 0x64
-    test al, 2
-    jnz .wait_kbd
-    ret
-    
-.wait_kbd2:
-    in al, 0x64
-    test al, 1
-    jz .wait_kbd2
-    ret
-    
-.test_a20:
-    pushad
-    
-    ; Save old values
-    mov edi, 0x112345  ; Odd megabyte address
-    mov esi, 0x012345  ; Even megabyte address
-    mov [es:edi], byte 0x00
-    mov [ds:esi], byte 0xFF
-    cmpsb
-    
-    ; Restore values and set carry if A20 is not enabled
-    mov [es:edi], byte 0x00
-    mov [ds:esi], byte 0x00
-    stc
-    jne .test_done
-    clc
-    
-.test_done:
-    popad
-    ret
 
 print:
+    pusha
+    mov ah, 0x0E
+.print_loop:
     lodsb
     or al, al
     jz .done
-    mov ah, 0x0E
     int 0x10
-    jmp print
+    jmp .print_loop
 .done:
+    popa
     ret
 
 boot_drive: db 0
@@ -207,18 +122,12 @@ msg2: db '2', 0
 msg3: db '3', 0
 msg4: db '4', 0
 msg5: db '5', 0
-msg_a:  db 'A', 0
-msg_b:  db 'B', 0
-msg_c:  db 'C', 0
+msg_a: db 'A', 0
+msg_b: db 'B', 0
+msg_c: db 'C', 0
+msg_d: db 'D', 0
 msg_err: db 'E', 0
-msg_a20_err: db 'F', 0
-
-; Debug messages
-msg_loading_gdt: db ' [Loading GDT]', 0
-msg_gdt_loaded: db ' [GDT Loaded]', 0
-msg_enabling_pm: db ' [Enabling PM]', 0
-msg_pm_enabled: db ' [PM Enabled]', 0
-msg_jumping_to_pm: db ' [Jumping to PM]', 0
+disk_err_msg: db 'Disk error!', 0
 
 ; GDT
 gdt_start:
@@ -247,6 +156,10 @@ gdt_desc:
 
 [BITS 32]
 pm_start:
+    ; First instruction in PM - print 'E'
+    mov byte [0xB8000], 'E'
+    mov byte [0xB8001], 0x0F
+    
     ; Setup segments
     mov ax, 0x10
     mov ds, ax
@@ -256,13 +169,13 @@ pm_start:
     mov ss, ax
     mov esp, 0x90000
     
-    ; Print 'D' to VGA (first protected mode code)
-    mov byte [0xB8000], 'D'
-    mov byte [0xB8001], 0x0F
-    
-    ; Print '6' to VGA
-    mov byte [0xB8002], '6'
+    ; Print 'F' after segment setup
+    mov byte [0xB8002], 'F'
     mov byte [0xB8003], 0x0F
+    
+    ; Print '6' to VGA (first protected mode code)
+    mov byte [0xB8000], '6'
+    mov byte [0xB8001], 0x0F
     
     ; Copy kernel to 1MB
     mov esi, 0x10000
