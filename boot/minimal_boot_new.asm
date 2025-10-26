@@ -93,7 +93,8 @@ test_a20:
     
     ; Restore original values
     pop ax
-    mov es, 0xFFFF
+    mov bx, 0xFFFF
+    mov es, bx
     mov [es:si], al
     pop ax
     xor bx, bx
