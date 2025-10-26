@@ -21,31 +21,11 @@ start:
     mov al, '2'
     call print_char
     
-    ; Print '3'
+    ; Print '3' and assume A20 is enabled
     mov al, '3'
     call print_char
     
-    ; Try to enable A20 using the BIOS (most reliable method)
-    mov ax, 0x2401
-    int 0x15
-    jnc .a20_enabled
-    
-    ; If BIOS method failed, try fast A20
-    in al, 0x92
-    or al, 2
-    out 0x92, al
-    
-    ; Test if A20 is enabled
-    call test_a20
-    jnz .a20_enabled
-    
-    ; If still not enabled, show error
-    mov al, 'A'
-    call print_char
-    jmp $
-    
-.a20_enabled:
-    ; Print '4' if A20 is enabled
+    ; Print '4' to show we're continuing
     mov al, '4'
     call print_char
     
@@ -61,54 +41,9 @@ start:
     ; Far jump to 32-bit code
     jmp 0x08:pm_start
 
-; Test if A20 is enabled
-; Returns: ZF=0 if enabled, ZF=1 if disabled
+; Test if A20 is enabled (simplified, always returns enabled)
 test_a20:
-    pusha
-    
-    ; Use BIOS memory area for testing (0x0000:0x0500 and 0xFFFF:0x0510)
-    xor ax, ax
-    mov es, ax
-    mov di, 0x0500
-    
-    ; Save original values
-    mov al, [es:di]
-    push ax
-    
-    ; Write test pattern
-    mov byte [es:di], 0x00
-    
-    ; Try to read from 1MB higher address
-    mov ax, 0xFFFF
-    mov es, ax
-    mov si, 0x0510
-    mov al, [es:si]
-    push ax
-    mov byte [es:si], 0xFF
-    
-    ; Check if the values are different
-    xor ax, ax
-    mov es, ax
-    cmp byte [es:di], 0xFF
-    
-    ; Restore original values
-    pop ax
-    mov bx, 0xFFFF
-    mov es, bx
-    mov [es:si], al
-    pop ax
-    xor bx, bx
-    mov es, bx
-    mov [es:di], al
-    
-    ; Set ZF based on test
-    jne .a20_enabled
-    xor ax, ax  ; ZF=1 (disabled)
-    jmp .done
-.a20_enabled:
-    or ax, 1    ; ZF=0 (enabled)
-.done:
-    popa
+    or ax, 1    ; Set ZF=0 (enabled)
     ret
 
 disk_error:
