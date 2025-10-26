@@ -11,11 +11,27 @@ start:
     mov sp, 0x7C00
     sti
     
+    ; Save boot drive
+    mov [boot_drive], dl
+    
     ; Print '1'
     mov al, '1'
     call print_char
     
-    ; Print '2'
+    ; Load kernel from disk to 0x10000 (64KB)
+    mov ax, 0x1000
+    mov es, ax
+    xor bx, bx
+    mov ah, 0x02    ; Read sectors
+    mov al, 8       ; Number of sectors to read (4KB)
+    mov ch, 0       ; Cylinder 0
+    mov cl, 2       ; Sector 2 (1-based)
+    mov dh, 0       ; Head 0
+    mov dl, [boot_drive]
+    int 0x13
+    jc disk_error
+    
+    ; Print '2' if disk read succeeded
     mov al, '2'
     call print_char
     
@@ -24,7 +40,7 @@ start:
     or al, 2
     out 0x92, al
     
-    ; Load GDT and enter protected mode
+    ; Load GDT
     cli
     lgdt [gdt_desc]
     
@@ -33,16 +49,7 @@ start:
     or al, 1
     mov cr0, eax
     
-    ; Enable protected mode
-    mov eax, cr0
-    or al, 1
-    mov cr0, eax
-    
-    ; Print 'E' if we're about to jump to protected mode
-    mov al, 'E'
-    call print_char
-    
-    ; Far jump to 32-bit code
+    ; Far jump to 32-bit code with segment selector 0x08
     jmp 0x08:pm_start
 
 ; Test if A20 is enabled (simplified, always returns enabled)
@@ -59,6 +66,11 @@ disk_error:
     call print_char
     jmp $
 
+disk_error:
+    mov al, 'E'
+    call print_char
+    jmp $
+
 print_char:
     pusha
     mov ah, 0x0E
@@ -66,6 +78,8 @@ print_char:
     int 0x10
     popa
     ret
+
+boot_drive: db 0
 
 boot_drive: db 0
 
@@ -107,9 +121,10 @@ pm_start:
     mov esp, 0x90000
     
     ; Copy kernel from 0x10000 to 1MB (0x100000)
+    cld
     mov esi, 0x10000
     mov edi, 0x100000
-    mov ecx, 1024  ; 4KB
+    mov ecx, 0x1000  ; 4KB
     rep movsd
     
     ; Print 'K' to show we're in kernel
