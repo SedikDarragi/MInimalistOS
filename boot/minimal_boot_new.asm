@@ -11,9 +11,7 @@ start:
     mov sp, 0x7C00
     sti
     
-    ; Clear screen and print '1'
-    mov ax, 0x0003
-    int 0x10
+    ; Print '1'
     mov al, '1'
     call print_char
     
@@ -21,13 +19,10 @@ start:
     mov al, '2'
     call print_char
     
-    ; Print '3' and assume A20 is enabled
-    mov al, '3'
-    call print_char
-    
-    ; Print '4' to show we're continuing
-    mov al, '4'
-    call print_char
+    ; Enable A20 (fast method)
+    in al, 0x92
+    or al, 2
+    out 0x92, al
     
     ; Load GDT and enter protected mode
     cli
@@ -37,6 +32,15 @@ start:
     mov eax, cr0
     or al, 1
     mov cr0, eax
+    
+    ; Enable protected mode
+    mov eax, cr0
+    or al, 1
+    mov cr0, eax
+    
+    ; Print 'E' if we're about to jump to protected mode
+    mov al, 'E'
+    call print_char
     
     ; Far jump to 32-bit code
     jmp 0x08:pm_start
@@ -49,34 +53,41 @@ test_a20:
 disk_error:
     mov al, 'E'
     call print_char
+    mov al, 'R'
+    call print_char
+    mov al, 'R'
+    call print_char
     jmp $
 
 print_char:
+    pusha
     mov ah, 0x0E
+    mov bx, 0x0007
     int 0x10
+    popa
     ret
 
 boot_drive: db 0
 
-; Minimal GDT
+; GDT
 gdt_start:
     dq 0                ; Null descriptor
     
     ; Code segment (0x08)
     dw 0xFFFF           ; Limit 0-15
-    dw 0x0000           ; Base 0-15
-    db 0x00             ; Base 16-23
+    dw 0                ; Base 0-15
+    db 0                ; Base 16-23
     db 0x9A             ; Access byte
     db 0xCF             ; Flags + Limit 16-19
-    db 0x00             ; Base 24-31
+    db 0                ; Base 24-31
     
     ; Data segment (0x10)
     dw 0xFFFF           ; Limit 0-15
-    dw 0x0000           ; Base 0-15
-    db 0x00             ; Base 16-23
+    dw 0                ; Base 0-15
+    db 0                ; Base 16-23
     db 0x92             ; Access byte
     db 0xCF             ; Flags + Limit 16-19
-    db 0x00             ; Base 24-31
+    db 0                ; Base 24-31
 
 gdt_end:
 
@@ -95,19 +106,15 @@ pm_start:
     mov ss, ax
     mov esp, 0x90000
     
-    ; Print 'P' to show we're in protected mode
-    mov byte [0xB8000], 'P'
-    mov byte [0xB8001], 0x0F
-    
     ; Copy kernel from 0x10000 to 1MB (0x100000)
     mov esi, 0x10000
     mov edi, 0x100000
     mov ecx, 1024  ; 4KB
     rep movsd
     
-    ; Print 'K' to show kernel copied
-    mov byte [0xB8002], 'K'
-    mov byte [0xB8003], 0x0F
+    ; Print 'K' to show we're in kernel
+    mov byte [0xB8000], 'K'
+    mov byte [0xB8001], 0x0F
     
     ; Jump to kernel
     jmp 0x100000
