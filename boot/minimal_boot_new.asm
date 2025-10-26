@@ -2,152 +2,146 @@
 [ORG 0x7C00]
 
 start:
-    ; Initialize segments and stack
+    ; Minimal setup
+    cli
     xor ax, ax
     mov ds, ax
     mov es, ax
     mov ss, ax
     mov sp, 0x7C00
+    sti
     
-    ; Clear screen
+    ; Clear screen and print '1'
     mov ax, 0x0003
     int 0x10
-    
-    ; Print '1'
-    mov si, msg1
-    call print
-    
-    ; Save boot drive
-    mov [boot_drive], dl
+    mov al, '1'
+    call print_char
     
     ; Print '2'
-    mov si, msg2
-    call print
-    
-    ; Load kernel at 0x10000
-    mov ax, 0x1000
-    mov es, ax
-    xor bx, bx
-    
-    ; Reset disk system first
-    mov ah, 0x00
-    mov dl, [boot_drive]
-    int 0x13
-    jc disk_error
-    
-    ; Read disk sectors
-    mov ah, 0x02    ; Read sectors
-    mov al, 8        ; Number of sectors to read
-    mov ch, 0        ; Cylinder 0
-    mov cl, 2        ; Sector 2 (1-based)
-    mov dh, 0        ; Head 0
-    mov dl, [boot_drive]
-    int 0x13
-    jc disk_error    ; Jump if error (carry flag set)
-    
-    ; Verify number of sectors read
-    cmp al, 8
-    jl disk_error
+    mov al, '2'
+    call print_char
     
     ; Print '3'
-    mov si, msg3
-    call print
+    mov al, '3'
+    call print_char
     
-    ; Print 'A' before A20
-    mov si, msg_a
-    call print
+    ; Try to enable A20 using the BIOS (most reliable method)
+    mov ax, 0x2401
+    int 0x15
+    jnc .a20_enabled
     
-    ; Enable A20 line (fast method)
+    ; If BIOS method failed, try fast A20
     in al, 0x92
-    test al, 2
-    jnz .a20_done
     or al, 2
     out 0x92, al
-.a20_done:
     
-    ; Print '4' if A20 enabled
-    mov si, msg4
-    call print
+    ; Test if A20 is enabled
+    call test_a20
+    jnz .a20_enabled
     
-    ; Print 'B' before GDT
-    mov si, msg_b
-    call print
+    ; If still not enabled, show error
+    mov al, 'A'
+    call print_char
+    jmp $
+    
+.a20_enabled:
+    ; Print '4' if A20 is enabled
+    mov al, '4'
+    call print_char
     
     ; Load GDT and enter protected mode
     cli
     lgdt [gdt_desc]
-    
-    ; Print 'C' before PM
-    mov si, msg_c
-    call print
     
     ; Enable protected mode
     mov eax, cr0
     or al, 1
     mov cr0, eax
     
-    ; Print 'D' after PM enable (shouldn't be reached if PM works)
-    mov si, msg_d
-    call print
-    
-    ; Far jump to 32-bit code (use explicit 32-bit operand size)
-    jmp dword 0x08:pm_start
+    ; Far jump to 32-bit code
+    jmp 0x08:pm_start
 
-disk_error:
-    mov si, disk_err_msg
-    call print
-    jmp $
-
-error:
-    mov si, msg_err
-    call print
-    jmp $
-
-print:
+; Test if A20 is enabled
+; Returns: ZF=0 if enabled, ZF=1 if disabled
+test_a20:
     pusha
-    mov ah, 0x0E
-.print_loop:
-    lodsb
-    or al, al
-    jz .done
-    int 0x10
-    jmp .print_loop
+    
+    ; Use BIOS memory area for testing (0x0000:0x0500 and 0xFFFF:0x0510)
+    xor ax, ax
+    mov es, ax
+    mov di, 0x0500
+    
+    ; Save original values
+    mov al, [es:di]
+    push ax
+    
+    ; Write test pattern
+    mov byte [es:di], 0x00
+    
+    ; Try to read from 1MB higher address
+    mov ax, 0xFFFF
+    mov es, ax
+    mov si, 0x0510
+    mov al, [es:si]
+    push ax
+    mov byte [es:si], 0xFF
+    
+    ; Check if the values are different
+    xor ax, ax
+    mov es, ax
+    cmp byte [es:di], 0xFF
+    
+    ; Restore original values
+    pop ax
+    mov es, 0xFFFF
+    mov [es:si], al
+    pop ax
+    xor bx, bx
+    mov es, bx
+    mov [es:di], al
+    
+    ; Set ZF based on test
+    jne .a20_enabled
+    xor ax, ax  ; ZF=1 (disabled)
+    jmp .done
+.a20_enabled:
+    or ax, 1    ; ZF=0 (enabled)
 .done:
     popa
     ret
 
-boot_drive: db 0
-msg1: db '1', 0
-msg2: db '2', 0
-msg3: db '3', 0
-msg4: db '4', 0
-msg5: db '5', 0
-msg_a: db 'A', 0
-msg_b: db 'B', 0
-msg_c: db 'C', 0
-msg_d: db 'D', 0
-msg_err: db 'E', 0
-disk_err_msg: db 'Disk error!', 0
+disk_error:
+    mov al, 'E'
+    call print_char
+    jmp $
 
-; GDT
+print_char:
+    mov ah, 0x0E
+    int 0x10
+    ret
+
+boot_drive: db 0
+
+; Minimal GDT
 gdt_start:
     dq 0                ; Null descriptor
     
-    ; Code segment
-    dw 0xFFFF           ; Limit low
-    dw 0x0000           ; Base low
-    db 0x00             ; Base middle
-    db 10011010b        ; Access: present, ring 0, code, executable, readable
-    db 11001111b        ; Flags: 4K granularity, 32-bit
-    db 0x00             ; Base high
+    ; Code segment (0x08)
+    dw 0xFFFF           ; Limit 0-15
+    dw 0x0000           ; Base 0-15
+    db 0x00             ; Base 16-23
+    db 0x9A             ; Access byte
+    db 0xCF             ; Flags + Limit 16-19
+    db 0x00             ; Base 24-31
     
-    ; Data segment
-    dw 0xFFFF           ; Limit low
-    dw 0x0000           ; Base low
-    db 0x00             ; Base middle
-    db 10010010b        ; Access: present, ring 0, data, writable
-    db 11001111b        ; Flags: 4K granularity, 32-bit
-    db 0x00             ; Base high
+    ; Data segment (0x10)
+    dw 0xFFFF           ; Limit 0-15
+    dw 0x0000           ; Base 0-15
+    db 0x00             ; Base 16-23
+    db 0x92             ; Access byte
+    db 0xCF             ; Flags + Limit 16-19
+    db 0x00             ; Base 24-31
+
 gdt_end:
 
 gdt_desc:
@@ -156,10 +150,6 @@ gdt_desc:
 
 [BITS 32]
 pm_start:
-    ; First instruction in PM - print 'E'
-    mov byte [0xB8000], 'E'
-    mov byte [0xB8001], 0x0F
-    
     ; Setup segments
     mov ax, 0x10
     mov ds, ax
@@ -169,28 +159,24 @@ pm_start:
     mov ss, ax
     mov esp, 0x90000
     
-    ; Print 'F' after segment setup
-    mov byte [0xB8002], 'F'
-    mov byte [0xB8003], 0x0F
-    
-    ; Print '6' to VGA (first protected mode code)
-    mov byte [0xB8000], '6'
+    ; Print 'P' to show we're in protected mode
+    mov byte [0xB8000], 'P'
     mov byte [0xB8001], 0x0F
     
-    ; Copy kernel to 1MB
+    ; Copy kernel from 0x10000 to 1MB (0x100000)
     mov esi, 0x10000
     mov edi, 0x100000
-    mov ecx, 2048
+    mov ecx, 1024  ; 4KB
     rep movsd
     
-    ; Print '8'
-    mov byte [0xB8002], '8'
+    ; Print 'K' to show kernel copied
+    mov byte [0xB8002], 'K'
     mov byte [0xB8003], 0x0F
     
     ; Jump to kernel
     jmp 0x100000
     
-    ; Hang if we return
+    ; Halt if we return
     cli
     hlt
 
