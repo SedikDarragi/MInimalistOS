@@ -2,86 +2,50 @@
 [ORG 0x7C00]
 
 start:
-    ; Minimal setup
     cli
     xor ax, ax
     mov ds, ax
     mov es, ax
     mov ss, ax
     mov sp, 0x7C00
-    sti
-    
-    ; Save boot drive
-    mov [boot_drive], dl
     
     ; Print '1'
     mov al, '1'
-    call print_char
+    int 0x10
     
-    ; Load kernel from disk to 0x10000 (64KB)
+    ; Load kernel to 0x10000 (64KB)
     mov ax, 0x1000
     mov es, ax
     xor bx, bx
     mov ah, 0x02    ; Read sectors
-    mov al, 8       ; Number of sectors to read (4KB)
+    mov al, 8       ; Sectors to read (4KB)
     mov ch, 0       ; Cylinder 0
     mov cl, 2       ; Sector 2 (1-based)
     mov dh, 0       ; Head 0
-    mov dl, [boot_drive]
     int 0x13
     jc disk_error
     
-    ; Print '2' if disk read succeeded
+    ; Print '2'
     mov al, '2'
-    call print_char
+    int 0x10
     
-    ; Enable A20 (fast method)
+    ; Enable A20
     in al, 0x92
     or al, 2
     out 0x92, al
     
-    ; Load GDT
+    ; Load GDT and enter protected mode
     cli
     lgdt [gdt_desc]
-    
-    ; Enable protected mode
     mov eax, cr0
     or al, 1
     mov cr0, eax
-    
-    ; Far jump to 32-bit code with segment selector 0x08
     jmp 0x08:pm_start
 
-; Test if A20 is enabled (simplified, always returns enabled)
-test_a20:
-    or ax, 1    ; Set ZF=0 (enabled)
-    ret
-
 disk_error:
     mov al, 'E'
-    call print_char
-    mov al, 'R'
-    call print_char
-    mov al, 'R'
-    call print_char
-    jmp $
-
-disk_error:
-    mov al, 'E'
-    call print_char
-    jmp $
-
-print_char:
-    pusha
-    mov ah, 0x0E
-    mov bx, 0x0007
     int 0x10
-    popa
-    ret
-
-boot_drive: db 0
-
-boot_drive: db 0
+    jmp $
 
 ; GDT
 gdt_start:
@@ -111,7 +75,7 @@ gdt_desc:
 
 [BITS 32]
 pm_start:
-    ; Setup segments
+    ; Set up segment registers
     mov ax, 0x10
     mov ds, ax
     mov es, ax
@@ -120,21 +84,21 @@ pm_start:
     mov ss, ax
     mov esp, 0x90000
     
-    ; Copy kernel from 0x10000 to 1MB (0x100000)
+    ; Copy kernel from 0x10000 to 1MB
     cld
     mov esi, 0x10000
     mov edi, 0x100000
     mov ecx, 0x1000  ; 4KB
     rep movsd
     
-    ; Print 'K' to show we're in kernel
+    ; Show 'K' in top-left corner
     mov byte [0xB8000], 'K'
     mov byte [0xB8001], 0x0F
     
     ; Jump to kernel
     jmp 0x100000
     
-    ; Halt if we return
+    ; Halt if we return (should never happen)
     cli
     hlt
 
