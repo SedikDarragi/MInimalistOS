@@ -63,6 +63,8 @@ os.img: boot/minimal_boot_new.bin kernel.bin
 	dd if=boot/minimal_boot_new.bin of=os.img conv=notrunc status=none
 	echo "Writing kernel..."
 	dd if=kernel.bin of=os.img bs=512 seek=1 conv=notrunc status=none
+	# Ensure boot signature is present
+	echo -n -e '\x55\xAA' | dd of=os.img bs=1 seek=510 conv=notrunc status=none
 	echo "Verifying boot signature..."
 	@if ! dd if=os.img bs=1 skip=510 count=2 2>/dev/null | hexdump -v -e '1/1 "%02x"' | grep -q '55aa'; then \
 		echo "ERROR: Boot signature missing or incorrect!" 1>&2; \
@@ -70,9 +72,24 @@ os.img: boot/minimal_boot_new.bin kernel.bin
 		exit 1; \
 	fi
 	echo "Disk image created successfully"
+	@ls -lh os.img
 
 boot/minimal_boot_new.bin: boot/minimal_boot_new.asm
 	nasm -f bin $< -o $@
+	@# Verify bootloader size
+	@SIZE=$$(wc -c < "$@"); \
+	if [ "$$SIZE" -gt 510 ]; then \
+		echo "ERROR: Bootloader too large ($$SIZE bytes, max 510)" 1>&2; \
+		hexdump -C -n 512 "$@" 1>&2; \
+		exit 1; \
+	fi
+	@# Ensure boot signature is not present yet
+	@if dd if="$@" bs=1 skip=510 count=2 2>/dev/null | grep -q 'U'; then \
+		echo "ERROR: Boot signature already present in bootloader!" 1>&2; \
+		hexdump -C -s 500 -n 20 "$@" 1>&2; \
+		exit 1; \
+	fi
+	@echo "Bootloader size: $$(wc -c < "$@") bytes"
 
 kernel.bin: kernel.elf
 	objcopy -O binary $< $@
@@ -96,6 +113,7 @@ boot/boot.bin: boot/boot.asm
 
 clean:
 	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/boot.bin boot/minimal_boot.bin boot/minimal_boot_new.bin
+	rm -f qemu_debug.log
 
 run: os.img
 	@echo "Make sure no other QEMU instances are running..."
@@ -110,7 +128,8 @@ run-vnc: os.img
 	qemu-system-i386 -fda os.img -snapshot -vnc :1 -k en-us -serial stdio -no-kvm -d int,cpu_reset -D qemu.log
 
 run-debug: os.img
-	qemu-system-i386 -fda os.img -snapshot -nographic -serial mon:stdio -d int -D qemu_debug.log
+	@echo "Starting QEMU with debug output..."
+	qemu-system-i386 -fda os.img -snapshot -nographic -serial stdio -d int -no-reboot
 
 run-monitor: os.img
 	qemu-system-i386 -fda os.img -snapshot -monitor stdio
