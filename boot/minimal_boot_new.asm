@@ -8,29 +8,77 @@ start:
     mov ss, ax
     mov sp, 0x7C00
     
-    ; Load kernel to 0x10000 (64KB)
+    ; Save boot drive
+    mov [boot_drive], dl
+    
+    ; Print 'S' to show we've started
+    mov ah, 0x0E
+    mov al, 'S'
+    int 0x10
+    
+    ; Reset disk system
+    xor ah, ah
+    mov dl, [boot_drive]
+    int 0x13
+    jc disk_error
+    
+    ; Print 'R' to show we've reset the disk
+    mov ah, 0x0E
+    mov al, 'R'
+    int 0x10
+    
+    ; Set up destination (0x1000:0x0000 = 0x10000)
     mov ax, 0x1000
     mov es, ax
     xor bx, bx
     
-    ; Reset disk system
-    mov ah, 0x00
+    ; Read kernel (try multiple times)
+    mov si, 3               ; Retry count
+    
+.read_retry:
+    ; Print which attempt we're on
+    mov ah, 0x0E
+    mov al, '0'
+    add al, [.attempt]
+    int 0x10
+    inc byte [.attempt]
+    
+    mov ah, 0x02            ; Read sectors
+    mov al, 8               ; Number of sectors to read (increase if needed)
+    mov ch, 0               ; Cylinder 0
+    mov cl, 2               ; Sector 2 (1-based)
+    mov dh, 0               ; Head 0
+    mov dl, [boot_drive]
+    int 0x13
+    jnc .read_done          ; If no error, continue
+    
+    ; Error handling
+    dec si
+    jz disk_error           ; If no retries left, show error
+    
+    ; Reset disk and try again
+    xor ah, ah
+    mov dl, [boot_drive]
     int 0x13
     jc disk_error
     
-    ; Read kernel (2 sectors = 1KB)
-    mov ah, 0x02
-    mov al, 2
-    mov ch, 0
-    mov cl, 2
-    mov dh, 0
-    int 0x13
-    jc disk_error
+    jmp .read_retry         ; Otherwise, retry
+    
+.read_done:
+    ; Print 'D' to show we've read the disk
+    mov ah, 0x0E
+    mov al, 'D'
+    int 0x10
     
     ; Enable A20
     in al, 0x92
     or al, 2
     out 0x92, al
+    
+    ; Print 'A' to show we've enabled A20
+    mov ah, 0x0E
+    mov al, 'A'
+    int 0x10
     
     ; Load GDT and enter protected mode
     cli
@@ -41,8 +89,15 @@ start:
     jmp 0x08:pm_start
 
 disk_error:
+    ; Print 'E' and error code
     mov si, error_msg
     call print_string
+    
+    ; Print error code in AH
+    mov al, ah
+    call print_hex_byte
+    
+    hlt
     jmp $
 
 print_string:
@@ -55,18 +110,52 @@ print_string:
 .done:
     ret
 
-; Minimal GDT (code segment only)
+print_hex_byte:
+    push ax
+    mov ah, 0x0E
+    
+    ; Print high nibble
+    mov cl, 4
+    rol al, cl
+    and al, 0x0F
+    cmp al, 0x0A
+    jb .print_digit_high
+    add al, 7
+.print_digit_high:
+    add al, '0'
+    int 0x10
+    
+    ; Print low nibble
+    pop ax
+    push ax
+    and al, 0x0F
+    cmp al, 0x0A
+    jb .print_digit_low
+    add al, 7
+.print_digit_low:
+    add al, '0'
+    int 0x10
+    
+    pop ax
+    ret
+
+; Variables
+boot_drive db 0
+.attempt db '0'
+error_msg db ' Error: 0x', 0
+
+; GDT
 gdt:
     dq 0
     dw 0xFFFF, 0, 0x9A00, 0x00CF  ; Code
+    dw 0xFFFF, 0, 0x9200, 0x00CF  ; Data
 
 gdt_desc:
-    dw 0x0F
+    dw gdt_desc - gdt - 1
     dd gdt
 
-error_msg db 'E', 0
-
-times 446-($-$$) db 0
+; Pad to 510 bytes and add boot signature
+times 510-($-$$) db 0
 dw 0xAA55
 
 [BITS 32]
@@ -76,6 +165,11 @@ pm_start:
     mov ds, ax
     mov es, ax
     mov ss, ax
+    mov esp, 0x7C00  ; Set up stack
     
-    ; Jump to kernel at 0x10000
+    ; Print 'P' to show we're in protected mode
+    mov byte [0xB8000], 'P'
+    mov byte [0xB8001], 0x0F
+    
+    ; Jump to kernel
     jmp 0x08:0x10000

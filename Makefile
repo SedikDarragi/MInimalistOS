@@ -129,7 +129,7 @@ run-vnc: os.img
 
 run-debug: os.img
 	@echo "Starting QEMU with debug output..."
-	qemu-system-i386 -fda os.img -snapshot -nographic -serial stdio -d int -no-reboot
+	qemu-system-i386 -fda os.img -snapshot -nographic -d int -no-reboot
 
 run-monitor: os.img
 	qemu-system-i386 -fda os.img -snapshot -monitor stdio
