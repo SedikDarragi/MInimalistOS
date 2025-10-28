@@ -13,14 +13,19 @@ start:
     mov es, ax
     xor bx, bx
     
-    ; Read kernel (16 sectors = 8KB)
-    mov ah, 0x02
-    mov al, 16
-    xor ch, ch
-    mov cl, 2
-    xor dh, dh
+    ; Reset disk system
+    mov ah, 0x00
     int 0x13
-    jc $
+    jc disk_error
+    
+    ; Read kernel (2 sectors = 1KB)
+    mov ah, 0x02
+    mov al, 2
+    mov ch, 0
+    mov cl, 2
+    mov dh, 0
+    int 0x13
+    jc disk_error
     
     ; Enable A20
     in al, 0x92
@@ -35,7 +40,22 @@ start:
     mov cr0, eax
     jmp 0x08:pm_start
 
-; Minimal GDT
+disk_error:
+    mov si, error_msg
+    call print_string
+    jmp $
+
+print_string:
+    lodsb
+    or al, al
+    jz .done
+    mov ah, 0x0E
+    int 0x10
+    jmp print_string
+.done:
+    ret
+
+; Minimal GDT (code segment only)
 gdt:
     dq 0
     dw 0xFFFF, 0, 0x9A00, 0x00CF  ; Code
@@ -43,6 +63,8 @@ gdt:
 gdt_desc:
     dw 0x0F
     dd gdt
+
+error_msg db 'E', 0
 
 times 446-($-$$) db 0
 dw 0xAA55
