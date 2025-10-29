@@ -7,7 +7,7 @@ start:
     mov ds, ax
     mov ss, ax
     mov sp, 0x7C00
-    mov [boot_drive], dl
+    push dx              ; Save boot drive
 
     ; Set up destination (0x1000:0x0000 = 0x10000)
     mov ax, 0x1000
@@ -17,10 +17,10 @@ start:
     ; Read kernel (single sector)
     mov ah, 0x02
     mov al, 1
-    mov ch, 0
+    xor ch, ch
     mov cl, 2
-    mov dh, 0
-    mov dl, [boot_drive]
+    xor dh, dh
+    pop dx               ; Restore boot drive
     int 0x13
     jc error
 
@@ -33,8 +33,6 @@ error:
     mov al, 'E'
     int 0x10
     jmp $
-
-boot_drive db 0
 
 ; Pad to 510 bytes and add boot signature
 times 510-($-$$) db 0
