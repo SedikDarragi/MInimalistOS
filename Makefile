@@ -49,7 +49,7 @@ ASFLAGS = -f elf32
 
 # Source files
 KERNEL_SRCS = kernel/minimal.c kernel/shell_new.c kernel/idt.c
-KERNEL_ASM_SRCS = kernel/entry.asm kernel/idt_asm.s
+KERNEL_ASM_SRCS = kernel/entry.asm kernel/idt_asm.s kernel/irq.asm
 
 # Object files
 KERNEL_OBJS = $(KERNEL_SRCS:.c=.o) $(patsubst %.asm,%.o,$(filter %.asm,$(KERNEL_ASM_SRCS))) $(patsubst %.s,%.o,$(filter %.s,$(KERNEL_ASM_SRCS)))
