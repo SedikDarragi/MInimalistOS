@@ -7,7 +7,7 @@
 void idt_init();
 
 // Default IRQ handler
-void default_irq_handler();
+void default_irq_handler(uint32_t irq);
 
 // Send a byte to an I/O port
 static inline void outb(uint16_t port, uint8_t val) {

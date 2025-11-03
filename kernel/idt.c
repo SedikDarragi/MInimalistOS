@@ -34,9 +34,16 @@ static void default_exception_handler() {
 }
 
 // Default IRQ handler
-void default_irq_handler() {
-    // Acknowledge the interrupt to the PIC
-    outb(0x20, 0x20);
+void default_irq_handler(uint32_t irq) {
+    // Acknowledge the interrupt to the PIC(s)
+    if (irq >= 8) {
+        // If this was an IRQ from the slave PIC, send EOI to both PICs
+        outb(0xA0, 0x20);  // Send EOI to slave
+        outb(0x20, 0x20);  // Send EOI to master
+    } else {
+        // If this was an IRQ from the master PIC, just send EOI to master
+        outb(0x20, 0x20);
+    }
 }
 
 // Set an IDT gate

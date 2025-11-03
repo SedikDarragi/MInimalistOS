@@ -8,11 +8,13 @@ extern default_irq_handler
 %macro IRQ 1
 global irq%1
 irq%1:
+    cli
     pusha
     push %1
     call default_irq_handler
     add esp, 4
     popa
+    sti
     iret
 %endmacro
 
