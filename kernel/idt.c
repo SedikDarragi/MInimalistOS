@@ -33,8 +33,35 @@ static void default_exception_handler() {
     asm volatile ("hlt");
 }
 
+// Simple VGA text output function for debugging
+static void debug_putchar(char c) {
+    static uint16_t* vga_buffer = (uint16_t*)0xB8000;
+    static size_t vga_index = 0;
+    
+    if (c == '\n') {
+        vga_index = (vga_index + 80) & ~0x7F;
+    } else {
+        vga_buffer[vga_index++] = (0x0F << 8) | c;
+    }
+    
+    // Simple newline handling
+    if (vga_index >= 80 * 25) {
+        vga_index = 0;
+    }
+}
+
+// Debug print function
+static void debug_print(const char* str) {
+    while (*str) {
+        debug_putchar(*str++);
+    }
+}
+
 // Default IRQ handler
 void default_irq_handler(uint32_t irq) {
+    // Debug output
+    debug_putchar('0' + (irq % 10));
+    
     // Acknowledge the interrupt to the PIC(s)
     if (irq >= 8) {
         // If this was an IRQ from the slave PIC, send EOI to both PICs
@@ -58,25 +85,43 @@ static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags
 
 // Initialize the Programmable Interrupt Controller (PIC)
 static void init_pic() {
-    // ICW1: Start initialization sequence
+    // Save masks
+    uint8_t a1 = inb(0x21);
+    uint8_t a2 = inb(0xA1);
+    
+    // Start initialization sequence (cascade mode)
     outb(0x20, 0x11);
+    io_wait();
     outb(0xA0, 0x11);
+    io_wait();
 
-    // ICW2: Remap IRQ0-IRQ7 to 0x20-0x27 and IRQ8-IRQ15 to 0x28-0x2F
-    outb(0x21, 0x20);
-    outb(0xA1, 0x28);
+    // Remap IRQ0-IRQ7 to 0x20-0x27 and IRQ8-IRQ15 to 0x28-0x2F
+    outb(0x21, 0x20);  // Master PIC vector offset
+    io_wait();
+    outb(0xA1, 0x28);  // Slave PIC vector offset
+    io_wait();
 
-    // ICW3: Configure cascading
+    // Tell Master PIC about the slave at IRQ2 (0000 0100)
     outb(0x21, 0x04);
+    io_wait();
+    // Tell Slave PIC its cascade identity (0000 0010)
     outb(0xA1, 0x02);
+    io_wait();
 
-    // ICW4: Environment info
+    // Set 8086/88 mode
     outb(0x21, 0x01);
+    io_wait();
     outb(0xA1, 0x01);
+    io_wait();
 
-    // Mask all interrupts except keyboard (IRQ1) and cascade (IRQ2)
-    outb(0x21, 0xFC);
-    outb(0xA1, 0xFF);
+    // Restore saved masks
+    outb(0x21, a1);
+    outb(0xA1, a2);
+    
+    // Mask all interrupts except cascade (IRQ2) on master
+    outb(0x21, 0xFB);  // 1111 1011 - Only IRQ2 (slave) is unmasked
+    // Mask all interrupts on slave
+    outb(0xA1, 0xFF);  // 1111 1111 - All masked
 }
 
 // Initialize the IDT
