@@ -50,13 +50,6 @@ static void debug_putchar(char c) {
     }
 }
 
-// Debug print function
-static void debug_print(const char* str) {
-    while (*str) {
-        debug_putchar(*str++);
-    }
-}
-
 // Default IRQ handler
 void default_irq_handler(uint32_t irq) {
     // Debug output
