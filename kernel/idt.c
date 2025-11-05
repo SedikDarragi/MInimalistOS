@@ -33,61 +33,59 @@ static void default_exception_handler() {
     asm volatile ("hlt");
 }
 
-// Simple VGA text output function for debugging
-static void debug_putchar(char c) {
-    static uint16_t* vga_buffer = (uint16_t*)0xB8000;
-    static size_t vga_index = 0;
-    
-    if (c == '\n') {
-        vga_index = (vga_index + 80) & ~0x7F;
-    } else {
-        vga_buffer[vga_index++] = (0x0F << 8) | c;
-    }
-    
-    // Simple newline handling
-    if (vga_index >= 80 * 25) {
-        vga_index = 0;
-    }
-}
+// VGA text buffer
+#define VGA_BUFFER ((volatile uint16_t*)0xB8000)
 
 // Simple hex to character conversion
 static char hex_chars[] = "0123456789ABCDEF";
 
-// Output a 16-bit value in hex
-static void debug_puthex16(uint16_t value) {
-    for (int i = 12; i >= 0; i -= 4) {
-        debug_putchar(hex_chars[(value >> i) & 0xF]);
-    }
-}
-
-// Read the PIC's In-Service Register (ISR)
-static uint16_t read_isr() {
-    outb(0x20, 0x0B);  // Read ISR on master
-    outb(0xA0, 0x0B);  // Read ISR on slave
-    return (inb(0xA0) << 8) | inb(0x20);
-}
-
 // Default IRQ handler
 void default_irq_handler(uint32_t irq) {
-    // Static variable to track VGA position
-    static size_t vga_index = 0;
+    // Clear the first 10 lines of the screen with a different background
+    for (int y = 0; y < 10; y++) {
+        for (int x = 0; x < 80; x++) {
+            VGA_BUFFER[y * 80 + x] = 0x1F00;  // Blue background, black space
+        }
+    }
     
-    // Show IRQ number in hex
-    debug_putchar('I');
-    debug_putchar('R');
-    debug_putchar('Q');
-    debug_putchar('0' + (irq / 10));  // Tens digit
-    debug_putchar('0' + (irq % 10));  // Ones digit
-    debug_putchar(' ');
+    // Display a header
+    const char *header = "=== MINIMAL OS DEBUG ===";
+    for (int i = 0; header[i]; i++) {
+        VGA_BUFFER[i] = 0x1F00 | header[i];
+    }
     
-    // Read and display ISR
-    uint16_t isr = read_isr();
-    debug_putchar('I');
-    debug_putchar('S');
-    debug_putchar('R');
-    debug_putchar('=');
-    debug_puthex16(isr);
-    debug_putchar(' ');
+    // Display IRQ information on line 2
+    char irq_msg[32];
+    irq_msg[0] = 'I';
+    irq_msg[1] = 'R';
+    irq_msg[2] = 'Q';
+    irq_msg[3] = '0' + (irq / 10);
+    irq_msg[4] = '0' + (irq % 10);
+    irq_msg[5] = '\0';
+    
+    for (int i = 0; irq_msg[i]; i++) {
+        VGA_BUFFER[1 * 80 + i] = 0x1F00 | irq_msg[i];
+    }
+    
+    // Read ISR value
+    outb(0x20, 0x0B);  // Read ISR on master
+    uint8_t isr = inb(0x20);
+    
+    // Display ISR value on line 3
+    const char *isr_str = "ISR=0x";
+    for (int i = 0; isr_str[i]; i++) {
+        VGA_BUFFER[2 * 80 + i] = 0x1F00 | isr_str[i];
+    }
+    
+    // Display ISR in hex on line 3
+    VGA_BUFFER[2 * 80 + 6] = 0x1F00 | hex_chars[(isr >> 4) & 0xF];
+    VGA_BUFFER[2 * 80 + 7] = 0x1F00 | hex_chars[isr & 0xF];
+    
+    // Display a message on line 5
+    const char *msg = "Interrupt received!";
+    for (int i = 0; msg[i]; i++) {
+        VGA_BUFFER[4 * 80 + i] = 0x1F00 | msg[i];
+    }
     
     // Acknowledge the interrupt to the PIC(s)
     if (irq >= 8) {
@@ -97,11 +95,7 @@ void default_irq_handler(uint32_t irq) {
         outb(0x20, 0x20);  // Send EOI to master only
     }
     
-    // Move to next line for next interrupt
-    vga_index = (vga_index + 80) & ~0x7F;
-    if (vga_index >= 80 * 25) vga_index = 0;
-    
-    // Small delay to make output readable
+    // Small delay to make the output readable
     for (volatile int i = 0; i < 1000000; i++);
 }
 

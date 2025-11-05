@@ -129,14 +129,19 @@ run-vnc: os.img
 	@echo "To connect, run in another terminal:"
 	@echo "  vncviewer localhost:1"
 	@echo "===================================================="
-	@echo "Serial output will be shown in this terminal"
+	@echo "QEMU monitor is available via telnet on port 55555"
+	@echo "Serial output is available in this terminal"
 	@echo "Press Ctrl+C to stop QEMU"
 	@echo "===================================================="
-	qemu-system-i386 -fda os.img -snapshot -vnc :1 -k en-us -serial stdio -d int -D qemu.log
+	qemu-system-i386 -fda os.img -vnc :1 -serial stdio -monitor telnet:127.0.0.1:55555,server,nowait -d int -D qemu.log
 
 run-debug: os.img
-	@echo "Starting QEMU with debug output..."
-	qemu-system-i386 -fda os.img -snapshot -nographic -d int -no-reboot
+	@echo "Starting QEMU with serial debug output..."
+	@echo "===================================================="
+	@echo "Debug output will appear in this terminal"
+	@echo "Press Ctrl+A then X to exit QEMU"
+	@echo "===================================================="
+	qemu-system-i386 -fda os.img -nographic -serial stdio -monitor none -d int -no-reboot
 
 run-monitor: os.img
 	qemu-system-i386 -fda os.img -snapshot -monitor stdio
