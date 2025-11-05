@@ -124,8 +124,15 @@ run: os.img
 run-vnc: os.img
 	@echo "Make sure no other QEMU instances are running..."
 	-@pkill -f "qemu-system-i386.*os\.img" 2>/dev/null || true
-	@echo "Starting QEMU with VNC (connect with vncviewer localhost:1) and serial output..."
-	qemu-system-i386 -fda os.img -snapshot -vnc :1 -k en-us -serial stdio -no-kvm -d int,cpu_reset -D qemu.log
+	@echo "===================================================="
+	@echo "Starting QEMU with VNC server on localhost:1"
+	@echo "To connect, run in another terminal:"
+	@echo "  vncviewer localhost:1"
+	@echo "===================================================="
+	@echo "Serial output will be shown in this terminal"
+	@echo "Press Ctrl+C to stop QEMU"
+	@echo "===================================================="
+	qemu-system-i386 -fda os.img -snapshot -vnc :1 -k en-us -serial stdio -d int -D qemu.log
 
 run-debug: os.img
 	@echo "Starting QEMU with debug output..."

@@ -50,20 +50,59 @@ static void debug_putchar(char c) {
     }
 }
 
+// Simple hex to character conversion
+static char hex_chars[] = "0123456789ABCDEF";
+
+// Output a 16-bit value in hex
+static void debug_puthex16(uint16_t value) {
+    for (int i = 12; i >= 0; i -= 4) {
+        debug_putchar(hex_chars[(value >> i) & 0xF]);
+    }
+}
+
+// Read the PIC's In-Service Register (ISR)
+static uint16_t read_isr() {
+    outb(0x20, 0x0B);  // Read ISR on master
+    outb(0xA0, 0x0B);  // Read ISR on slave
+    return (inb(0xA0) << 8) | inb(0x20);
+}
+
 // Default IRQ handler
 void default_irq_handler(uint32_t irq) {
-    // Debug output
-    debug_putchar('0' + (irq % 10));
+    // Static variable to track VGA position
+    static size_t vga_index = 0;
+    
+    // Show IRQ number in hex
+    debug_putchar('I');
+    debug_putchar('R');
+    debug_putchar('Q');
+    debug_putchar('0' + (irq / 10));  // Tens digit
+    debug_putchar('0' + (irq % 10));  // Ones digit
+    debug_putchar(' ');
+    
+    // Read and display ISR
+    uint16_t isr = read_isr();
+    debug_putchar('I');
+    debug_putchar('S');
+    debug_putchar('R');
+    debug_putchar('=');
+    debug_puthex16(isr);
+    debug_putchar(' ');
     
     // Acknowledge the interrupt to the PIC(s)
     if (irq >= 8) {
-        // If this was an IRQ from the slave PIC, send EOI to both PICs
         outb(0xA0, 0x20);  // Send EOI to slave
         outb(0x20, 0x20);  // Send EOI to master
     } else {
-        // If this was an IRQ from the master PIC, just send EOI to master
-        outb(0x20, 0x20);
+        outb(0x20, 0x20);  // Send EOI to master only
     }
+    
+    // Move to next line for next interrupt
+    vga_index = (vga_index + 80) & ~0x7F;
+    if (vga_index >= 80 * 25) vga_index = 0;
+    
+    // Small delay to make output readable
+    for (volatile int i = 0; i < 1000000; i++);
 }
 
 // Set an IDT gate
