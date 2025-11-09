@@ -56,37 +56,20 @@ KERNEL_OBJS = $(KERNEL_SRCS:.c=.o) $(patsubst %.asm,%.o,$(filter %.asm,$(KERNEL_
 
 all: os.img
 
-os.img: boot/minimal_boot_new.bin kernel.bin
-	echo "Creating disk image..."
-	dd if=/dev/zero of=os.img bs=512 count=2880 status=none
-	echo "Writing bootloader..."
-	dd if=boot/minimal_boot_new.bin of=os.img conv=notrunc status=none
-	echo "Writing kernel..."
-	dd if=kernel.bin of=os.img bs=512 seek=1 conv=notrunc status=none
-	# Ensure boot signature is present
-	echo -n -e '\x55\xAA' | dd of=os.img bs=1 seek=510 conv=notrunc status=none
-	echo "Verifying boot signature..."
-	@if ! dd if=os.img bs=1 skip=510 count=2 2>/dev/null | hexdump -v -e '1/1 "%02x"' | grep -q '55aa'; then \
-		echo "ERROR: Boot signature missing or incorrect!" 1>&2; \
-		hexdump -C -s 510 -n 2 os.img 1>&2; \
-		exit 1; \
-	fi
-	echo "Disk image created successfully"
+os.img: boot/new_boot.bin kernel.bin
+	@echo "Creating disk image..."
+	@cat boot/new_boot.bin kernel.bin > os.img
+	@# Pad the image to 1.44MB
+	@truncate -s 1474560 os.img
+	@echo "Disk image created successfully"
 	@ls -lh os.img
 
-boot/minimal_boot_new.bin: boot/minimal_boot_new.asm
-	nasm -f bin $< -o $@
-	@# Verify bootloader size
+boot/new_boot.bin: boot/new_boot.asm
+	@nasm -f bin $< -o $@
+	@# Verify bootloader size is exactly 512 bytes
 	@SIZE=$$(wc -c < "$@"); \
-	if [ "$$SIZE" -gt 510 ]; then \
-		echo "ERROR: Bootloader too large ($$SIZE bytes, max 510)" 1>&2; \
-		hexdump -C -n 512 "$@" 1>&2; \
-		exit 1; \
-	fi
-	@# Ensure boot signature is not present yet
-	@if dd if="$@" bs=1 skip=510 count=2 2>/dev/null | grep -q 'U'; then \
-		echo "ERROR: Boot signature already present in bootloader!" 1>&2; \
-		hexdump -C -s 500 -n 20 "$@" 1>&2; \
+	if [ "$$SIZE" -ne 512 ]; then \
+		echo "ERROR: Bootloader must be exactly 512 bytes, but is $$SIZE bytes" 1>&2; \
 		exit 1; \
 	fi
 	@echo "Bootloader size: $$(wc -c < "$@") bytes"
@@ -108,11 +91,8 @@ kernel.elf: $(KERNEL_OBJS) link.ld
 %.o: %.s
 	$(AS) -f elf32 $< -o $@
 
-boot/boot.bin: boot/boot.asm
-	$(AS) -f bin $< -o $@
-
 clean:
-	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/boot.bin boot/minimal_boot.bin boot/minimal_boot_new.bin
+	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/new_boot.bin boot/minimal_boot_new.bin
 	rm -f qemu_debug.log
 
 run: os.img

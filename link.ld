@@ -12,17 +12,12 @@ PHDRS
 
 SECTIONS
 {
-    /* The kernel will be loaded at 1MB (0x100000) */
-    . = 0x100000;
-    
-    /* Ensure the entry point is at the beginning */
-    .text : ALIGN(4K) {
-        *(.text.entry)
-        *(.text)
-    } :text
-    
+    /* The kernel will be loaded at 64KB (0x10000) */
+    . = 0x10000;
+
     /* Kernel code section */
     .text : ALIGN(4K) {
+        *(.text.entry) /* Make sure entry code is first */
         *(.text .text.*)
     } :text
     
