@@ -5,8 +5,10 @@
 #define VGA_BUFFER ((volatile uint16_t*)0xB8000)
 
 // Forward declarations for shell functions
+// Forward declarations
 void shell_init(void);
 void shell_run(void);
+void idt_init(void);
 
 // Simple delay function
 static void delay(int count) {
@@ -29,9 +31,10 @@ void kmain(void) {
         VGA_BUFFER[i] = 0x1F00;  // Clear to blue background
     }
     
-    // Initialize and run the shell (DISABLED FOR NOW)
-    // shell_init();
-    // shell_run();
+    // Initialize interrupts and the shell
+    idt_init();
+    shell_init();
+    shell_run();
     
     // Halt the CPU if shell returns (shouldn't happen)
     while (1) {

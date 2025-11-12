@@ -1,14 +1,19 @@
-#include <stdint.h>
-#include "vga.h"  // For vga_printf
-#include "idt.h"  // For IDT-related declarations
+#include <stddef.h> // For memset
+#include "idt.h"
+
+// PIC I/O Ports
+#define PIC1_CMD    0x20
+#define PIC1_DATA   0x21
+#define PIC2_CMD    0xA0
+#define PIC2_DATA   0xA1
 
 // IDT entry structure
 struct idt_entry {
-    uint16_t base_low;      // The lower 16 bits of the ISR's address
-    uint16_t selector;      // Kernel segment selector
-    uint8_t  always0;       // Must be zero
-    uint8_t  flags;         // Type and attributes
-    uint16_t base_high;     // The upper 16 bits of the ISR's address
+    uint16_t base_lo;
+    uint16_t sel;        // Kernel segment selector
+    uint8_t  always0;
+    uint8_t  flags;      // Flags
+    uint16_t base_hi;
 } __attribute__((packed));
 
 // IDT pointer structure
@@ -17,169 +22,79 @@ struct idt_ptr {
     uint32_t base;
 } __attribute__((packed));
 
-// IDT with 256 entries
-static struct idt_entry idt[256];
-static struct idt_ptr idtp;
+struct idt_entry idt[256];
+struct idt_ptr   idtp;
 
-// External function to load IDT
-extern void idt_load(uint32_t);
+// External assembly ISR/IRQ handlers
+extern void isr0(); extern void isr1(); extern void isr2(); extern void isr3();
+extern void isr4(); extern void isr5(); extern void isr6(); extern void isr7();
+extern void isr8(); extern void isr9(); extern void isr10(); extern void isr11();
+extern void isr12(); extern void isr13(); extern void isr14(); extern void isr15();
+extern void irq0(); extern void irq1(); extern void irq2(); extern void irq3();
+extern void irq4(); extern void irq5(); extern void irq6(); extern void irq7();
+extern void irq8(); extern void irq9(); extern void irq10(); extern void irq11();
+extern void irq12(); extern void irq13(); extern void irq14(); extern void irq15();
 
-// External assembly IRQ handlers
-extern void irq0();
-
-// Default exception handler
-static void default_exception_handler() {
-    // Just halt the CPU for now
-    asm volatile ("hlt");
-}
-
-// VGA text buffer
-#define VGA_BUFFER ((volatile uint16_t*)0xB8000)
-
-// Simple hex to character conversion
-static char hex_chars[] = "0123456789ABCDEF";
-
-// Default IRQ handler
-void default_irq_handler(uint32_t irq) {
-    // Clear the first 10 lines of the screen with a different background
-    for (int y = 0; y < 10; y++) {
-        for (int x = 0; x < 80; x++) {
-            VGA_BUFFER[y * 80 + x] = 0x1F00;  // Blue background, black space
-        }
-    }
-    
-    // Display a header
-    const char *header = "=== MINIMAL OS DEBUG ===";
-    for (int i = 0; header[i]; i++) {
-        VGA_BUFFER[i] = 0x1F00 | header[i];
-    }
-    
-    // Display IRQ information on line 2
-    char irq_msg[32];
-    irq_msg[0] = 'I';
-    irq_msg[1] = 'R';
-    irq_msg[2] = 'Q';
-    irq_msg[3] = '0' + (irq / 10);
-    irq_msg[4] = '0' + (irq % 10);
-    irq_msg[5] = '\0';
-    
-    for (int i = 0; irq_msg[i]; i++) {
-        VGA_BUFFER[1 * 80 + i] = 0x1F00 | irq_msg[i];
-    }
-    
-    // Read ISR value
-    outb(0x20, 0x0B);  // Read ISR on master
-    uint8_t isr = inb(0x20);
-    
-    // Display ISR value on line 3
-    const char *isr_str = "ISR=0x";
-    for (int i = 0; isr_str[i]; i++) {
-        VGA_BUFFER[2 * 80 + i] = 0x1F00 | isr_str[i];
-    }
-    
-    // Display ISR in hex on line 3
-    VGA_BUFFER[2 * 80 + 6] = 0x1F00 | hex_chars[(isr >> 4) & 0xF];
-    VGA_BUFFER[2 * 80 + 7] = 0x1F00 | hex_chars[isr & 0xF];
-    
-    // Display a message on line 5
-    const char *msg = "Interrupt received!";
-    for (int i = 0; msg[i]; i++) {
-        VGA_BUFFER[4 * 80 + i] = 0x1F00 | msg[i];
-    }
-    
-    // Acknowledge the interrupt to the PIC(s)
-    if (irq >= 8) {
-        outb(0xA0, 0x20);  // Send EOI to slave
-        outb(0x20, 0x20);  // Send EOI to master
-    } else {
-        outb(0x20, 0x20);  // Send EOI to master only
-    }
-    
-    // Small delay to make the output readable
-    for (volatile int i = 0; i < 1000000; i++);
-}
-
-// Set an IDT gate
-static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
-    idt[num].base_low = (base & 0xFFFF);
-    idt[num].selector = sel;
+// Function to set a gate in the IDT
+void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
+    idt[num].base_lo = (base & 0xFFFF);
+    idt[num].base_hi = (base >> 16) & 0xFFFF;
+    idt[num].sel     = sel;
     idt[num].always0 = 0;
-    idt[num].flags = flags;
-    idt[num].base_high = (base >> 16) & 0xFFFF;
+    idt[num].flags   = flags;
 }
 
-
-// Initialize the Programmable Interrupt Controller (PIC)
-static void init_pic() {
-    // Save masks
-    uint8_t a1 = inb(0x21);
-    uint8_t a2 = inb(0xA1);
-    
-    // Start initialization sequence (cascade mode)
-    outb(0x20, 0x11);
-    io_wait();
-    outb(0xA0, 0x11);
-    io_wait();
-
-    // Remap IRQ0-IRQ7 to 0x20-0x27 and IRQ8-IRQ15 to 0x28-0x2F
-    outb(0x21, 0x20);  // Master PIC vector offset
-    io_wait();
-    outb(0xA1, 0x28);  // Slave PIC vector offset
-    io_wait();
-
-    // Tell Master PIC about the slave at IRQ2 (0000 0100)
-    outb(0x21, 0x04);
-    io_wait();
-    // Tell Slave PIC its cascade identity (0000 0010)
-    outb(0xA1, 0x02);
-    io_wait();
-
-    // Set 8086/88 mode
-    outb(0x21, 0x01);
-    io_wait();
-    outb(0xA1, 0x01);
-    io_wait();
-
-    // Restore saved masks
-    outb(0x21, a1);
-    outb(0xA1, a2);
-    
-    // Mask all interrupts except cascade (IRQ2) on master
-    outb(0x21, 0xFB);  // 1111 1011 - Only IRQ2 (slave) is unmasked
-    // Mask all interrupts on slave
-    outb(0xA1, 0xFF);  // 1111 1111 - All masked
+// Remap the PIC
+void pic_remap(void) {
+    outb(PIC1_CMD, 0x11);
+    outb(PIC2_CMD, 0x11);
+    outb(PIC1_DATA, 0x20);
+    outb(PIC2_DATA, 0x28);
+    outb(PIC1_DATA, 0x04);
+    outb(PIC2_DATA, 0x02);
+    outb(PIC1_DATA, 0x01);
+    outb(PIC2_DATA, 0x01);
+    outb(PIC1_DATA, 0x0);
+    outb(PIC2_DATA, 0x0);
 }
 
-// Initialize the IDT
+// Generic C-level interrupt handler
+void fault_handler(struct regs *r) {
+    // For now, just hang on any CPU exception
+    (void)r; // Suppress unused variable warning
+    asm volatile ("cli; hlt");
+}
+
+// Generic C-level IRQ handler
+void irq_handler(struct regs *r) {
+    // Send EOI to the PICs
+    if (r->int_no >= 40) {
+        outb(PIC2_CMD, 0x20);
+    }
+    outb(PIC1_CMD, 0x20);
+}
+
+// Main IDT initialization
 void idt_init() {
-    // Set up the IDT pointer
     idtp.limit = (sizeof(struct idt_entry) * 256) - 1;
-    idtp.base = (uint32_t)&idt;
+    idtp.base  = (uint32_t)&idt;
 
-    // Clear out the entire IDT
-    uint8_t *idt_bytes = (uint8_t *)&idt;
-    for (size_t i = 0; i < sizeof(struct idt_entry) * 256; i++) {
-        idt_bytes[i] = 0;
-    }
+    memset(&idt, 0, sizeof(struct idt_entry) * 256);
 
-    // Set up the exception handlers (0-31)
-    for (int i = 0; i < 32; i++) {
-        idt_set_gate(i, (uint32_t)default_exception_handler, 0x08, 0x8E);
-    }
+    pic_remap();
 
-    // Set up IRQ handlers (32-47)
-    idt_set_gate(32, (uint32_t)irq0, 0x08, 0x8E);  // IRQ0: Timer
-    // Add more IRQ handlers as needed
-    for (int i = 33; i < 48; i++) {
-        idt_set_gate(i, (uint32_t)default_irq_handler, 0x08, 0x8E);
-    }
+    // Set up ISRs (CPU exceptions 0-31)
+    idt_set_gate(0, (uint32_t)isr0, 0x08, 0x8E);
+    // ... (set up all 32 ISRs here)
+    idt_set_gate(31, (uint32_t)isr0, 0x08, 0x8E); // Placeholder
 
-    // Initialize the PIC
-    init_pic();
+    // Set up IRQs (hardware interrupts 32-47)
+    idt_set_gate(32, (uint32_t)irq0, 0x08, 0x8E);
+    idt_set_gate(33, (uint32_t)irq1, 0x08, 0x8E);
+    // ... (set up all 16 IRQs here)
+    idt_set_gate(47, (uint32_t)irq15, 0x08, 0x8E);
 
     // Load the IDT
-    idt_load((uint32_t)&idtp);
-    
-    // Enable interrupts
-    asm volatile ("sti");
+    asm volatile ("lidt %0" : : "m"(idtp));
+    asm volatile ("sti"); // Enable interrupts
 }
