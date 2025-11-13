@@ -31,8 +31,14 @@ void kmain(void) {
         VGA_BUFFER[i] = 0x1F00;  // Clear to blue background
     }
     
-    // Initialize interrupts and the shell
+    VGA_BUFFER[0] = 0x4F00 | 'A'; // White on Red 'A'
+
+    // Initialize interrupts
     idt_init();
+
+    VGA_BUFFER[1] = 0x4F00 | 'B'; // White on Red 'B'
+
+    // Initialize and run the shell
     shell_init();
     shell_run();
     
