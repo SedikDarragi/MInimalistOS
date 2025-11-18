@@ -34,16 +34,16 @@ disk_load:
     
     int 0x13        ; BIOS interrupt
     
-    jc .disk_error  ; Jump if error
+    jc .error       ; Jump if error
     
     pop dx          ; Restore DX
     cmp al, dh      ; Check if all sectors were read
-    jne .disk_error
+    jne .error
     
     popa
     ret
     
-.disk_error:
+.error:
     mov si, disk_error_msg
     call print_str
     jmp $
@@ -74,11 +74,8 @@ gdt_descriptor:
     dd gdt_start
 
 ; Constants for GDT
-CODE_SEG equ gdt_code - gdt_start
-DATA_SEG equ gdt_data - gdt_start
-
-gdt_code equ 8
-gdt_data equ 16
+CODE_SEG equ 8
+DATA_SEG equ 16
 
 ; Switch to protected mode
 switch_to_pm:
@@ -110,8 +107,15 @@ init_pm:
     mov ebp, 0x90000
     mov esp, ebp
     
-    ; Jump to protected mode code
-    jmp BEGIN_PM
+    ; Print a message
+    mov ebx, msg_pm
+    call print_string_pm
+    
+    ; Jump to the kernel
+    call KERNEL_OFFSET
+    
+    ; Halt if we return (shouldn't happen)
+    jmp $
 
 ; Print a null-terminated string in protected mode
 ; Input: EBX = address of the string
@@ -122,17 +126,17 @@ print_string_pm:
     ; Set text color (white on black)
     mov ah, 0x0f
     
-.print_loop:
+.pm_loop:
     mov al, [ebx]     ; Get current character
     cmp al, 0         ; Check for null terminator
-    je .done
+    je .pm_done
     
     mov [edx], ax     ; Write character and attributes
     add ebx, 1        ; Next character
     add edx, 2        ; Next video memory position
-    jmp .print_loop
+    jmp .pm_loop
     
-.done:
+.pm_done:
     popa
     ret
 
@@ -161,6 +165,8 @@ main:
 
     ; Load kernel from disk
     mov bx, KERNEL_OFFSET
+    mov es, bx
+    xor bx, bx
     mov dh, 15  ; Number of sectors to read
     mov dl, [boot_drive]
     call disk_load

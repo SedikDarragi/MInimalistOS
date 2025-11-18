@@ -1,0 +1,261 @@
+     1                                  [org 0x7c00]
+     2                                  [bits 16]
+     3                                  
+     4                                  KERNEL_OFFSET equ 0x1000  ; Where we'll load our kernel
+     5                                  
+     6                                  ; Entry point
+     7                                  _start:
+     8 00000000 E9E500                      jmp main
+     9                                  
+    10                                  ; Print a null-terminated string in DS:SI
+    11                                  print_str:
+    12 00000003 60                          pusha
+    13 00000004 B40E                        mov ah, 0x0E
+    14                                  .print_loop:
+    15 00000006 AC                          lodsb
+    16 00000007 84C0                        test al, al
+    17 00000009 7404                        jz .done
+    18 0000000B CD10                        int 0x10
+    19 0000000D EBF7                        jmp .print_loop
+    20                                  .done:
+    21 0000000F 61                          popa
+    22 00000010 C3                          ret
+    23                                  
+    24                                  ; Print a single character in AL
+    25                                  print_char:
+    26 00000011 60                          pusha
+    27 00000012 B40E                        mov ah, 0x0E
+    28 00000014 CD10                        int 0x10
+    29 00000016 61                          popa
+    30 00000017 C3                          ret
+    31                                  
+    32                                  ; Print a newline
+    33                                  print_nl:
+    34 00000018 60                          pusha
+    35 00000019 B00D                        mov al, 0x0D
+    36 0000001B E8F3FF                      call print_char
+    37 0000001E B00A                        mov al, 0x0A
+    38 00000020 E8EEFF                      call print_char
+    39 00000023 61                          popa
+    40 00000024 C3                          ret
+    41                                  
+    42                                  ; Load 'dh' sectors from drive 'dl' into ES:BX
+    43                                  disk_load:
+    44 00000025 60                          pusha
+    45 00000026 52                          push dx
+    46                                      
+    47 00000027 B402                        mov ah, 0x02    ; BIOS read sector function
+    48 00000029 88F0                        mov al, dh      ; Read 'dh' sectors
+    49 0000002B B500                        mov ch, 0x00    ; Cylinder 0
+    50 0000002D B600                        mov dh, 0x00    ; Head 0
+    51 0000002F B102                        mov cl, 0x02    ; Sector 2 (1-based)
+    52                                      
+    53 00000031 CD13                        int 0x13        ; BIOS interrupt
+    54                                      
+    55 00000033 7207                        jc .error       ; Jump if error
+    56                                      
+    57 00000035 5A                          pop dx          ; Restore DX
+    58 00000036 38F0                        cmp al, dh      ; Check if all sectors were read
+    59 00000038 7502                        jne .error
+    60                                      
+    61 0000003A 61                          popa
+    62 0000003B C3                          ret
+    63                                      
+    64                                  .error:
+    65 0000003C BE[A701]                    mov si, disk_error_msg
+    66 0000003F E8C1FF                      call print_str
+    67 00000042 88E0                        mov al, ah      ; Error code
+    68 00000044 E80200                      call print_hex
+    69 00000047 EBFE                        jmp $
+    70                                  
+    71                                  ; Print AL in hex
+    72                                  print_hex:
+    73 00000049 60                          pusha
+    74 0000004A B90400                      mov cx, 4       ; 4 hex digits (16 bits)
+    75 0000004D BB[B901]                    mov bx, HEX_OUT + 2
+    76                                  .next_digit:
+    77 00000050 C1C004                      rol ax, 4
+    78 00000053 89C2                        mov dx, ax
+    79 00000055 83E20F                      and dx, 0x000F
+    80 00000058 80FA09                      cmp dl, 9
+    81 0000005B 7F05                        jg .letter
+    82 0000005D 80C230                      add dl, '0'
+    83 00000060 EB03                        jmp .print
+    84                                  .letter:
+    85 00000062 80C237                      add dl, 'A' - 10
+    86                                  .print:
+    87 00000065 8817                        mov [bx], dl
+    88 00000067 43                          inc bx
+    89 00000068 E2E6                        loop .next_digit
+    90 0000006A BE[B701]                    mov si, HEX_OUT
+    91 0000006D E893FF                      call print_str
+    92 00000070 61                          popa
+    93 00000071 C3                          ret
+    94                                  
+    95                                  ; GDT
+    96                                  gdt_start:
+    97 00000072 0000000000000000            dq 0x0                 ; Null descriptor
+    98                                      
+    99                                      ; Code segment
+   100 0000007A FFFF                        dw 0xFFFF             ; Limit (bits 0-15)
+   101 0000007C 0000                        dw 0x0                ; Base (bits 0-15)
+   102 0000007E 00                          db 0x0                ; Base (bits 16-23)
+   103 0000007F 9A                          db 10011010b          ; 1st flags, type flags
+   104 00000080 CF                          db 11001111b          ; 2nd flags, Limit (bits 16-19)
+   105 00000081 00                          db 0x0                ; Base (bits 24-31)
+   106                                      
+   107                                      ; Data segment
+   108 00000082 FFFF                        dw 0xFFFF             ; Limit (bits 0-15)
+   109 00000084 0000                        dw 0x0                ; Base (bits 0-15)
+   110 00000086 00                          db 0x0                ; Base (bits 16-23)
+   111 00000087 92                          db 10010010b          ; 1st flags, type flags
+   112 00000088 CF                          db 11001111b          ; 2nd flags, Limit (bits 16-19)
+   113 00000089 00                          db 0x0                ; Base (bits 24-31)
+   114                                  gdt_end:
+   115                                  
+   116                                  gdt_descriptor:
+   117 0000008A 1700                        dw gdt_end - gdt_start - 1
+   118 0000008C [72000000]                  dd gdt_start
+   119                                  
+   120                                  ; Constants for GDT
+   121                                  CODE_SEG equ 8
+   122                                  DATA_SEG equ 16
+   123                                  
+   124                                  ; Switch to protected mode
+   125                                  switch_to_pm:
+   126 00000090 FA                          cli                     ; Disable interrupts
+   127                                      
+   128                                      ; Load the GDT descriptor
+   129 00000091 0F0116[8A00]                lgdt [gdt_descriptor]
+   130                                      
+   131                                      ; Enable protected mode
+   132 00000096 0F20C0                      mov eax, cr0
+   133 00000099 6683C801                    or eax, 0x1
+   134 0000009D 0F22C0                      mov cr0, eax
+   135                                      
+   136                                      ; Far jump to flush the pipeline and reload CS
+   137 000000A0 EA[A500]0800                jmp CODE_SEG:init_pm
+   138                                  
+   139                                  [bits 32]
+   140                                  ; Initialize registers and stack in protected mode
+   141                                  init_pm:
+   142                                      ; Update segment registers
+   143 000000A5 66B81000                    mov ax, DATA_SEG
+   144 000000A9 8ED8                        mov ds, ax
+   145 000000AB 8ED0                        mov ss, ax
+   146 000000AD 8EC0                        mov es, ax
+   147 000000AF 8EE0                        mov fs, ax
+   148 000000B1 8EE8                        mov gs, ax
+   149                                      
+   150                                      ; Update stack pointer
+   151 000000B3 BD00000900                  mov ebp, 0x90000
+   152 000000B8 89EC                        mov esp, ebp
+   153                                      
+   154                                      ; Print a message
+   155 000000BA BB[80010000]                mov ebx, msg_pm
+   156 000000BF E809000000                  call print_string_pm
+   157                                      
+   158                                      ; Jump to the kernel
+   159 000000C4 EA001000000800              jmp CODE_SEG:KERNEL_OFFSET
+   160                                      
+   161                                      ; Halt if we return (shouldn't happen)
+   162 000000CB EBFE                        jmp $
+   163                                  
+   164                                  ; Print a null-terminated string in protected mode
+   165                                  ; Input: EBX = address of the string
+   166                                  print_string_pm:
+   167 000000CD 60                          pusha
+   168 000000CE BA00800B00                  mov edx, 0xb8000  ; Start of video memory
+   169                                      
+   170                                      ; Set text color (white on black)
+   171 000000D3 B40F                        mov ah, 0x0f
+   172                                      
+   173                                  .pm_loop:
+   174 000000D5 8A03                        mov al, [ebx]     ; Get current character
+   175 000000D7 3C00                        cmp al, 0         ; Check for null terminator
+   176 000000D9 740B                        je .pm_done
+   177                                      
+   178 000000DB 668902                      mov [edx], ax     ; Write character and attributes
+   179 000000DE 83C301                      add ebx, 1        ; Next character
+   180 000000E1 83C202                      add edx, 2        ; Next video memory position
+   181 000000E4 EBEF                        jmp .pm_loop
+   182                                      
+   183                                  .pm_done:
+   184 000000E6 61                          popa
+   185 000000E7 C3                          ret
+   186                                  
+   187                                  ; Main bootloader code
+   188                                  [bits 16]
+   189                                  main:
+   190                                      ; Set up segments
+   191 000000E8 FA                          cli
+   192 000000E9 31C0                        xor ax, ax
+   193 000000EB 8ED8                        mov ds, ax
+   194 000000ED 8EC0                        mov es, ax
+   195 000000EF 8ED0                        mov ss, ax
+   196 000000F1 BC007C                      mov sp, 0x7c00
+   197 000000F4 FB                          sti
+   198                                  
+   199                                      ; Save boot drive
+   200 000000F5 8816[B601]                  mov [boot_drive], dl
+   201                                  
+   202                                      ; Set video mode
+   203 000000F9 B80300                      mov ax, 0x0003  ; 80x25 text mode
+   204 000000FC CD10                        int 0x10
+   205                                  
+   206                                      ; Print loading message
+   207 000000FE BE[3401]                    mov si, msg_loading
+   208 00000101 E8FFFE                      call print_str
+   209                                  
+   210                                      ; Load kernel from disk
+   211 00000104 BB0010                      mov bx, KERNEL_OFFSET
+   212 00000107 8EC3                        mov es, bx
+   213 00000109 31DB                        xor bx, bx
+   214 0000010B B60F                        mov dh, 15  ; Number of sectors to read
+   215 0000010D 8A16[B601]                  mov dl, [boot_drive]
+   216                                      
+   217                                      ; Print debug info
+   218 00000111 BE[4901]                    mov si, msg_loading_kernel
+   219 00000114 E8ECFE                      call print_str
+   220 00000117 E80BFF                      call disk_load
+   221                                      
+   222                                      ; If we get here, disk load was successful
+   223 0000011A BE[7D01]                    mov si, msg_ok
+   224 0000011D E8E3FE                      call print_str
+   225 00000120 E8F5FE                      call print_nl
+   226                                  
+   227                                      ; Switch to protected mode
+   228 00000123 BE[5C01]                    mov si, msg_switching
+   229 00000126 E8DAFE                      call print_str
+   230 00000129 E864FF                      call switch_to_pm
+   231                                  
+   232                                      ; Halt if we return (shouldn't happen)
+   233 0000012C BE[9801]                    mov si, msg_halted
+   234 0000012F E8D1FE                      call print_str
+   235 00000132 EBFE                        jmp $
+   236                                  
+   237                                  ; Data
+   238 00000134 426F6F746C6F616465-     msg_loading       db 'Bootloader started', 0x0D, 0x0A, 0
+   238 0000013D 722073746172746564-
+   238 00000146 0D0A00             
+   239 00000149 4C6F6164696E67206B-     msg_loading_kernel db 'Loading kernel... ', 0
+   239 00000152 65726E656C2E2E2E20-
+   239 0000015B 00                 
+   240 0000015C 537769746368696E67-     msg_switching     db 'Switching to protected mode...', 0x0D, 0x0A, 0
+   240 00000165 20746F2070726F7465-
+   240 0000016E 63746564206D6F6465-
+   240 00000177 2E2E2E0D0A00       
+   241 0000017D 4F4B00                  msg_ok            db 'OK', 0
+   242 00000180 456E74657265642070-     msg_pm            db 'Entered protected mode!', 0
+   242 00000189 726F74656374656420-
+   242 00000192 6D6F64652100       
+   243 00000198 53797374656D206861-     msg_halted        db 'System halted.', 0
+   243 000001A1 6C7465642E00       
+   244 000001A7 4469736B206572726F-     disk_error_msg    db 'Disk error: 0x', 0
+   244 000001B0 723A20307800       
+   245 000001B6 00                      boot_drive        db 0
+   246 000001B7 30783030303000          HEX_OUT:          db '0x0000', 0
+   247                                  
+   248                                  ; Pad to 510 bytes and add boot signature
+   249 000001BE 00<rep 40h>             times 510 - ($ - $$) db 0
+   250 000001FE 55AA                    dw 0xAA55

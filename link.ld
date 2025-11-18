@@ -12,8 +12,8 @@ PHDRS
 
 SECTIONS
 {
-    /* The kernel will be loaded at 1MB (0x100000) */
-    . = 0x100000;
+    /* The kernel will be loaded at 0x1000 (4KB) to match the bootloader */
+    . = 0x1000;
 
     /* Kernel code section */
     .text : ALIGN(4K) {

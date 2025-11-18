@@ -21,6 +21,24 @@ print_str:
     popa
     ret
 
+; Print a single character in AL
+print_char:
+    pusha
+    mov ah, 0x0E
+    int 0x10
+    popa
+    ret
+
+; Print a newline
+print_nl:
+    pusha
+    mov al, 0x0D
+    call print_char
+    mov al, 0x0A
+    call print_char
+    popa
+    ret
+
 ; Load 'dh' sectors from drive 'dl' into ES:BX
 disk_load:
     pusha
@@ -34,19 +52,45 @@ disk_load:
     
     int 0x13        ; BIOS interrupt
     
-    jc .disk_error  ; Jump if error
+    jc .error       ; Jump if error
     
     pop dx          ; Restore DX
     cmp al, dh      ; Check if all sectors were read
-    jne .disk_error
+    jne .error
     
     popa
     ret
     
-.disk_error:
+.error:
     mov si, disk_error_msg
     call print_str
+    mov al, ah      ; Error code
+    call print_hex
     jmp $
+
+; Print AL in hex
+print_hex:
+    pusha
+    mov cx, 4       ; 4 hex digits (16 bits)
+    mov bx, HEX_OUT + 2
+.next_digit:
+    rol ax, 4
+    mov dx, ax
+    and dx, 0x000F
+    cmp dl, 9
+    jg .letter
+    add dl, '0'
+    jmp .print
+.letter:
+    add dl, 'A' - 10
+.print:
+    mov [bx], dl
+    inc bx
+    loop .next_digit
+    mov si, HEX_OUT
+    call print_str
+    popa
+    ret
 
 ; GDT
 gdt_start:
@@ -74,11 +118,8 @@ gdt_descriptor:
     dd gdt_start
 
 ; Constants for GDT
-CODE_SEG equ gdt_code - gdt_start
-DATA_SEG equ gdt_data - gdt_start
-
-gdt_code equ 8
-gdt_data equ 16
+CODE_SEG equ 8
+DATA_SEG equ 16
 
 ; Switch to protected mode
 switch_to_pm:
@@ -110,8 +151,15 @@ init_pm:
     mov ebp, 0x90000
     mov esp, ebp
     
-    ; Jump to protected mode code
-    jmp BEGIN_PM
+    ; Print a message
+    mov ebx, msg_pm
+    call print_string_pm
+    
+    ; Jump to the kernel
+    jmp CODE_SEG:KERNEL_OFFSET
+    
+    ; Halt if we return (shouldn't happen)
+    jmp $
 
 ; Print a null-terminated string in protected mode
 ; Input: EBX = address of the string
@@ -122,17 +170,17 @@ print_string_pm:
     ; Set text color (white on black)
     mov ah, 0x0f
     
-.print_loop:
+.pm_loop:
     mov al, [ebx]     ; Get current character
     cmp al, 0         ; Check for null terminator
-    je .done
+    je .pm_done
     
     mov [edx], ax     ; Write character and attributes
     add ebx, 1        ; Next character
     add edx, 2        ; Next video memory position
-    jmp .print_loop
+    jmp .pm_loop
     
-.done:
+.pm_done:
     popa
     ret
 
@@ -161,26 +209,41 @@ main:
 
     ; Load kernel from disk
     mov bx, KERNEL_OFFSET
+    mov es, bx
+    xor bx, bx
     mov dh, 15  ; Number of sectors to read
     mov dl, [boot_drive]
-    call disk_load
-
-    ; Print success message
-    mov si, msg_loaded
+    
+    ; Print debug info
+    mov si, msg_loading_kernel
     call print_str
+    call disk_load
+    
+    ; If we get here, disk load was successful
+    mov si, msg_ok
+    call print_str
+    call print_nl
 
     ; Switch to protected mode
+    mov si, msg_switching
+    call print_str
     call switch_to_pm
 
     ; Halt if we return (shouldn't happen)
+    mov si, msg_halted
+    call print_str
     jmp $
 
 ; Data
-msg_loading db 'Loading kernel... ', 0
-msg_loaded  db 'OK', 0x0D, 0x0A, 0
-msg_pm      db 'Entered protected mode!', 0
-disk_error_msg db 'Disk read error!', 0
-boot_drive  db 0
+msg_loading       db 'Bootloader started', 0x0D, 0x0A, 0
+msg_loading_kernel db 'Loading kernel... ', 0
+msg_switching     db 'Switching to protected mode...', 0x0D, 0x0A, 0
+msg_ok            db 'OK', 0
+msg_pm            db 'Entered protected mode!', 0
+msg_halted        db 'System halted.', 0
+disk_error_msg    db 'Disk error: 0x', 0
+boot_drive        db 0
+HEX_OUT:          db '0x0000', 0
 
 ; Pad to 510 bytes and add boot signature
 times 510 - ($ - $$) db 0

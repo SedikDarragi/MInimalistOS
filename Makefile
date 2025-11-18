@@ -56,16 +56,19 @@ KERNEL_OBJS = $(KERNEL_SRCS:.c=.o) $(patsubst %.asm,%.o,$(filter %.asm,$(KERNEL_
 
 all: os.img
 
-os.img: boot/new_boot.bin kernel.bin
+os.img: boot/debug_boot.bin kernel.bin
 	@echo "Creating disk image..."
-	@cat boot/new_boot.bin kernel.bin > os.img
-	@# Pad the image to 1.44MB
-	@truncate -s 1474560 os.img
+	# Create a blank 1.44MB floppy image
+	dd if=/dev/zero of=os.img bs=512 count=2880 2>/dev/null
+	# Write the bootloader to the first sector
+	dd if=boot/debug_boot.bin of=os.img conv=notrunc 2>/dev/null
+	# Write the kernel starting at sector 2 (right after the boot sector)
+	dd if=kernel.bin of=os.img seek=1 conv=notrunc 2>/dev/null
 	@echo "Disk image created successfully"
 	@ls -lh os.img
 
-boot/new_boot.bin: boot/new_boot.asm
-	@nasm -f bin $< -o $@
+boot/debug_boot.bin: boot/debug_boot.asm
+	@nasm -f bin $< -o $@ -l boot/debug_boot.lst
 	@# Verify bootloader size is exactly 512 bytes
 	@SIZE=$$(wc -c < "$@"); \
 	if [ "$$SIZE" -ne 512 ]; then \
@@ -92,7 +95,7 @@ kernel.elf: $(KERNEL_OBJS) link.ld
 	$(AS) -f elf32 $< -o $@
 
 clean:
-	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/new_boot.bin boot/minimal_boot_new.bin
+	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/debug_boot.bin boot/minimal_boot_new.bin
 	rm -f qemu_debug.log
 
 run: os.img

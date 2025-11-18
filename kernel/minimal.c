@@ -4,7 +4,6 @@
 // VGA text buffer
 #define VGA_BUFFER ((volatile uint16_t*)0xB8000)
 
-// Forward declarations for shell functions
 // Forward declarations
 void shell_init(void);
 void shell_run(void);
@@ -15,28 +14,53 @@ static void delay(int count) {
     for (volatile int i = 0; i < count; i++);
 }
 
+// Function to write a character to VGA memory
+static void vga_putc(int x, int y, char c, uint8_t color) {
+    VGA_BUFFER[y * 80 + x] = (color << 8) | c;
+}
+
+// Function to print a string to VGA memory
+static void vga_puts(int x, int y, const char *str, uint8_t color) {
+    while (*str) {
+        vga_putc(x++, y, *str++, color);
+        if (x >= 80) { x = 0; y++; }
+    }
+}
+
 // Kernel entry point
 void kmain(void) {
-    // Test VGA output - this should be visible immediately
-    const char *test_msg = "MINIMAL OS IS RUNNING";
-    for (int i = 0; test_msg[i]; i++) {
-        VGA_BUFFER[i] = 0x1F00 | test_msg[i];  // White on blue
+    // Clear screen with black background
+    for (int i = 0; i < 80*25; i++) {
+        VGA_BUFFER[i] = 0x0F20;  // Black background, white text, space character
     }
+    
+    // Print debug message at top of screen
+    vga_puts(0, 0, "KERNEL STARTED", 0x0F);
+    
+    // Test VGA output at different positions
+    vga_puts(0, 2, "Testing VGA output...", 0x0A);
+    
+    // Test different colors
+    vga_puts(0, 4, "Red text", 0x04);
+    vga_puts(0, 5, "Green text", 0x02);
+    vga_puts(0, 6, "Blue text", 0x01);
     
     // Wait a bit to see the message
-    delay(5000000);
+    delay(10000000);
     
-    // Clear the screen
+    // Clear the screen to blue background
     for (int i = 0; i < 80*25; i++) {
-        VGA_BUFFER[i] = 0x1F00;  // Clear to blue background
+        VGA_BUFFER[i] = 0x1F00;  // Blue background, space character
     }
     
-    VGA_BUFFER[0] = 0x4F00 | 'A'; // White on Red 'A'
-
+    // Print a message after clearing
+    vga_puts(0, 0, "INITIALIZING INTERRUPTS...", 0x1F);
+    
     // Initialize interrupts
     idt_init();
-
-    VGA_BUFFER[1] = 0x4F00 | 'B'; // White on Red 'B'
+    
+    // Print a message after IDT init
+    vga_puts(0, 2, "INTERRUPTS INITIALIZED", 0x1F);
 
     // Initialize and run the shell
     shell_init();
