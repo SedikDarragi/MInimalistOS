@@ -7,6 +7,21 @@ VGA_BUFFER equ 0xB8000
 VGA_WIDTH  equ 80
 VGA_HEIGHT equ 25
 
+; Magic number for multiboot header
+MAGIC     equ 0x1BADB002
+FLAGS     equ 0x0
+CHECKSUM  equ -(MAGIC + FLAGS)
+
+; Multiboot header (required by some bootloaders)
+section .multiboot
+align 4
+    dd MAGIC
+    dd FLAGS
+    dd CHECKSUM
+
+; Stack configuration
+STACK_SIZE equ 0x4000  ; 16KB stack
+
 ; Function to write a character to VGA memory
 ; Input: AL = character, AH = color, EDI = offset from VGA_BUFFER (in bytes)
 vga_putc_at:
@@ -18,11 +33,15 @@ vga_putc_at:
 vga_puts_at:
     pusha
     xor ecx, ecx
+    cld                 ; Clear direction flag (increment ESI)
 .print_loop:
-    lodsb
+    lodsb               ; Load byte from [DS:ESI] into AL
     test al, al
     jz .done
-    mov [VGA_BUFFER + edi + ecx*2], ax
+    
+    ; Write character and attribute to VGA memory
+    mov [es:VGA_BUFFER + edi + ecx*2], ax
+    
     inc ecx
     jmp .print_loop
 .done:
@@ -33,38 +52,70 @@ _start:
     ; Set up stack
     mov esp, stack_top
     
-    ; Clear screen (first line only for now)
-    mov edi, 0
-    mov ecx, 80
-    mov ax, 0x0F20  ; space with white on black
-.clear_loop:
-    mov [VGA_BUFFER + edi], ax
-    add edi, 2
-    loop .clear_loop
+    ; Set up segment registers with data selector (0x10)
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
     
-    ; Print kernel entry message at top of screen
-    mov esi, msg_kernel_entry
-    mov edi, 0
-    mov ah, 0x0F  ; White on black
+    ; Clear screen (first 4K of VGA memory)
+    cld                 ; Clear direction flag (increment EDI)
+    mov edi, VGA_BUFFER
+    mov ecx, 0x0800     ; 2048 words = 4096 bytes
+    xor eax, eax
+    mov ah, 0x0F        ; White on black
+    mov al, ' '         ; Space character
+    rep stosw           ; Fill screen with spaces
+    
+    ; Print a test message directly to VGA
+    mov edi, 0          ; Start of first line
+    mov esi, msg_kernel_loaded
+    mov ah, 0x0F        ; White on black
     call vga_puts_at
     
-    ; Print 'K' in second position
-    mov edi, 2
-    mov ax, 0x0F4B  ; 'K' in white on black
-    call vga_putc_at
+    ; Print a second message to verify VGA output is working
+    mov edi, 160        ; Start of second line (80 chars * 2 bytes)
+    mov esi, msg_hello
+    mov ah, 0x0A        ; Light green on black
+    call vga_puts_at
     
-    ; Call the C kernel
-    extern kmain
-    call kmain
+    ; Print a third message with CPU information
+    mov edi, 320        ; Start of third line
+    mov esi, msg_cpuid
+    mov ah, 0x0E        ; Yellow on black
+    call vga_puts_at
+    
+    ; Try to get CPU vendor ID
+    xor eax, eax
+    cpuid
+    
+    ; Store vendor string at VGA position (4th line)
+    mov [VGA_BUFFER + 480], ebx
+    mov [VGA_BUFFER + 484], edx
+    mov [VGA_BUFFER + 488], ecx
+    
+    ; Debug: Write a magic number to VGA to confirm kernel is running
+    mov edi, 640        ; 5th line
+    mov eax, 0xDEADBEEF
+    mov [VGA_BUFFER + edi], eax
 
-    ; If kmain returns, hang the system
+    ; Halt the CPU with interrupts disabled
     cli
+.hang:
     hlt
-    jmp $
+    jmp .hang
 
 section .rodata
-msg_kernel_entry db "Kernel Entry", 0
+msg_kernel_loaded db "Kernel loaded successfully!", 0
+msg_hello        db "Protected mode active!", 0
+msg_cpuid       db "CPU: ", 0
 
 section .bss
-resb 8192  ; 8KB stack
+align 16
+stack_bottom:
+    resb STACK_SIZE
 stack_top:
+    ; Add a magic number at the top of the stack for debugging
+    dd 0xDEADBEEF
