@@ -30,6 +30,10 @@ disk_load:
     mov cl, 0x02
     int 0x13
     jc .error
+    ; Debug: Print 'D' to confirm disk load succeeded
+    mov al, 'D'
+    mov ah, 0x0E
+    int 0x10
     popa
     ret
 .error:
@@ -58,6 +62,11 @@ gdt_descriptor:
     dd gdt_start
 
 switch_to_pm:
+    ; Debug: Print 'S' before switching to protected mode
+    mov al, 'S'
+    mov ah, 0x0E
+    int 0x10
+    
     cli
     lgdt [gdt_descriptor]
     mov eax, cr0
@@ -76,9 +85,19 @@ init_pm:
     mov ebp, 0x90000
     mov esp, ebp
     
-    mov edi, 0xB8000
-    mov eax, 0x0F450F4D
-    mov [edi], eax
+    ; Debug: Write 'P' to VGA to confirm we're in protected mode
+    mov byte [0xB8000], 'P'
+    mov byte [0xB8001], 0x0F
+    
+    ; Debug: Write 'J' to VGA before jumping to kernel
+    mov byte [0xB8002], 'J'
+    mov byte [0xB8003], 0x0A
+    
+    ; Halt here temporarily to see if we reach this point
+    cli
+.halt:
+    hlt
+    jmp .halt
     
     jmp CODE_SEG:KERNEL_OFFSET
 
@@ -107,16 +126,13 @@ main:
     call print_str
     call disk_load
     
-    mov si, msg_ok
-    call print_str
-    
+    ; Skip OK message, go directly to protected mode
     call switch_to_pm
     
     jmp $
 
 msg_boot db 'Boot', 0x0D, 0x0A, 0
 msg_load db 'Load', 0
-msg_ok db 'OK', 0x0D, 0x0A, 0
 msg_err db 'Err', 0
 boot_drive db 0
 

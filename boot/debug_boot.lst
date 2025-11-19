@@ -6,7 +6,7 @@
      6                                  DATA_SEG equ 16
      7                                  
      8                                  _start:
-     9 00000000 E98200                      jmp main
+     9 00000000 E9A200                      jmp main
     10                                  
     11                                  print_str:
     12 00000003 60                          pusha
@@ -29,99 +29,115 @@
     29 00000018 B600                        mov dh, 0x00
     30 0000001A B102                        mov cl, 0x02
     31 0000001C CD13                        int 0x13
-    32 0000001E 7202                        jc .error
-    33 00000020 61                          popa
-    34 00000021 C3                          ret
-    35                                  .error:
-    36 00000022 BE[CE00]                    mov si, msg_err
-    37 00000025 E8DBFF                      call print_str
-    38 00000028 EBFE                        jmp $
-    39                                  
-    40                                  gdt_start:
-    41 0000002A 0000000000000000            dq 0x0
-    42 00000032 FFFF                        dw 0xFFFF
-    43 00000034 0000                        dw 0x0
-    44 00000036 00                          db 0x0
-    45 00000037 9A                          db 10011010b
-    46 00000038 CF                          db 11001111b
-    47 00000039 00                          db 0x0
-    48 0000003A FFFF                        dw 0xFFFF
-    49 0000003C 0000                        dw 0x0
-    50 0000003E 00                          db 0x0
-    51 0000003F 92                          db 10010010b
-    52 00000040 CF                          db 11001111b
-    53 00000041 00                          db 0x0
-    54                                  gdt_end:
-    55                                  
-    56                                  gdt_descriptor:
-    57 00000042 1700                        dw gdt_end - gdt_start - 1
-    58 00000044 [2A000000]                  dd gdt_start
+    32 0000001E 7208                        jc .error
+    33                                      ; Debug: Print 'D' to confirm disk load succeeded
+    34 00000020 B044                        mov al, 'D'
+    35 00000022 B40E                        mov ah, 0x0E
+    36 00000024 CD10                        int 0x10
+    37 00000026 61                          popa
+    38 00000027 C3                          ret
+    39                                  .error:
+    40 00000028 BE[E300]                    mov si, msg_err
+    41 0000002B E8D5FF                      call print_str
+    42 0000002E EBFE                        jmp $
+    43                                  
+    44                                  gdt_start:
+    45 00000030 0000000000000000            dq 0x0
+    46 00000038 FFFF                        dw 0xFFFF
+    47 0000003A 0000                        dw 0x0
+    48 0000003C 00                          db 0x0
+    49 0000003D 9A                          db 10011010b
+    50 0000003E CF                          db 11001111b
+    51 0000003F 00                          db 0x0
+    52 00000040 FFFF                        dw 0xFFFF
+    53 00000042 0000                        dw 0x0
+    54 00000044 00                          db 0x0
+    55 00000045 92                          db 10010010b
+    56 00000046 CF                          db 11001111b
+    57 00000047 00                          db 0x0
+    58                                  gdt_end:
     59                                  
-    60                                  switch_to_pm:
-    61 00000048 FA                          cli
-    62 00000049 0F0116[4200]                lgdt [gdt_descriptor]
-    63 0000004E 0F20C0                      mov eax, cr0
-    64 00000051 6683C801                    or eax, 0x1
-    65 00000055 0F22C0                      mov cr0, eax
-    66 00000058 EA[5D00]0800                jmp CODE_SEG:init_pm
-    67                                  
-    68                                  [bits 32]
-    69                                  init_pm:
-    70 0000005D 66B81000                    mov ax, DATA_SEG
-    71 00000061 8ED8                        mov ds, ax
-    72 00000063 8ED0                        mov ss, ax
-    73 00000065 8EC0                        mov es, ax
-    74 00000067 8EE0                        mov fs, ax
-    75 00000069 8EE8                        mov gs, ax
-    76 0000006B BD00000900                  mov ebp, 0x90000
-    77 00000070 89EC                        mov esp, ebp
-    78                                      
-    79 00000072 BF00800B00                  mov edi, 0xB8000
-    80 00000077 B84D0F450F                  mov eax, 0x0F450F4D
-    81 0000007C 8907                        mov [edi], eax
-    82                                      
-    83 0000007E EA001000000800              jmp CODE_SEG:KERNEL_OFFSET
-    84                                  
-    85                                  [bits 16]
-    86                                  main:
-    87 00000085 FA                          cli
-    88 00000086 31C0                        xor ax, ax
-    89 00000088 8ED8                        mov ds, ax
-    90 0000008A 8EC0                        mov es, ax
-    91 0000008C 8ED0                        mov ss, ax
-    92 0000008E BC007C                      mov sp, 0x7c00
-    93 00000091 FB                          sti
-    94                                      
-    95 00000092 8816[D200]                  mov [boot_drive], dl
-    96                                      
-    97 00000096 BE[BD00]                    mov si, msg_boot
-    98 00000099 E867FF                      call print_str
-    99                                      
-   100 0000009C BB0010                      mov bx, KERNEL_OFFSET
-   101 0000009F 8EC3                        mov es, bx
-   102 000000A1 31DB                        xor bx, bx
-   103 000000A3 B60F                        mov dh, 15
-   104 000000A5 8A16[D200]                  mov dl, [boot_drive]
-   105                                      
-   106 000000A9 BE[C400]                    mov si, msg_load
-   107 000000AC E854FF                      call print_str
-   108 000000AF E85FFF                      call disk_load
-   109                                      
-   110 000000B2 BE[C900]                    mov si, msg_ok
-   111 000000B5 E84BFF                      call print_str
-   112                                      
-   113 000000B8 E88DFF                      call switch_to_pm
-   114                                      
-   115 000000BB EBFE                        jmp $
-   116                                  
-   117 000000BD 426F6F740D0A00          msg_boot db 'Boot', 0x0D, 0x0A, 0
-   118 000000C4 4C6F616400              msg_load db 'Load', 0
-   119 000000C9 4F4B0D0A00              msg_ok db 'OK', 0x0D, 0x0A, 0
-   120 000000CE 45727200                msg_err db 'Err', 0
-   121 000000D2 00                      boot_drive db 0
-   122                                  
-   123                                  %if ($ - $$) > 510
-   124                                      %error "Bootloader exceeds 510 bytes"
-   125                                  %endif
-   126 000000D3 00<rep 12Bh>            times 510 - ($ - $$) db 0
-   127 000001FE 55AA                    dw 0xAA55
+    60                                  gdt_descriptor:
+    61 00000048 1700                        dw gdt_end - gdt_start - 1
+    62 0000004A [30000000]                  dd gdt_start
+    63                                  
+    64                                  switch_to_pm:
+    65                                      ; Debug: Print 'S' before switching to protected mode
+    66 0000004E B053                        mov al, 'S'
+    67 00000050 B40E                        mov ah, 0x0E
+    68 00000052 CD10                        int 0x10
+    69                                      
+    70 00000054 FA                          cli
+    71 00000055 0F0116[4800]                lgdt [gdt_descriptor]
+    72 0000005A 0F20C0                      mov eax, cr0
+    73 0000005D 6683C801                    or eax, 0x1
+    74 00000061 0F22C0                      mov cr0, eax
+    75 00000064 EA[6900]0800                jmp CODE_SEG:init_pm
+    76                                  
+    77                                  [bits 32]
+    78                                  init_pm:
+    79 00000069 66B81000                    mov ax, DATA_SEG
+    80 0000006D 8ED8                        mov ds, ax
+    81 0000006F 8ED0                        mov ss, ax
+    82 00000071 8EC0                        mov es, ax
+    83 00000073 8EE0                        mov fs, ax
+    84 00000075 8EE8                        mov gs, ax
+    85 00000077 BD00000900                  mov ebp, 0x90000
+    86 0000007C 89EC                        mov esp, ebp
+    87                                      
+    88                                      ; Debug: Write 'P' to VGA to confirm we're in protected mode
+    89 0000007E C60500800B0050              mov byte [0xB8000], 'P'
+    90 00000085 C60501800B000F              mov byte [0xB8001], 0x0F
+    91                                      
+    92                                      ; Debug: Write 'J' to VGA before jumping to kernel
+    93 0000008C C60502800B004A              mov byte [0xB8002], 'J'
+    94 00000093 C60503800B000A              mov byte [0xB8003], 0x0A
+    95                                      
+    96                                      ; Halt here temporarily to see if we reach this point
+    97 0000009A FA                          cli
+    98                                  .halt:
+    99 0000009B F4                          hlt
+   100 0000009C EBFD                        jmp .halt
+   101                                      
+   102 0000009E EA001000000800              jmp CODE_SEG:KERNEL_OFFSET
+   103                                  
+   104                                  [bits 16]
+   105                                  main:
+   106 000000A5 FA                          cli
+   107 000000A6 31C0                        xor ax, ax
+   108 000000A8 8ED8                        mov ds, ax
+   109 000000AA 8EC0                        mov es, ax
+   110 000000AC 8ED0                        mov ss, ax
+   111 000000AE BC007C                      mov sp, 0x7c00
+   112 000000B1 FB                          sti
+   113                                      
+   114 000000B2 8816[E700]                  mov [boot_drive], dl
+   115                                      
+   116 000000B6 BE[D700]                    mov si, msg_boot
+   117 000000B9 E847FF                      call print_str
+   118                                      
+   119 000000BC BB0010                      mov bx, KERNEL_OFFSET
+   120 000000BF 8EC3                        mov es, bx
+   121 000000C1 31DB                        xor bx, bx
+   122 000000C3 B60F                        mov dh, 15
+   123 000000C5 8A16[E700]                  mov dl, [boot_drive]
+   124                                      
+   125 000000C9 BE[DE00]                    mov si, msg_load
+   126 000000CC E834FF                      call print_str
+   127 000000CF E83FFF                      call disk_load
+   128                                      
+   129                                      ; Skip OK message, go directly to protected mode
+   130 000000D2 E879FF                      call switch_to_pm
+   131                                      
+   132 000000D5 EBFE                        jmp $
+   133                                  
+   134 000000D7 426F6F740D0A00          msg_boot db 'Boot', 0x0D, 0x0A, 0
+   135 000000DE 4C6F616400              msg_load db 'Load', 0
+   136 000000E3 45727200                msg_err db 'Err', 0
+   137 000000E7 00                      boot_drive db 0
+   138                                  
+   139                                  %if ($ - $$) > 510
+   140                                      %error "Bootloader exceeds 510 bytes"
+   141                                  %endif
+   142 000000E8 00<rep 116h>            times 510 - ($ - $$) db 0
+   143 000001FE 55AA                    dw 0xAA55
