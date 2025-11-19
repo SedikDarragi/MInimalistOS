@@ -41,25 +41,32 @@ disk_load:
     call print_str
     jmp $
 
+; GDT
 gdt_start:
+    ; Null descriptor (required)
     dq 0x0
-    dw 0xFFFF
-    dw 0x0
-    db 0x0
-    db 10011010b
-    db 11001111b
-    db 0x0
-    dw 0xFFFF
-    dw 0x0
-    db 0x0
-    db 10010010b
-    db 11001111b
-    db 0x0
+    
+    ; Code segment descriptor
+    dw 0xFFFF     ; Limit (bits 0-15)
+    dw 0x0        ; Base (bits 0-15)
+    db 0x0        ; Base (bits 16-23)
+    db 10011010b  ; Access byte
+    db 11001111b  ; Flags + Limit (bits 16-19)
+    db 0x0        ; Base (bits 24-31)
+    
+    ; Data segment descriptor
+    dw 0xFFFF     ; Limit (bits 0-15)
+    dw 0x0        ; Base (bits 0-15)
+    db 0x0        ; Base (bits 16-23)
+    db 10010010b  ; Access byte
+    db 11001111b  ; Flags + Limit (bits 16-19)
+    db 0x0        ; Base (bits 24-31)
+
 gdt_end:
 
 gdt_descriptor:
-    dw gdt_end - gdt_start - 1
-    dd gdt_start
+    dw gdt_end - gdt_start - 1  ; Size of GDT
+    dd gdt_start                 ; Base address of GDT
 
 switch_to_pm:
     ; Debug: Print 'S' before switching to protected mode
@@ -68,14 +75,51 @@ switch_to_pm:
     int 0x10
     
     cli
+    
+    ; Debug: Print 'G' without loading GDT first
+    mov al, 'G'
+    mov ah, 0x0E
+    int 0x10
+    
+    ; Debug: Print 'L' immediately after G
+    mov al, 'L'
+    mov ah, 0x0E
+    int 0x10
+    
+    ; Load GDT - simple approach
     lgdt [gdt_descriptor]
+    
+    ; Debug: Print 'T' after memory operations
+    mov al, 'T'
+    mov ah, 0x0E
+    int 0x10
+    
+    ; Debug: Print 'L' after loading GDT
+    mov al, 'L'
+    mov ah, 0x0E
+    int 0x10
+    
+    ; Debug: Print 'C' before accessing CR0
+    mov al, 'C'
+    mov ah, 0x0E
+    int 0x10
+    
     mov eax, cr0
     or eax, 0x1
+    
+    ; Debug: Print 'R' after modifying CR0
+    mov al, 'R'
+    mov ah, 0x0E
+    int 0x10
+    
     mov cr0, eax
+    
+    ; Far jump to protected mode code (must be immediate after CR0 write)
     jmp CODE_SEG:init_pm
 
 [bits 32]
 init_pm:
+    ; Set up segment registers first
     mov ax, DATA_SEG
     mov ds, ax
     mov ss, ax
@@ -86,19 +130,15 @@ init_pm:
     mov esp, ebp
     
     ; Debug: Write 'P' to VGA to confirm we're in protected mode
-    mov byte [0xB8000], 'P'
-    mov byte [0xB8001], 0x0F
+    mov eax, 0xB8000
+    mov byte [eax], 'P'
+    mov byte [eax+1], 0x0F
     
     ; Debug: Write 'J' to VGA before jumping to kernel
-    mov byte [0xB8002], 'J'
-    mov byte [0xB8003], 0x0A
+    mov byte [eax+2], 'J'
+    mov byte [eax+3], 0x0A
     
-    ; Halt here temporarily to see if we reach this point
-    cli
-.halt:
-    hlt
-    jmp .halt
-    
+    ; Jump to the kernel
     jmp CODE_SEG:KERNEL_OFFSET
 
 [bits 16]
@@ -126,7 +166,11 @@ main:
     call print_str
     call disk_load
     
-    ; Skip OK message, go directly to protected mode
+    ; Debug: Print 'X' before calling switch_to_pm
+    mov al, 'X'
+    mov ah, 0x0E
+    int 0x10
+    
     call switch_to_pm
     
     jmp $

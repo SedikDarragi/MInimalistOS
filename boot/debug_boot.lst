@@ -6,7 +6,7 @@
      6                                  DATA_SEG equ 16
      7                                  
      8                                  _start:
-     9 00000000 E9A200                      jmp main
+     9 00000000 E9BA00                      jmp main
     10                                  
     11                                  print_str:
     12 00000003 60                          pusha
@@ -37,107 +37,151 @@
     37 00000026 61                          popa
     38 00000027 C3                          ret
     39                                  .error:
-    40 00000028 BE[E300]                    mov si, msg_err
+    40 00000028 BE[0101]                    mov si, msg_err
     41 0000002B E8D5FF                      call print_str
     42 0000002E EBFE                        jmp $
     43                                  
-    44                                  gdt_start:
-    45 00000030 0000000000000000            dq 0x0
-    46 00000038 FFFF                        dw 0xFFFF
-    47 0000003A 0000                        dw 0x0
-    48 0000003C 00                          db 0x0
-    49 0000003D 9A                          db 10011010b
-    50 0000003E CF                          db 11001111b
-    51 0000003F 00                          db 0x0
-    52 00000040 FFFF                        dw 0xFFFF
-    53 00000042 0000                        dw 0x0
-    54 00000044 00                          db 0x0
-    55 00000045 92                          db 10010010b
-    56 00000046 CF                          db 11001111b
-    57 00000047 00                          db 0x0
-    58                                  gdt_end:
-    59                                  
-    60                                  gdt_descriptor:
-    61 00000048 1700                        dw gdt_end - gdt_start - 1
-    62 0000004A [30000000]                  dd gdt_start
-    63                                  
-    64                                  switch_to_pm:
-    65                                      ; Debug: Print 'S' before switching to protected mode
-    66 0000004E B053                        mov al, 'S'
-    67 00000050 B40E                        mov ah, 0x0E
-    68 00000052 CD10                        int 0x10
-    69                                      
-    70 00000054 FA                          cli
-    71 00000055 0F0116[4800]                lgdt [gdt_descriptor]
-    72 0000005A 0F20C0                      mov eax, cr0
-    73 0000005D 6683C801                    or eax, 0x1
-    74 00000061 0F22C0                      mov cr0, eax
-    75 00000064 EA[6900]0800                jmp CODE_SEG:init_pm
-    76                                  
-    77                                  [bits 32]
-    78                                  init_pm:
-    79 00000069 66B81000                    mov ax, DATA_SEG
-    80 0000006D 8ED8                        mov ds, ax
-    81 0000006F 8ED0                        mov ss, ax
-    82 00000071 8EC0                        mov es, ax
-    83 00000073 8EE0                        mov fs, ax
-    84 00000075 8EE8                        mov gs, ax
-    85 00000077 BD00000900                  mov ebp, 0x90000
-    86 0000007C 89EC                        mov esp, ebp
-    87                                      
-    88                                      ; Debug: Write 'P' to VGA to confirm we're in protected mode
-    89 0000007E C60500800B0050              mov byte [0xB8000], 'P'
-    90 00000085 C60501800B000F              mov byte [0xB8001], 0x0F
+    44                                  ; GDT
+    45                                  gdt_start:
+    46                                      ; Null descriptor (required)
+    47 00000030 0000000000000000            dq 0x0
+    48                                      
+    49                                      ; Code segment descriptor
+    50 00000038 FFFF                        dw 0xFFFF     ; Limit (bits 0-15)
+    51 0000003A 0000                        dw 0x0        ; Base (bits 0-15)
+    52 0000003C 00                          db 0x0        ; Base (bits 16-23)
+    53 0000003D 9A                          db 10011010b  ; Access byte
+    54 0000003E CF                          db 11001111b  ; Flags + Limit (bits 16-19)
+    55 0000003F 00                          db 0x0        ; Base (bits 24-31)
+    56                                      
+    57                                      ; Data segment descriptor
+    58 00000040 FFFF                        dw 0xFFFF     ; Limit (bits 0-15)
+    59 00000042 0000                        dw 0x0        ; Base (bits 0-15)
+    60 00000044 00                          db 0x0        ; Base (bits 16-23)
+    61 00000045 92                          db 10010010b  ; Access byte
+    62 00000046 CF                          db 11001111b  ; Flags + Limit (bits 16-19)
+    63 00000047 00                          db 0x0        ; Base (bits 24-31)
+    64                                  
+    65                                  gdt_end:
+    66                                  
+    67                                  gdt_descriptor:
+    68 00000048 1700                        dw gdt_end - gdt_start - 1  ; Size of GDT
+    69 0000004A [30000000]                  dd gdt_start                 ; Base address of GDT
+    70                                  
+    71                                  switch_to_pm:
+    72                                      ; Debug: Print 'S' before switching to protected mode
+    73 0000004E B053                        mov al, 'S'
+    74 00000050 B40E                        mov ah, 0x0E
+    75 00000052 CD10                        int 0x10
+    76                                      
+    77 00000054 FA                          cli
+    78                                      
+    79                                      ; Debug: Print 'G' without loading GDT first
+    80 00000055 B047                        mov al, 'G'
+    81 00000057 B40E                        mov ah, 0x0E
+    82 00000059 CD10                        int 0x10
+    83                                      
+    84                                      ; Debug: Print 'L' immediately after G
+    85 0000005B B04C                        mov al, 'L'
+    86 0000005D B40E                        mov ah, 0x0E
+    87 0000005F CD10                        int 0x10
+    88                                      
+    89                                      ; Load GDT - simple approach
+    90 00000061 0F0116[4800]                lgdt [gdt_descriptor]
     91                                      
-    92                                      ; Debug: Write 'J' to VGA before jumping to kernel
-    93 0000008C C60502800B004A              mov byte [0xB8002], 'J'
-    94 00000093 C60503800B000A              mov byte [0xB8003], 0x0A
-    95                                      
-    96                                      ; Halt here temporarily to see if we reach this point
-    97 0000009A FA                          cli
-    98                                  .halt:
-    99 0000009B F4                          hlt
-   100 0000009C EBFD                        jmp .halt
+    92                                      ; Debug: Print 'T' after memory operations
+    93 00000066 B054                        mov al, 'T'
+    94 00000068 B40E                        mov ah, 0x0E
+    95 0000006A CD10                        int 0x10
+    96                                      
+    97                                      ; Debug: Print 'L' after loading GDT
+    98 0000006C B04C                        mov al, 'L'
+    99 0000006E B40E                        mov ah, 0x0E
+   100 00000070 CD10                        int 0x10
    101                                      
-   102 0000009E EA001000000800              jmp CODE_SEG:KERNEL_OFFSET
-   103                                  
-   104                                  [bits 16]
-   105                                  main:
-   106 000000A5 FA                          cli
-   107 000000A6 31C0                        xor ax, ax
-   108 000000A8 8ED8                        mov ds, ax
-   109 000000AA 8EC0                        mov es, ax
-   110 000000AC 8ED0                        mov ss, ax
-   111 000000AE BC007C                      mov sp, 0x7c00
-   112 000000B1 FB                          sti
-   113                                      
-   114 000000B2 8816[E700]                  mov [boot_drive], dl
-   115                                      
-   116 000000B6 BE[D700]                    mov si, msg_boot
-   117 000000B9 E847FF                      call print_str
-   118                                      
-   119 000000BC BB0010                      mov bx, KERNEL_OFFSET
-   120 000000BF 8EC3                        mov es, bx
-   121 000000C1 31DB                        xor bx, bx
-   122 000000C3 B60F                        mov dh, 15
-   123 000000C5 8A16[E700]                  mov dl, [boot_drive]
-   124                                      
-   125 000000C9 BE[DE00]                    mov si, msg_load
-   126 000000CC E834FF                      call print_str
-   127 000000CF E83FFF                      call disk_load
-   128                                      
-   129                                      ; Skip OK message, go directly to protected mode
-   130 000000D2 E879FF                      call switch_to_pm
+   102                                      ; Debug: Print 'C' before accessing CR0
+   103 00000072 B043                        mov al, 'C'
+   104 00000074 B40E                        mov ah, 0x0E
+   105 00000076 CD10                        int 0x10
+   106                                      
+   107 00000078 0F20C0                      mov eax, cr0
+   108 0000007B 6683C801                    or eax, 0x1
+   109                                      
+   110                                      ; Debug: Print 'R' after modifying CR0
+   111 0000007F B052                        mov al, 'R'
+   112 00000081 B40E                        mov ah, 0x0E
+   113 00000083 CD10                        int 0x10
+   114                                      
+   115 00000085 0F22C0                      mov cr0, eax
+   116                                      
+   117                                      ; Far jump to protected mode code (must be immediate after CR0 write)
+   118 00000088 EA[8D00]0800                jmp CODE_SEG:init_pm
+   119                                  
+   120                                  [bits 32]
+   121                                  init_pm:
+   122                                      ; Set up segment registers first
+   123 0000008D 66B81000                    mov ax, DATA_SEG
+   124 00000091 8ED8                        mov ds, ax
+   125 00000093 8ED0                        mov ss, ax
+   126 00000095 8EC0                        mov es, ax
+   127 00000097 8EE0                        mov fs, ax
+   128 00000099 8EE8                        mov gs, ax
+   129 0000009B BD00000900                  mov ebp, 0x90000
+   130 000000A0 89EC                        mov esp, ebp
    131                                      
-   132 000000D5 EBFE                        jmp $
-   133                                  
-   134 000000D7 426F6F740D0A00          msg_boot db 'Boot', 0x0D, 0x0A, 0
-   135 000000DE 4C6F616400              msg_load db 'Load', 0
-   136 000000E3 45727200                msg_err db 'Err', 0
-   137 000000E7 00                      boot_drive db 0
-   138                                  
-   139                                  %if ($ - $$) > 510
-   140                                      %error "Bootloader exceeds 510 bytes"
-   141                                  %endif
-   142 000000E8 00<rep 116h>            times 510 - ($ - $$) db 0
-   143 000001FE 55AA                    dw 0xAA55
+   132                                      ; Debug: Write 'P' to VGA to confirm we're in protected mode
+   133 000000A2 B800800B00                  mov eax, 0xB8000
+   134 000000A7 C60050                      mov byte [eax], 'P'
+   135 000000AA C640010F                    mov byte [eax+1], 0x0F
+   136                                      
+   137                                      ; Debug: Write 'J' to VGA before jumping to kernel
+   138 000000AE C640024A                    mov byte [eax+2], 'J'
+   139 000000B2 C640030A                    mov byte [eax+3], 0x0A
+   140                                      
+   141                                      ; Jump to the kernel
+   142 000000B6 EA001000000800              jmp CODE_SEG:KERNEL_OFFSET
+   143                                  
+   144                                  [bits 16]
+   145                                  main:
+   146 000000BD FA                          cli
+   147 000000BE 31C0                        xor ax, ax
+   148 000000C0 8ED8                        mov ds, ax
+   149 000000C2 8EC0                        mov es, ax
+   150 000000C4 8ED0                        mov ss, ax
+   151 000000C6 BC007C                      mov sp, 0x7c00
+   152 000000C9 FB                          sti
+   153                                      
+   154 000000CA 8816[0501]                  mov [boot_drive], dl
+   155                                      
+   156 000000CE BE[F500]                    mov si, msg_boot
+   157 000000D1 E82FFF                      call print_str
+   158                                      
+   159 000000D4 BB0010                      mov bx, KERNEL_OFFSET
+   160 000000D7 8EC3                        mov es, bx
+   161 000000D9 31DB                        xor bx, bx
+   162 000000DB B60F                        mov dh, 15
+   163 000000DD 8A16[0501]                  mov dl, [boot_drive]
+   164                                      
+   165 000000E1 BE[FC00]                    mov si, msg_load
+   166 000000E4 E81CFF                      call print_str
+   167 000000E7 E827FF                      call disk_load
+   168                                      
+   169                                      ; Debug: Print 'X' before calling switch_to_pm
+   170 000000EA B058                        mov al, 'X'
+   171 000000EC B40E                        mov ah, 0x0E
+   172 000000EE CD10                        int 0x10
+   173                                      
+   174 000000F0 E85BFF                      call switch_to_pm
+   175                                      
+   176 000000F3 EBFE                        jmp $
+   177                                  
+   178 000000F5 426F6F740D0A00          msg_boot db 'Boot', 0x0D, 0x0A, 0
+   179 000000FC 4C6F616400              msg_load db 'Load', 0
+   180 00000101 45727200                msg_err db 'Err', 0
+   181 00000105 00                      boot_drive db 0
+   182                                  
+   183                                  %if ($ - $$) > 510
+   184                                      %error "Bootloader exceeds 510 bytes"
+   185                                  %endif
+   186 00000106 00<rep F8h>             times 510 - ($ - $$) db 0
+   187 000001FE 55AA                    dw 0xAA55
