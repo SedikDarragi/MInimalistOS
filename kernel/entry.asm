@@ -19,6 +19,10 @@ align 4
     dd FLAGS
     dd CHECKSUM
 
+; Kernel entry point
+section .text.entry
+global _start
+
 ; Stack configuration
 STACK_SIZE equ 0x4000  ; 16KB stack
 
@@ -49,6 +53,27 @@ vga_puts_at:
     ret
 
 _start:
+    ; Simple signature: Fill VGA with 'K' to show we're here
+    mov edi, 0xB8000
+    mov eax, 0x0C4B  ; Red 'K' on black background
+    mov ecx, 2000     ; Fill entire screen
+    cld
+    rep stosw
+    
+    ; Infinite loop
+    jmp $
+    
+    ; Signature: 0xB4, 0x4B ('K' with color)
+    db 0xB4, 0x4B
+    
+    ; Debug: Write 'K' to serial port to verify kernel entry
+    mov dx, 0x3F8
+    mov al, 'K'
+    out dx, al
+    
+    ; Infinite loop to test if we reach here
+    jmp $
+    
     ; Set up stack
     mov esp, stack_top
     
@@ -68,6 +93,20 @@ _start:
     mov ah, 0x0F        ; White on black
     mov al, ' '         ; Space character
     rep stosw           ; Fill screen with spaces
+    
+    ; Fill entire screen with a visible pattern to confirm VGA is working
+    mov edi, VGA_BUFFER
+    mov ecx, 2000       ; 80*25 characters
+    mov al, 'K'         ; Character 'K' for Kernel
+    mov ah, 0x4F        ; Red on white background
+    rep stosw           ; Fill screen with 'K's
+    
+    ; Create a distinctive pattern in the middle of the screen
+    mov edi, VGA_BUFFER + 960    ; Line 12 (middle)
+    mov ecx, 80                  ; One full line
+    mov al, '#'                  ; Character '#'
+    mov ah, 0x2E                 ; Green on cyan background
+    rep stosw                    ; Fill middle line with #
     
     ; Print a test message directly to VGA
     mov edi, 0          ; Start of first line
@@ -100,6 +139,10 @@ _start:
     mov edi, 640        ; 5th line
     mov eax, 0xDEADBEEF
     mov [VGA_BUFFER + edi], eax
+    
+    ; Call the C kernel main function
+    extern kmain
+    call kmain
 
     ; Halt the CPU with interrupts disabled
     cli

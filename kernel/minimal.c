@@ -29,10 +29,11 @@ static void vga_puts(int x, int y, const char *str, uint8_t color) {
 
 // Kernel entry point
 void kmain(void) {
+    // Don't clear screen immediately - let's see if the assembly pattern is visible
     // Clear screen with black background
-    for (int i = 0; i < 80*25; i++) {
-        VGA_BUFFER[i] = 0x0F20;  // Black background, white text, space character
-    }
+    // for (int i = 0; i < 80*25; i++) {
+    //     VGA_BUFFER[i] = 0x0F20;  // Black background, white text, space character
+    // }
     
     // Print debug message at top of screen
     vga_puts(0, 0, "KERNEL STARTED", 0x0F);

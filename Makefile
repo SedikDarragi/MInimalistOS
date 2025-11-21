@@ -78,9 +78,7 @@ boot/debug_boot.bin: boot/debug_boot.asm
 	@echo "Bootloader size: $$(wc -c < "$@") bytes"
 
 kernel.bin: kernel.elf
-	objcopy -O binary $< $@
-	# Ensure the binary is properly aligned
-	truncate -s 4K $@
+	objcopy -O binary $< $@ --pad-to 0x5000
 
 kernel.elf: $(KERNEL_OBJS) link.ld
 	$(LD) $(LDFLAGS) -o $@ $(KERNEL_OBJS)

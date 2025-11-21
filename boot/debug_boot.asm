@@ -1,7 +1,7 @@
 [org 0x7c00]
 [bits 16]
 
-KERNEL_OFFSET equ 0x1000
+KERNEL_OFFSET equ 0x1000  ; Where we'll load our kernel
 CODE_SEG equ 8
 DATA_SEG equ 16
 
@@ -66,7 +66,7 @@ gdt_end:
 
 gdt_descriptor:
     dw gdt_end - gdt_start - 1  ; Size of GDT
-    dd gdt_start                 ; Base address of GDT
+    dd gdt_start + 0x7C00      ; Base address of GDT (add load address)
 
 switch_to_pm:
     ; Debug: Print 'S' before switching to protected mode
@@ -89,6 +89,10 @@ switch_to_pm:
     ; Load GDT - simple approach
     lgdt [gdt_descriptor]
     
+    ; Debug: Write 'M' to VGA to confirm GDT is loaded
+    mov byte [0xB8000+6], 'M'
+    mov byte [0xB8000+7], 0x09
+    
     ; Debug: Print 'T' after memory operations
     mov al, 'T'
     mov ah, 0x0E
@@ -104,42 +108,44 @@ switch_to_pm:
     mov ah, 0x0E
     int 0x10
     
+    ; Debug: Write 'C' to VGA before CR0 write
+    mov byte [0xB8000], 'C'
+    mov byte [0xB8001], 0x0C
+    
+    ; Enable protected mode
     mov eax, cr0
     or eax, 0x1
-    
-    ; Debug: Print 'R' after modifying CR0
-    mov al, 'R'
-    mov ah, 0x0E
-    int 0x10
-    
     mov cr0, eax
     
-    ; Far jump to protected mode code (must be immediate after CR0 write)
-    jmp CODE_SEG:init_pm
+    ; Debug: Write 'P' to VGA after CR0 write
+    mov byte [0xB8002], 'P'
+    mov byte [0xB8003], 0x0E
+    
+    ; Debug: Write 'J' to VGA before the far jump
+    mov byte [0xB8006], 'J'
+    mov byte [0xB8007], 0x0A
+    
+    ; Far jump to flush pipeline and enter protected mode
+    jmp 0x08:0x7CA5
 
 [bits 32]
-init_pm:
-    ; Set up segment registers first
-    mov ax, DATA_SEG
+protected_mode_entry:
+    ; Set up data segment registers
+    mov ax, 0x10  ; Data selector
     mov ds, ax
     mov ss, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
-    mov ebp, 0x90000
-    mov esp, ebp
     
-    ; Debug: Write 'P' to VGA to confirm we're in protected mode
-    mov eax, 0xB8000
-    mov byte [eax], 'P'
-    mov byte [eax+1], 0x0F
+    ; Debug: Write '3' to VGA to confirm we're in 32-bit protected mode
+    mov dword [0xB8004], 0x0F330F33  ; Two '3's
     
-    ; Debug: Write 'J' to VGA before jumping to kernel
-    mov byte [eax+2], 'J'
-    mov byte [eax+3], 0x0A
+    ; Debug: Write 'K' to VGA before jumping to kernel
+    mov dword [0xB8008], 0x0B4B0B4B  ; Two 'K's
     
-    ; Jump to the kernel
-    jmp CODE_SEG:KERNEL_OFFSET
+    ; Jump to kernel entry point
+    jmp 0x08:0x301F
 
 [bits 16]
 main:
@@ -171,7 +177,12 @@ main:
     mov ah, 0x0E
     int 0x10
     
-    call switch_to_pm
+    ; Debug: Print another character to verify we're still here
+    mov al, 'Y'
+    mov ah, 0x0E
+    int 0x10
+    
+    jmp switch_to_pm
     
     jmp $
 

@@ -15,6 +15,11 @@ SECTIONS
     /* The kernel will be loaded at 0x1000 (4KB) to match the bootloader */
     . = 0x1000;
 
+    /* Multiboot header (must be at beginning) */
+    .multiboot : ALIGN(4) {
+        *(.multiboot)
+    }
+
     /* Kernel code section */
     .text : ALIGN(4K) {
         *(.text.entry) /* Make sure entry code is first */
