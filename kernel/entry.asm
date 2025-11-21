@@ -60,8 +60,7 @@ _start:
     cld
     rep stosw
     
-    ; Infinite loop
-    jmp $
+    ; Continue with kernel initialization
     
     ; Signature: 0xB4, 0x4B ('K' with color)
     db 0xB4, 0x4B
@@ -71,8 +70,7 @@ _start:
     mov al, 'K'
     out dx, al
     
-    ; Infinite loop to test if we reach here
-    jmp $
+    ; Continue with kernel initialization
     
     ; Set up stack
     mov esp, stack_top
