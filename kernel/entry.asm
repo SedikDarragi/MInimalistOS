@@ -75,6 +75,9 @@ _start:
     ; Set up stack
     mov esp, stack_top
     
+    ; Debug: Write 'S' to VGA after setting up stack
+    mov dword [0xB800C], 0x0E530E53  ; Two 'S's
+    
     ; Set up segment registers with data selector (0x10)
     mov ax, 0x10
     mov ds, ax
@@ -138,9 +141,15 @@ _start:
     mov eax, 0xDEADBEEF
     mov [VGA_BUFFER + edi], eax
     
+    ; Debug: Write 'M' to VGA before calling kmain
+    mov dword [0xB8010], 0x0D4D0D4D  ; Two 'M's
+    
     ; Call the C kernel main function
     extern kmain
     call kmain
+    
+    ; Debug: Write 'D' to VGA after kmain returns
+    mov dword [0xB8014], 0x0C440C44  ; Two 'D's
 
     ; Halt the CPU with interrupts disabled
     cli
