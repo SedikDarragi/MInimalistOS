@@ -145,7 +145,7 @@ protected_mode_entry:
     mov dword [0xB8008], 0x0B4B0B4B  ; Two 'K's
     
     ; Jump to kernel entry point
-    jmp 0x08:0x301F
+    jmp 0x08:0x202F
 
 [bits 16]
 main:

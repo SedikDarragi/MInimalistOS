@@ -60,98 +60,12 @@ _start:
     cld
     rep stosw
     
-    ; Continue with kernel initialization
-    
-    ; Signature: 0xB4, 0x4B ('K' with color)
-    db 0xB4, 0x4B
-    
-    ; Debug: Write 'K' to serial port to verify kernel entry
+    ; Debug: Write to serial port
     mov dx, 0x3F8
     mov al, 'K'
     out dx, al
     
-    ; Continue with kernel initialization
-    
-    ; Set up stack
-    mov esp, stack_top
-    
-    ; Debug: Write 'S' to VGA after setting up stack
-    mov dword [0xB800C], 0x0E530E53  ; Two 'S's
-    
-    ; Set up segment registers with data selector (0x10)
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    
-    ; Clear screen (first 4K of VGA memory)
-    cld                 ; Clear direction flag (increment EDI)
-    mov edi, VGA_BUFFER
-    mov ecx, 0x0800     ; 2048 words = 4096 bytes
-    xor eax, eax
-    mov ah, 0x0F        ; White on black
-    mov al, ' '         ; Space character
-    rep stosw           ; Fill screen with spaces
-    
-    ; Fill entire screen with a visible pattern to confirm VGA is working
-    mov edi, VGA_BUFFER
-    mov ecx, 2000       ; 80*25 characters
-    mov al, 'K'         ; Character 'K' for Kernel
-    mov ah, 0x4F        ; Red on white background
-    rep stosw           ; Fill screen with 'K's
-    
-    ; Create a distinctive pattern in the middle of the screen
-    mov edi, VGA_BUFFER + 960    ; Line 12 (middle)
-    mov ecx, 80                  ; One full line
-    mov al, '#'                  ; Character '#'
-    mov ah, 0x2E                 ; Green on cyan background
-    rep stosw                    ; Fill middle line with #
-    
-    ; Print a test message directly to VGA
-    mov edi, 0          ; Start of first line
-    mov esi, msg_kernel_loaded
-    mov ah, 0x0F        ; White on black
-    call vga_puts_at
-    
-    ; Print a second message to verify VGA output is working
-    mov edi, 160        ; Start of second line (80 chars * 2 bytes)
-    mov esi, msg_hello
-    mov ah, 0x0A        ; Light green on black
-    call vga_puts_at
-    
-    ; Print a third message with CPU information
-    mov edi, 320        ; Start of third line
-    mov esi, msg_cpuid
-    mov ah, 0x0E        ; Yellow on black
-    call vga_puts_at
-    
-    ; Try to get CPU vendor ID
-    xor eax, eax
-    cpuid
-    
-    ; Store vendor string at VGA position (4th line)
-    mov [VGA_BUFFER + 480], ebx
-    mov [VGA_BUFFER + 484], edx
-    mov [VGA_BUFFER + 488], ecx
-    
-    ; Debug: Write a magic number to VGA to confirm kernel is running
-    mov edi, 640        ; 5th line
-    mov eax, 0xDEADBEEF
-    mov [VGA_BUFFER + edi], eax
-    
-    ; Debug: Write 'M' to VGA before calling kmain
-    mov dword [0xB8010], 0x0D4D0D4D  ; Two 'M's
-    
-    ; Call the C kernel main function
-    extern kmain
-    call kmain
-    
-    ; Debug: Write 'D' to VGA after kmain returns
-    mov dword [0xB8014], 0x0C440C44  ; Two 'D's
-
-    ; Halt the CPU with interrupts disabled
+    ; Infinite loop to test if we reach here
     cli
 .hang:
     hlt

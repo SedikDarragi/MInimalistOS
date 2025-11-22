@@ -155,7 +155,7 @@
    145 000000D0 0B                 
    146                                      
    147                                      ; Jump to kernel entry point
-   148 000000D1 EA1F3000000800              jmp 0x08:0x301F
+   148 000000D1 EA2F2000000800              jmp 0x08:0x202F
    149                                  
    150                                  [bits 16]
    151                                  main:

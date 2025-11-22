@@ -18,26 +18,26 @@ SECTIONS
     /* Multiboot header (must be at beginning) */
     .multiboot : ALIGN(4) {
         *(.multiboot)
-    }
+    } :text
 
     /* Kernel code section */
-    .text : ALIGN(4K) {
+    .text : {
         *(.text.entry) /* Make sure entry code is first */
         *(.text .text.*)
     } :text
     
     /* Read-only data */
-    .rodata : ALIGN(4K) {
+    .rodata : {
         *(.rodata .rodata.*)
     } :rodata
     
     /* Read-write data (initialized) */
-    .data : ALIGN(4K) {
+    .data : {
         *(.data .data.*)
     } :data
     
     /* Read-write data (uninitialized) */
-    .bss : ALIGN(4K) {
+    .bss : {
         *(COMMON)
         *(.bss .bss.*)
     } :bss
