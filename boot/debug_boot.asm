@@ -23,20 +23,41 @@ print_str:
 
 disk_load:
     pusha
+    ; Save the number of sectors
+    mov bl, dh
+    
+    ; Debug: Print 'R' to show we're in disk_load
+    mov al, 'R'
+    mov ah, 0x0E
+    int 0x10
+    
+    ; Use CHS read for hard disk
     mov ah, 0x02
-    mov al, dh
-    mov ch, 0x00
-    mov dh, 0x00
-    mov cl, 0x02
+    mov al, bl  ; Number of sectors to read (saved in bl)
+    mov ch, 0x00  ; Cylinder 0
+    mov dh, 0x00  ; Head 0
+    mov cl, 0x02  ; Sector 2 (after MBR)
+    mov dl, 0x80  ; First hard disk
     int 0x13
-    jc .error
+    ; jc .error  ; Temporarily remove carry check
+    
     ; Debug: Print 'D' to confirm disk load succeeded
     mov al, 'D'
     mov ah, 0x0E
     int 0x10
+    
+    ; Debug: Print 'Q' after 'D'
+    mov al, 'Q'
+    mov ah, 0x0E
+    int 0x10
+    
     popa
     ret
 .error:
+    ; Debug: Print 'E' for error
+    mov al, 'E'
+    mov ah, 0x0E
+    int 0x10
     mov si, msg_err
     call print_str
     jmp $
@@ -86,12 +107,22 @@ switch_to_pm:
     mov ah, 0x0E
     int 0x10
     
-    ; Load GDT - simple approach
+    ; Load GDT
     lgdt [gdt_descriptor]
     
+    ; Debug: Print 'I' immediately after lgdt
+    mov al, 'I'
+    mov ah, 0x0E
+    int 0x10
+    
+    ; Debug: Print 'G' after loading GDT
+    mov al, 'G'
+    mov ah, 0x0E
+    int 0x10
+    
     ; Debug: Write 'M' to VGA to confirm GDT is loaded
-    mov byte [0xB8000+6], 'M'
-    mov byte [0xB8000+7], 0x09
+    ; mov byte [0xB8000+6], 'M'
+    ; mov byte [0xB8000+7], 0x09
     
     ; Debug: Print 'T' after memory operations
     mov al, 'T'
@@ -109,8 +140,8 @@ switch_to_pm:
     int 0x10
     
     ; Debug: Write 'C' to VGA before CR0 write
-    mov byte [0xB8000], 'C'
-    mov byte [0xB8001], 0x0C
+    ; mov byte [0xB8000], 'C'
+    ; mov byte [0xB8001], 0x0C
     
     ; Enable protected mode
     mov eax, cr0
@@ -118,15 +149,15 @@ switch_to_pm:
     mov cr0, eax
     
     ; Debug: Write 'P' to VGA after CR0 write
-    mov byte [0xB8002], 'P'
-    mov byte [0xB8003], 0x0E
+    ; mov byte [0xB8002], 'P'
+    ; mov byte [0xB8003], 0x0E
     
     ; Debug: Write 'J' to VGA before the far jump
-    mov byte [0xB8006], 'J'
-    mov byte [0xB8007], 0x0A
+    ; mov byte [0xB8006], 'J'
+    ; mov byte [0xB8007], 0x0A
     
     ; Far jump to flush pipeline and enter protected mode
-    jmp 0x08:0x7CA5
+    jmp 0x08:0x7CC3
 
 [bits 32]
 protected_mode_entry:
@@ -139,13 +170,18 @@ protected_mode_entry:
     mov gs, ax
     
     ; Debug: Write '3' to VGA to confirm we're in 32-bit protected mode
-    mov dword [0xB8004], 0x0F330F33  ; Two '3's
+    ; mov dword [0xB8004], 0x0F330F33  ; Two '3's
     
     ; Debug: Write 'K' to VGA before jumping to kernel
-    mov dword [0xB8008], 0x0B4B0B4B  ; Two 'K's
+    ; mov dword [0xB8008], 0x0B4B0B4B  ; Two 'K's
+    
+    ; Debug: Write 'J' to serial before jumping
+    mov dx, 0x3F8
+    mov al, 'J'
+    out dx, al
     
     ; Jump to kernel entry point
-    jmp 0x08:0x202F
+    jmp 0x08:0x102F
 
 [bits 16]
 main:
@@ -165,20 +201,36 @@ main:
     mov bx, KERNEL_OFFSET
     mov es, bx
     xor bx, bx
-    mov dh, 15
-    mov dl, [boot_drive]
+    
+    ; Fix buffer address - we want to load at 0x1000, not 0x10000
+    mov ax, 0x0000
+    mov es, ax
+    mov bx, KERNEL_OFFSET
+    
+    mov dh, 32  ; Load 32 sectors (16KB) to get the full kernel
+    mov dl, 0x80  ; First hard disk
     
     mov si, msg_load
     call print_str
     call disk_load
+    
+    ; Debug: Print 'Z' after disk_load returns
+    mov al, 'Z'
+    mov ah, 0x0E
+    int 0x10
     
     ; Debug: Print 'X' before calling switch_to_pm
     mov al, 'X'
     mov ah, 0x0E
     int 0x10
     
-    ; Debug: Print another character to verify we're still here
+    ; Debug: Print 'Y' before calling switch_to_pm
     mov al, 'Y'
+    mov ah, 0x0E
+    int 0x10
+    
+    ; Debug: Print 'M' before the jump
+    mov al, 'M'
     mov ah, 0x0E
     int 0x10
     
@@ -190,6 +242,15 @@ msg_boot db 'Boot', 0x0D, 0x0A, 0
 msg_load db 'Load', 0
 msg_err db 'Err', 0
 boot_drive db 0
+
+; Disk packet for LBA reads
+disk_packet:
+    db 0x10      ; Packet size (16 bytes)
+    db 0         ; Reserved
+    dw 1         ; Number of sectors to read
+    dw KERNEL_OFFSET  ; Buffer offset
+    dw 0         ; Buffer segment (0 for real mode)
+    dq 1         ; LBA sector number (start from sector 1 after MBR)
 
 %if ($ - $$) > 510
     %error "Bootloader exceeds 510 bytes"

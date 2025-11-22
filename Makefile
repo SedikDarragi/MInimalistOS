@@ -58,11 +58,11 @@ all: os.img
 
 os.img: boot/debug_boot.bin kernel.bin
 	@echo "Creating disk image..."
-	# Create a blank 1.44MB floppy image
-	dd if=/dev/zero of=os.img bs=512 count=2880 2>/dev/null
-	# Write the bootloader to the first sector
+	# Create a blank 10MB hard disk image
+	dd if=/dev/zero of=os.img bs=1M count=10 2>/dev/null
+	# Write the bootloader to the first sector (MBR)
 	dd if=boot/debug_boot.bin of=os.img conv=notrunc 2>/dev/null
-	# Write the kernel starting at sector 2 (right after the boot sector)
+	# Write the kernel starting at sector 2 (right after the MBR)
 	dd if=kernel.bin of=os.img seek=1 conv=notrunc 2>/dev/null
 	@echo "Disk image created successfully"
 	@ls -lh os.img

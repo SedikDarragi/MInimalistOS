@@ -53,17 +53,17 @@ vga_puts_at:
     ret
 
 _start:
+    ; Debug: Write to serial port FIRST - before anything else
+    mov dx, 0x3F8
+    mov al, 'K'
+    out dx, al
+    
     ; Simple signature: Fill VGA with 'K' to show we're here
     mov edi, 0xB8000
     mov eax, 0x0C4B  ; Red 'K' on black background
     mov ecx, 2000     ; Fill entire screen
     cld
     rep stosw
-    
-    ; Debug: Write to serial port
-    mov dx, 0x3F8
-    mov al, 'K'
-    out dx, al
     
     ; Infinite loop to test if we reach here
     cli
