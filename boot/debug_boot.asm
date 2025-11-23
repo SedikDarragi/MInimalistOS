@@ -89,6 +89,7 @@ gdt_descriptor:
     dw gdt_end - gdt_start - 1  ; Size of GDT
     dd gdt_start + 0x7C00      ; Base address of GDT (add load address)
 
+[bits 16]
 switch_to_pm:
     ; Debug: Print 'S' before switching to protected mode
     mov al, 'S'
@@ -126,41 +127,72 @@ switch_to_pm:
     
     ; Debug: Print 'T' after memory operations
     mov al, 'T'
-    mov ah, 0x0E
-    int 0x10
+    mov dx, 0x3F8
+    out dx, al
     
     ; Debug: Print 'L' after loading GDT
     mov al, 'L'
-    mov ah, 0x0E
-    int 0x10
+    mov dx, 0x3F8
+    out dx, al
+    
+    ; Debug: Print 'U' before cli
+    mov al, 'U'
+    mov dx, 0x3F8
+    out dx, al
+    
+    ; cli  ; Temporarily remove
     
     ; Debug: Print 'C' before accessing CR0
     mov al, 'C'
-    mov ah, 0x0E
-    int 0x10
+    mov dx, 0x3F8
+    out dx, al
     
     ; Debug: Write 'C' to VGA before CR0 write
     ; mov byte [0xB8000], 'C'
     ; mov byte [0xB8001], 0x0C
     
     ; Enable protected mode
-    mov eax, cr0
+    ; mov eax, cr0 - manual encoding for 16-bit mode
+    db 0x0F, 0x20, 0xC0  ; mov eax, cr0
+    
+    ; Debug: Print 'R' after CR0 read
+    mov al, 'R'
+    mov dx, 0x3F8
+    out dx, al
+    
     or eax, 0x1
-    mov cr0, eax
     
-    ; Debug: Write 'P' to VGA after CR0 write
-    ; mov byte [0xB8002], 'P'
-    ; mov byte [0xB8003], 0x0E
+    ; Debug: Print 'O' after OR instruction
+    mov al, 'O'
+    mov dx, 0x3F8
+    out dx, al
     
-    ; Debug: Write 'J' to VGA before the far jump
-    ; mov byte [0xB8006], 'J'
-    ; mov byte [0xB8007], 0x0A
+    ; mov cr0, eax - manual encoding for 16-bit mode
+    db 0x0F, 0x22, 0xC0  ; mov cr0, eax
+    
+    ; Debug: Print 'W' after CR0 write
+    mov al, 'W'
+    mov dx, 0x3F8
+    out dx, al
+    
+    ; Debug: Print 'J' before far jump
+    mov al, 'J'
+    mov dx, 0x3F8
+    out dx, al
     
     ; Far jump to flush pipeline and enter protected mode
-    jmp 0x08:0x7CC3
+    ; jmp far 0x08:0x7CC5 - manual encoding
+    db 0xEA  ; jmp far opcode
+    dw 0x7CC5  ; offset
+    dw 0x0008  ; segment
 
 [bits 32]
 protected_mode_entry:
+    ; Debug: Print 'P' in protected mode
+    mov al, 'P'
+    mov dx, 0x3F8
+    out dx, al
+    
     ; Set up data segment registers
     mov ax, 0x10  ; Data selector
     mov ds, ax
@@ -168,6 +200,11 @@ protected_mode_entry:
     mov es, ax
     mov fs, ax
     mov gs, ax
+    
+    ; Debug: Print 'S' after segment setup
+    mov al, 'S'
+    mov dx, 0x3F8
+    out dx, al
     
     ; Debug: Write '3' to VGA to confirm we're in 32-bit protected mode
     ; mov dword [0xB8004], 0x0F330F33  ; Two '3's
@@ -190,7 +227,7 @@ main:
     mov ds, ax
     mov es, ax
     mov ss, ax
-    mov sp, 0x7c00
+    mov sp, 0x9000  ; Use a safer location for stack
     sti
     
     mov [boot_drive], dl
