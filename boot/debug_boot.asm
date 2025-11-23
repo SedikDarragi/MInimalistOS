@@ -180,6 +180,9 @@ switch_to_pm:
     mov dx, 0x3F8
     out dx, al
     
+    ; Disable interrupts before far jump
+    cli
+    
     ; Far jump to flush pipeline and enter protected mode
     ; jmp far 0x08:0x7CC5 - manual encoding
     db 0xEA  ; jmp far opcode
@@ -188,18 +191,17 @@ switch_to_pm:
 
 [bits 32]
 protected_mode_entry:
-    ; Debug: Print 'P' in protected mode
-    mov al, 'P'
-    mov dx, 0x3F8
-    out dx, al
-    
-    ; Set up data segment registers
+    ; Set up data segment registers first
     mov ax, 0x10  ; Data selector
     mov ds, ax
     mov ss, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
+    
+    ; Debug: Write 'P' to VGA in protected mode
+    mov byte [0xB8000], 'P'
+    mov byte [0xB8001], 0x0F
     
     ; Debug: Print 'S' after segment setup
     mov al, 'S'
