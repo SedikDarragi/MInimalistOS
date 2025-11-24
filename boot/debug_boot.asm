@@ -67,20 +67,20 @@ gdt_start:
     ; Null descriptor (required)
     dq 0x0
     
-    ; Code segment descriptor
+    ; Code segment descriptor (flat 4GB)
     dw 0xFFFF     ; Limit (bits 0-15)
     dw 0x0        ; Base (bits 0-15)
     db 0x0        ; Base (bits 16-23)
-    db 10011010b  ; Access byte
-    db 11001111b  ; Flags + Limit (bits 16-19)
+    db 10011010b  ; Access byte - Present, Ring 0, Code, Executable, Readable
+    db 11001111b  ; Flags + Limit (bits 16-19) - Granularity 4KB, 32-bit
     db 0x0        ; Base (bits 24-31)
     
-    ; Data segment descriptor
+    ; Data segment descriptor (flat 4GB)
     dw 0xFFFF     ; Limit (bits 0-15)
     dw 0x0        ; Base (bits 0-15)
     db 0x0        ; Base (bits 16-23)
-    db 10010010b  ; Access byte
-    db 11001111b  ; Flags + Limit (bits 16-19)
+    db 10010010b  ; Access byte - Present, Ring 0, Data, Writable
+    db 11001111b  ; Flags + Limit (bits 16-19) - Granularity 4KB, 32-bit
     db 0x0        ; Base (bits 24-31)
 
 gdt_end:
@@ -184,7 +184,9 @@ switch_to_pm:
     cli
     
     ; Far jump to flush pipeline and enter protected mode
-    jmp 0x08:protected_mode_entry
+    db 0xEA      ; jmp far opcode
+    dw protected_mode_entry - gdt_start - 0x7C00  ; Offset relative to GDT base
+    dw 0x08      ; Segment selector
 
 [bits 32]
 protected_mode_entry:
