@@ -184,10 +184,7 @@ switch_to_pm:
     cli
     
     ; Far jump to flush pipeline and enter protected mode
-    ; jmp far 0x08:0x7CC5 - manual encoding
-    db 0xEA  ; jmp far opcode
-    dw 0x7CC5  ; offset
-    dw 0x0008  ; segment
+    jmp 0x08:protected_mode_entry
 
 [bits 32]
 protected_mode_entry:
