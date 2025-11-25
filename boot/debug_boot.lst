@@ -6,7 +6,7 @@
      6                                  DATA_SEG equ 16
      7                                  
      8                                  _start:
-     9 00000000 E9F400                      jmp main
+     9 00000000 E90401                      jmp main
     10                                  
     11                                  print_str:
     12 00000003 60                          pusha
@@ -58,7 +58,7 @@
     58 00000036 B045                        mov al, 'E'
     59 00000038 B40E                        mov ah, 0x0E
     60 0000003A CD10                        int 0x10
-    61 0000003C BE[5301]                    mov si, msg_err
+    61 0000003C BE[6301]                    mov si, msg_err
     62 0000003F E8C1FF                      call print_str
     63 00000042 EBFE                        jmp $
     64                                  
@@ -184,114 +184,119 @@
    184 000000C0 FA                          cli
    185                                      
    186                                      ; Far jump to flush pipeline and enter protected mode
-   187 000000C1 EA                          db 0xEA      ; jmp far opcode
-   188 000000C2 8284                        dw protected_mode_entry - gdt_start - 0x7C00  ; Offset relative to GDT base
-   189 000000C4 0800                        dw 0x08      ; Segment selector
-   190                                  
-   191                                  [bits 32]
-   192                                  protected_mode_entry:
-   193                                      ; Set up data segment registers first
-   194 000000C6 66B81000                    mov ax, 0x10  ; Data selector
-   195 000000CA 8ED8                        mov ds, ax
-   196 000000CC 8ED0                        mov ss, ax
-   197 000000CE 8EC0                        mov es, ax
-   198 000000D0 8EE0                        mov fs, ax
-   199 000000D2 8EE8                        mov gs, ax
-   200                                      
-   201                                      ; Debug: Write 'P' to VGA in protected mode
-   202 000000D4 C60500800B0050              mov byte [0xB8000], 'P'
-   203 000000DB C60501800B000F              mov byte [0xB8001], 0x0F
-   204                                      
-   205                                      ; Debug: Print 'S' after segment setup
-   206 000000E2 B053                        mov al, 'S'
-   207 000000E4 66BAF803                    mov dx, 0x3F8
-   208 000000E8 EE                          out dx, al
+   187 000000C1 EA[C600]0800                jmp 0x08:protected_mode_entry
+   188                                  
+   189                                  [bits 32]
+   190                                  protected_mode_entry:
+   191                                      ; Write to VGA to show we reached protected mode
+   192 000000C6 C60500800B0050              mov byte [0xB8000], 'P'
+   193 000000CD C60501800B000F              mov byte [0xB8001], 0x0F
+   194                                      
+   195                                      ; Infinite loop to stop reboot loop
+   196 000000D4 EBFE                        jmp $
+   197                                      
+   198                                      ; Set up data segment registers first
+   199 000000D6 66B81000                    mov ax, 0x10  ; Data selector
+   200 000000DA 8ED8                        mov ds, ax
+   201 000000DC 8ED0                        mov ss, ax
+   202 000000DE 8EC0                        mov es, ax
+   203 000000E0 8EE0                        mov fs, ax
+   204 000000E2 8EE8                        mov gs, ax
+   205                                      
+   206                                      ; Debug: Write 'P' to VGA in protected mode
+   207 000000E4 C60500800B0050              mov byte [0xB8000], 'P'
+   208 000000EB C60501800B000F              mov byte [0xB8001], 0x0F
    209                                      
-   210                                      ; Debug: Write '3' to VGA to confirm we're in 32-bit protected mode
-   211                                      ; mov dword [0xB8004], 0x0F330F33  ; Two '3's
-   212                                      
-   213                                      ; Debug: Write 'K' to VGA before jumping to kernel
-   214                                      ; mov dword [0xB8008], 0x0B4B0B4B  ; Two 'K's
-   215                                      
-   216                                      ; Debug: Write 'J' to serial before jumping
-   217 000000E9 66BAF803                    mov dx, 0x3F8
-   218 000000ED B04A                        mov al, 'J'
-   219 000000EF EE                          out dx, al
+   210                                      ; Debug: Print 'S' after segment setup
+   211 000000F2 B053                        mov al, 'S'
+   212 000000F4 66BAF803                    mov dx, 0x3F8
+   213 000000F8 EE                          out dx, al
+   214                                      
+   215                                      ; Debug: Write '3' to VGA to confirm we're in 32-bit protected mode
+   216                                      ; mov dword [0xB8004], 0x0F330F33  ; Two '3's
+   217                                      
+   218                                      ; Debug: Write 'K' to VGA before jumping to kernel
+   219                                      ; mov dword [0xB8008], 0x0B4B0B4B  ; Two 'K's
    220                                      
-   221                                      ; Jump to kernel entry point
-   222 000000F0 EA2F1000000800              jmp 0x08:0x102F
-   223                                  
-   224                                  [bits 16]
-   225                                  main:
-   226 000000F7 FA                          cli
-   227 000000F8 31C0                        xor ax, ax
-   228 000000FA 8ED8                        mov ds, ax
-   229 000000FC 8EC0                        mov es, ax
-   230 000000FE 8ED0                        mov ss, ax
-   231 00000100 BC0090                      mov sp, 0x9000  ; Use a safer location for stack
-   232 00000103 FB                          sti
-   233                                      
-   234 00000104 8816[5701]                  mov [boot_drive], dl
-   235                                      
-   236 00000108 BE[4701]                    mov si, msg_boot
-   237 0000010B E8F5FE                      call print_str
+   221                                      ; Debug: Write 'J' to serial before jumping
+   222 000000F9 66BAF803                    mov dx, 0x3F8
+   223 000000FD B04A                        mov al, 'J'
+   224 000000FF EE                          out dx, al
+   225                                      
+   226                                      ; Jump to kernel entry point
+   227 00000100 EA2F1000000800              jmp 0x08:0x102F
+   228                                  
+   229                                  [bits 16]
+   230                                  main:
+   231 00000107 FA                          cli
+   232 00000108 31C0                        xor ax, ax
+   233 0000010A 8ED8                        mov ds, ax
+   234 0000010C 8EC0                        mov es, ax
+   235 0000010E 8ED0                        mov ss, ax
+   236 00000110 BC0090                      mov sp, 0x9000  ; Use a safer location for stack
+   237 00000113 FB                          sti
    238                                      
-   239 0000010E BB0010                      mov bx, KERNEL_OFFSET
-   240 00000111 8EC3                        mov es, bx
-   241 00000113 31DB                        xor bx, bx
-   242                                      
-   243                                      ; Fix buffer address - we want to load at 0x1000, not 0x10000
-   244 00000115 B80000                      mov ax, 0x0000
-   245 00000118 8EC0                        mov es, ax
-   246 0000011A BB0010                      mov bx, KERNEL_OFFSET
+   239 00000114 8816[6701]                  mov [boot_drive], dl
+   240                                      
+   241 00000118 BE[5701]                    mov si, msg_boot
+   242 0000011B E8E5FE                      call print_str
+   243                                      
+   244 0000011E BB0010                      mov bx, KERNEL_OFFSET
+   245 00000121 8EC3                        mov es, bx
+   246 00000123 31DB                        xor bx, bx
    247                                      
-   248 0000011D B620                        mov dh, 32  ; Load 32 sectors (16KB) to get the full kernel
-   249 0000011F B280                        mov dl, 0x80  ; First hard disk
-   250                                      
-   251 00000121 BE[4E01]                    mov si, msg_load
-   252 00000124 E8DCFE                      call print_str
-   253 00000127 E8E7FE                      call disk_load
-   254                                      
-   255                                      ; Debug: Print 'Z' after disk_load returns
-   256 0000012A B05A                        mov al, 'Z'
-   257 0000012C B40E                        mov ah, 0x0E
-   258 0000012E CD10                        int 0x10
+   248                                      ; Fix buffer address - we want to load at 0x1000, not 0x10000
+   249 00000125 B80000                      mov ax, 0x0000
+   250 00000128 8EC0                        mov es, ax
+   251 0000012A BB0010                      mov bx, KERNEL_OFFSET
+   252                                      
+   253 0000012D B620                        mov dh, 32  ; Load 32 sectors (16KB) to get the full kernel
+   254 0000012F B280                        mov dl, 0x80  ; First hard disk
+   255                                      
+   256 00000131 BE[5E01]                    mov si, msg_load
+   257 00000134 E8CCFE                      call print_str
+   258 00000137 E8D7FE                      call disk_load
    259                                      
-   260                                      ; Debug: Print 'X' before calling switch_to_pm
-   261 00000130 B058                        mov al, 'X'
-   262 00000132 B40E                        mov ah, 0x0E
-   263 00000134 CD10                        int 0x10
+   260                                      ; Debug: Print 'Z' after disk_load returns
+   261 0000013A B05A                        mov al, 'Z'
+   262 0000013C B40E                        mov ah, 0x0E
+   263 0000013E CD10                        int 0x10
    264                                      
-   265                                      ; Debug: Print 'Y' before calling switch_to_pm
-   266 00000136 B059                        mov al, 'Y'
-   267 00000138 B40E                        mov ah, 0x0E
-   268 0000013A CD10                        int 0x10
+   265                                      ; Debug: Print 'X' before calling switch_to_pm
+   266 00000140 B058                        mov al, 'X'
+   267 00000142 B40E                        mov ah, 0x0E
+   268 00000144 CD10                        int 0x10
    269                                      
-   270                                      ; Debug: Print 'M' before the jump
-   271 0000013C B04D                        mov al, 'M'
-   272 0000013E B40E                        mov ah, 0x0E
-   273 00000140 CD10                        int 0x10
+   270                                      ; Debug: Print 'Y' before calling switch_to_pm
+   271 00000146 B059                        mov al, 'Y'
+   272 00000148 B40E                        mov ah, 0x0E
+   273 0000014A CD10                        int 0x10
    274                                      
-   275 00000142 E91DFF                      jmp switch_to_pm
-   276                                      
-   277 00000145 EBFE                        jmp $
-   278                                  
-   279 00000147 426F6F740D0A00          msg_boot db 'Boot', 0x0D, 0x0A, 0
-   280 0000014E 4C6F616400              msg_load db 'Load', 0
-   281 00000153 45727200                msg_err db 'Err', 0
-   282 00000157 00                      boot_drive db 0
+   275                                      ; Debug: Print 'M' before the jump
+   276 0000014C B04D                        mov al, 'M'
+   277 0000014E B40E                        mov ah, 0x0E
+   278 00000150 CD10                        int 0x10
+   279                                      
+   280 00000152 E90DFF                      jmp switch_to_pm
+   281                                      
+   282 00000155 EBFE                        jmp $
    283                                  
-   284                                  ; Disk packet for LBA reads
-   285                                  disk_packet:
-   286 00000158 10                          db 0x10      ; Packet size (16 bytes)
-   287 00000159 00                          db 0         ; Reserved
-   288 0000015A 0100                        dw 1         ; Number of sectors to read
-   289 0000015C 0010                        dw KERNEL_OFFSET  ; Buffer offset
-   290 0000015E 0000                        dw 0         ; Buffer segment (0 for real mode)
-   291 00000160 0100000000000000            dq 1         ; LBA sector number (start from sector 1 after MBR)
-   292                                  
-   293                                  %if ($ - $$) > 510
-   294                                      %error "Bootloader exceeds 510 bytes"
-   295                                  %endif
-   296 00000168 00<rep 96h>             times 510 - ($ - $$) db 0
-   297 000001FE 55AA                    dw 0xAA55
+   284 00000157 426F6F740D0A00          msg_boot db 'Boot', 0x0D, 0x0A, 0
+   285 0000015E 4C6F616400              msg_load db 'Load', 0
+   286 00000163 45727200                msg_err db 'Err', 0
+   287 00000167 00                      boot_drive db 0
+   288                                  
+   289                                  ; Disk packet for LBA reads
+   290                                  disk_packet:
+   291 00000168 10                          db 0x10      ; Packet size (16 bytes)
+   292 00000169 00                          db 0         ; Reserved
+   293 0000016A 0100                        dw 1         ; Number of sectors to read
+   294 0000016C 0010                        dw KERNEL_OFFSET  ; Buffer offset
+   295 0000016E 0000                        dw 0         ; Buffer segment (0 for real mode)
+   296 00000170 0100000000000000            dq 1         ; LBA sector number (start from sector 1 after MBR)
+   297                                  
+   298                                  %if ($ - $$) > 510
+   299                                      %error "Bootloader exceeds 510 bytes"
+   300                                  %endif
+   301 00000178 00<rep 86h>             times 510 - ($ - $$) db 0
+   302 000001FE 55AA                    dw 0xAA55

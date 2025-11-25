@@ -184,12 +184,17 @@ switch_to_pm:
     cli
     
     ; Far jump to flush pipeline and enter protected mode
-    db 0xEA      ; jmp far opcode
-    dw protected_mode_entry - gdt_start - 0x7C00  ; Offset relative to GDT base
-    dw 0x08      ; Segment selector
+    jmp 0x08:protected_mode_entry
 
 [bits 32]
 protected_mode_entry:
+    ; Write to VGA to show we reached protected mode
+    mov byte [0xB8000], 'P'
+    mov byte [0xB8001], 0x0F
+    
+    ; Infinite loop to stop reboot loop
+    jmp $
+    
     ; Set up data segment registers first
     mov ax, 0x10  ; Data selector
     mov ds, ax
