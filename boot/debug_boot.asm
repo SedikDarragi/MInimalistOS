@@ -1,36 +1,55 @@
 [org 0x7c00]
 [bits 16]
 
-KERNEL_OFFSET equ 0x1000  ; Where we'll load our kernel
+KERNEL_OFFSET equ 0x1000
 CODE_SEG equ 8
 DATA_SEG equ 16
 
 _start:
     jmp main
 
-print_str:
-    pusha
-    mov ah, 0x0E
-.loop:
-    lodsb
-    test al, al
-    jz .done
-    int 0x10
-    jmp .loop
-.done:
-    popa
-    ret
+main:
+    cli
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov sp, 0x9000
+    
+    ; Write 'B' to VGA to show we're in main
+    ; Use segment:offset addressing for VGA memory
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0000], 'B'
+    mov byte [es:0x0001], 0x0F
+    pop es
+    
+    ; Load kernel
+    mov bx, KERNEL_OFFSET
+    mov es, bx
+    xor bx, bx
+    mov ax, 0x0000
+    mov es, ax
+    mov bx, KERNEL_OFFSET
+    mov dh, 16
+    mov dl, 0x80
+    call disk_load
+    
+    ; Write 'L' to VGA to show disk load completed
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0002], 'L'
+    mov byte [es:0x0003], 0x0F
+    pop es
+    
+    ; Switch to protected mode
+    call switch_to_pm
 
 disk_load:
     pusha
     mov bl, dh
-    
-    ; Debug: Print 'R' to show we're in disk_load
-    mov al, 'R'
-    mov ah, 0x0E
-    int 0x10
-    
-    ; Use CHS read for hard disk
     mov ah, 0x02
     mov al, bl
     mov ch, 0x00
@@ -39,76 +58,72 @@ disk_load:
     mov dl, 0x80
     int 0x13
     jc .error
-    
-    ; Debug: Print 'D' to confirm disk load succeeded
-    mov al, 'D'
-    mov ah, 0x0E
-    int 0x10
     popa
     ret
-    
 .error:
-    mov al, 'E'
-    mov ah, 0x0E
-    int 0x10
     jmp $
 
 ; GDT
 gdt_start:
-    ; Null descriptor (required)
     dq 0x0
-    
-    ; Code segment descriptor
+    ; Code segment
     dw 0xFFFF
     dw 0x0
     db 0x0
     db 10011010b
     db 11001111b
     db 0x0
-    
-    ; Data segment descriptor
+    ; Data segment
     dw 0xFFFF
     dw 0x0
     db 0x0
     db 10010010b
     db 11001111b
     db 0x0
-
 gdt_end:
 
 gdt_descriptor:
     dw gdt_end - gdt_start - 1
     dd gdt_start + 0x7C00
 
-[bits 16]
 switch_to_pm:
-    ; Debug: Print 'S' before switching to protected mode
-    mov al, 'S'
-    mov ah, 0x0E
-    int 0x10
-    
     cli
     
-    ; Load GDT
+    ; Write 'S' to VGA to show we're in switch_to_pm
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0004], 'S'
+    mov byte [es:0x0005], 0x0F
+    pop es
+    
     lgdt [gdt_descriptor]
     
-    ; Debug: Print 'G' after loading GDT
-    mov al, 'G'
-    mov ah, 0x0E
-    int 0x10
+    ; Write 'G' to VGA to show GDT loaded
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0006], 'G'
+    mov byte [es:0x0007], 0x0F
+    pop es
     
-    ; Enable protected mode
-    mov eax, cr0
-    or eax, 0x1
-    mov cr0, eax
+    ; Enable protected mode - manual encoding for 16-bit mode
+    db 0x0F, 0x20, 0xC0  ; mov eax, cr0
+    or ax, 1  ; Set bit 0 (Protection Enable)
+    db 0x0F, 0x22, 0xC0  ; mov cr0, eax
     
-    ; Debug: Print 'P' after enabling protected mode
-    mov al, 'P'
-    mov ah, 0x0E
-    int 0x10
+    ; Write 'P' to VGA to show protected mode enabled
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0008], 'P'
+    mov byte [es:0x0009], 0x0F
+    pop es
     
-    ; Far jump to 32-bit code
-    jmp CODE_SEG:protected_mode_entry
+    ; Far jump to protected mode - use proper encoding
+    db 0xEA  ; jmp far opcode
+    dw protected_mode_entry  ; offset (relative to current segment)
+    dw CODE_SEG  ; segment selector
 
 [bits 32]
 protected_mode_entry:
@@ -120,47 +135,17 @@ protected_mode_entry:
     mov fs, ax
     mov gs, ax
     
-    ; Set up stack
     mov esp, 0x90000
     
-    ; Debug: Write '3' to VGA memory
-    mov byte [0xB8000], '3'
+    ; Write 'P' to VGA to show we're in protected mode
+    mov byte [0xB8000], 'P'
     mov byte [0xB8001], 0x0F
+    
+    ; Infinite loop to test if we reach here
+    jmp $
     
     ; Jump to kernel
     jmp KERNEL_OFFSET
-
-[bits 16]
-main:
-    cli
-    xor ax, ax
-    mov ds, ax
-    mov es, ax
-    mov ss, ax
-    mov sp, 0x9000
-    sti
-    
-    mov [boot_drive], dl
-    
-    mov si, msg_boot
-    call print_str
-    
-    ; Load kernel
-    mov bx, KERNEL_OFFSET
-    mov es, bx
-    xor bx, bx
-    mov ax, 0x0000
-    mov es, ax
-    mov bx, KERNEL_OFFSET
-    mov dh, 32
-    mov dl, 0x80
-    call disk_load
-    
-    ; Switch to protected mode
-    call switch_to_pm
-
-msg_boot: db "Booting...", 0
-boot_drive: db 0
 
 times 510 - ($-$$) db 0
 dw 0xAA55
