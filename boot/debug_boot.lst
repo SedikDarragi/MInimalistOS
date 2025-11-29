@@ -141,11 +141,12 @@
    141 000000E2 C60500800B0050              mov byte [0xB8000], 'P'
    142 000000E9 C60501800B000F              mov byte [0xB8001], 0x0F
    143                                      
-   144                                      ; Infinite loop to test if we reach here
-   145 000000F0 EBFE                        jmp $
-   146                                      
-   147                                      ; Jump to kernel
-   148 000000F2 E9(00100000)                jmp KERNEL_OFFSET
-   149                                  
-   150 000000F7 00<rep 107h>            times 510 - ($-$$) db 0
-   151 000001FE 55AA                    dw 0xAA55
+   144                                      ; Write '3' to VGA to show we're about to jump to kernel
+   145 000000F0 C60502800B0033              mov byte [0xB8002], '3'
+   146 000000F7 C60503800B000F              mov byte [0xB8003], 0x0F
+   147                                      
+   148                                      ; Jump to kernel start
+   149 000000FE E9(00100000)                jmp 0x1000
+   150                                  
+   151 00000103 00<rep FBh>             times 510 - ($-$$) db 0
+   152 000001FE 55AA                    dw 0xAA55

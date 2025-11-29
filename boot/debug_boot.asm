@@ -141,11 +141,12 @@ protected_mode_entry:
     mov byte [0xB8000], 'P'
     mov byte [0xB8001], 0x0F
     
-    ; Infinite loop to test if we reach here
-    jmp $
+    ; Write '3' to VGA to show we're about to jump to kernel
+    mov byte [0xB8002], '3'
+    mov byte [0xB8003], 0x0F
     
-    ; Jump to kernel
-    jmp KERNEL_OFFSET
+    ; Jump to kernel start
+    jmp 0x1000
 
 times 510 - ($-$$) db 0
 dw 0xAA55
