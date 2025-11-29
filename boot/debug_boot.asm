@@ -145,16 +145,16 @@ protected_mode_entry:
     mov byte [0xB8002], '3'
     mov byte [0xB8003], 0x0F
     
-    ; Clear registers before jump
-    xor eax, eax
-    xor ebx, ebx
-    xor ecx, ecx
-    xor edx, edx
-    xor esi, esi
-    xor edi, edi
+    ; Try executing kernel instructions without serial port
+    ; Fill VGA with 'K' like the kernel does
+    mov edi, 0xB8000
+    mov eax, 0x0C4B  ; Red 'K' on black background
+    mov ecx, 2000     ; Fill entire screen
+    cld
+    rep stosw
     
-    ; Jump to kernel entry point
-    jmp 0x102f
+    ; Infinite loop
+    jmp $
 
 times 510 - ($-$$) db 0
 dw 0xAA55

@@ -145,16 +145,16 @@
    145 000000F0 C60502800B0033              mov byte [0xB8002], '3'
    146 000000F7 C60503800B000F              mov byte [0xB8003], 0x0F
    147                                      
-   148                                      ; Clear registers before jump
-   149 000000FE 31C0                        xor eax, eax
-   150 00000100 31DB                        xor ebx, ebx
-   151 00000102 31C9                        xor ecx, ecx
-   152 00000104 31D2                        xor edx, edx
-   153 00000106 31F6                        xor esi, esi
-   154 00000108 31FF                        xor edi, edi
+   148                                      ; Try executing kernel instructions without serial port
+   149                                      ; Fill VGA with 'K' like the kernel does
+   150 000000FE BF00800B00                  mov edi, 0xB8000
+   151 00000103 B84B0C0000                  mov eax, 0x0C4B  ; Red 'K' on black background
+   152 00000108 B9D0070000                  mov ecx, 2000     ; Fill entire screen
+   153 0000010D FC                          cld
+   154 0000010E 66F3AB                      rep stosw
    155                                      
-   156                                      ; Jump to kernel entry point
-   157 0000010A E9(2F100000)                jmp 0x102f
+   156                                      ; Infinite loop
+   157 00000111 EBFE                        jmp $
    158                                  
-   159 0000010F 00<rep EFh>             times 510 - ($-$$) db 0
+   159 00000113 00<rep EBh>             times 510 - ($-$$) db 0
    160 000001FE 55AA                    dw 0xAA55
