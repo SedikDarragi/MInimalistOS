@@ -145,8 +145,16 @@
    145 000000F0 C60502800B0033              mov byte [0xB8002], '3'
    146 000000F7 C60503800B000F              mov byte [0xB8003], 0x0F
    147                                      
-   148                                      ; Jump to kernel start
-   149 000000FE E9(00100000)                jmp 0x1000
-   150                                  
-   151 00000103 00<rep FBh>             times 510 - ($-$$) db 0
-   152 000001FE 55AA                    dw 0xAA55
+   148                                      ; Clear registers before jump
+   149 000000FE 31C0                        xor eax, eax
+   150 00000100 31DB                        xor ebx, ebx
+   151 00000102 31C9                        xor ecx, ecx
+   152 00000104 31D2                        xor edx, edx
+   153 00000106 31F6                        xor esi, esi
+   154 00000108 31FF                        xor edi, edi
+   155                                      
+   156                                      ; Jump to kernel entry point
+   157 0000010A E9(2F100000)                jmp 0x102f
+   158                                  
+   159 0000010F 00<rep EFh>             times 510 - ($-$$) db 0
+   160 000001FE 55AA                    dw 0xAA55

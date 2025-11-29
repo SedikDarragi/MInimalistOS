@@ -145,8 +145,16 @@ protected_mode_entry:
     mov byte [0xB8002], '3'
     mov byte [0xB8003], 0x0F
     
-    ; Jump to kernel start
-    jmp 0x1000
+    ; Clear registers before jump
+    xor eax, eax
+    xor ebx, ebx
+    xor ecx, ecx
+    xor edx, edx
+    xor esi, esi
+    xor edi, edi
+    
+    ; Jump to kernel entry point
+    jmp 0x102f
 
 times 510 - ($-$$) db 0
 dw 0xAA55
