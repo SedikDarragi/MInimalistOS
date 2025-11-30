@@ -53,8 +53,11 @@ vga_puts_at:
     ret
 
 _start:
-    ; Debug: Write to serial port FIRST - before anything else
-    ; Skip serial port for now - might cause issues
+    ; Debug: Write to VGA FIRST to see if we reach here
+    mov byte [0xB8000], 'X'
+    mov byte [0xB8001], 0x0F
+    
+    ; Skip serial port - causes triple fault in protected mode
     ; mov dx, 0x3F8
     ; mov al, 'K'
     ; out dx, al
