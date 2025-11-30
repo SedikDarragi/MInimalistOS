@@ -54,9 +54,10 @@ vga_puts_at:
 
 _start:
     ; Debug: Write to serial port FIRST - before anything else
-    mov dx, 0x3F8
-    mov al, 'K'
-    out dx, al
+    ; Skip serial port for now - might cause issues
+    ; mov dx, 0x3F8
+    ; mov al, 'K'
+    ; out dx, al
     
     ; Simple signature: Fill VGA with 'K' to show we're here
     mov edi, 0xB8000

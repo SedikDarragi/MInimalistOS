@@ -145,16 +145,10 @@ protected_mode_entry:
     mov byte [0xB8002], '3'
     mov byte [0xB8003], 0x0F
     
-    ; Try executing kernel instructions without serial port
-    ; Fill VGA with 'K' like the kernel does
-    mov edi, 0xB8000
-    mov eax, 0x0C4B  ; Red 'K' on black background
-    mov ecx, 2000     ; Fill entire screen
-    cld
-    rep stosw
-    
-    ; Infinite loop
-    jmp $
+    ; Try using a different jump method
+    ; Load the address into a register and jump
+    mov eax, 0x102f
+    jmp eax
 
 times 510 - ($-$$) db 0
 dw 0xAA55
