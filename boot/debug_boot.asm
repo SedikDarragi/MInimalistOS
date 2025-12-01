@@ -73,7 +73,7 @@ gdt_start:
     db 10011010b
     db 11001111b
     db 0x0
-    ; Data segment
+    ; Data segment - with I/O access
     dw 0xFFFF
     dw 0x0
     db 0x0
@@ -144,6 +144,10 @@ protected_mode_entry:
     ; Write '3' to VGA to show we're about to jump to kernel
     mov byte [0xB8002], '3'
     mov byte [0xB8003], 0x0F
+    
+    ; Write 'J' to VGA to show we're jumping
+    mov byte [0xB8004], 'J'
+    mov byte [0xB8005], 0x0F
     
     ; Try using a different jump method
     ; Load the address into a register and jump

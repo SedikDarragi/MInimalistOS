@@ -73,7 +73,7 @@
     73 00000071 9A                          db 10011010b
     74 00000072 CF                          db 11001111b
     75 00000073 00                          db 0x0
-    76                                      ; Data segment
+    76                                      ; Data segment - with I/O access
     77 00000074 FFFF                        dw 0xFFFF
     78 00000076 0000                        dw 0x0
     79 00000078 00                          db 0x0
@@ -145,10 +145,14 @@
    145 000000F0 C60502800B0033              mov byte [0xB8002], '3'
    146 000000F7 C60503800B000F              mov byte [0xB8003], 0x0F
    147                                      
-   148                                      ; Try using a different jump method
-   149                                      ; Load the address into a register and jump
-   150 000000FE B82F100000                  mov eax, 0x102f
-   151 00000103 FFE0                        jmp eax
-   152                                  
-   153 00000105 00<rep F9h>             times 510 - ($-$$) db 0
-   154 000001FE 55AA                    dw 0xAA55
+   148                                      ; Write 'J' to VGA to show we're jumping
+   149 000000FE C60504800B004A              mov byte [0xB8004], 'J'
+   150 00000105 C60505800B000F              mov byte [0xB8005], 0x0F
+   151                                      
+   152                                      ; Try using a different jump method
+   153                                      ; Load the address into a register and jump
+   154 0000010C B82F100000                  mov eax, 0x102f
+   155 00000111 FFE0                        jmp eax
+   156                                  
+   157 00000113 00<rep EBh>             times 510 - ($-$$) db 0
+   158 000001FE 55AA                    dw 0xAA55

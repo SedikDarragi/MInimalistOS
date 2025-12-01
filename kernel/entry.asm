@@ -57,7 +57,11 @@ _start:
     mov byte [0xB8000], 'X'
     mov byte [0xB8001], 0x0F
     
-    ; Skip serial port - causes triple fault in protected mode
+    ; Write 'K' to show kernel is running
+    mov byte [0xB8006], 'K'
+    mov byte [0xB8007], 0x0F
+    
+    ; Serial port disabled - requires TSS with I/O permissions
     ; mov dx, 0x3F8
     ; mov al, 'K'
     ; out dx, al
