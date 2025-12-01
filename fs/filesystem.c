@@ -1,5 +1,35 @@
 #include "filesystem.h"
-#include "../drivers/vga.h"
+#include "../include/vga.h"
+
+// Local VGA functions for filesystem
+static void fs_vga_print(const char* str) {
+    volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
+    static int pos = 80 * 5; // Start at line 5
+    
+    while (*str) {
+        if (*str == '\n') {
+            pos = ((pos / 80) + 1) * 80;
+            if (pos >= 80 * 25) pos = 0;
+        } else {
+            vga[pos++] = (0x0F << 8) | *str;
+            if (pos >= 80 * 25) pos = 0;
+        }
+        str++;
+    }
+}
+
+static void fs_vga_putchar(char c) {
+    volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
+    static int pos = 80 * 5;
+    
+    if (c == '\n') {
+        pos = ((pos / 80) + 1) * 80;
+        if (pos >= 80 * 25) pos = 0;
+    } else {
+        vga[pos++] = (0x0F << 8) | c;
+        if (pos >= 80 * 25) pos = 0;
+    }
+}
 
 static directory_t root_directory;
 static directory_t* current_directory;
@@ -30,20 +60,20 @@ void fs_init(void) {
 void fs_list_directory(const char* path) {
     (void)path; // For now, just list current directory
     
-    vga_print("Directory listing for ");
-    vga_print(current_path);
-    vga_print(":\n");
+    fs_vga_print("Directory listing for ");
+    fs_vga_print(current_path);
+    fs_vga_print(":\n");
     
     for (int i = 0; i < current_directory->file_count; i++) {
         file_t* file = &current_directory->files[i];
         if (file->is_directory) {
-            vga_print("[DIR]  ");
+            fs_vga_print("[DIR]  ");
         } else {
-            vga_print("[FILE] ");
+            fs_vga_print("[FILE] ");
         }
-        vga_print(file->name);
+        fs_vga_print(file->name);
         if (!file->is_directory) {
-            vga_print(" (");
+            fs_vga_print(" (");
             // Simple integer to string conversion
             char size_str[16];
             int size = file->size;
@@ -63,10 +93,10 @@ void fs_list_directory(const char* path) {
                 }
             }
             size_str[pos] = '\0';
-            vga_print(size_str);
-            vga_print(" bytes)");
+            fs_vga_print(size_str);
+            fs_vga_print(" bytes)");
         }
-        vga_print("\n");
+        fs_vga_print("\n");
     }
 }
 
@@ -74,19 +104,19 @@ void fs_read_file(const char* filename) {
     for (int i = 0; i < current_directory->file_count; i++) {
         file_t* file = &current_directory->files[i];
         if (!file->is_directory && strcmp(file->name, filename) == 0) {
-            vga_print("Contents of ");
-            vga_print(filename);
-            vga_print(":\n");
+            fs_vga_print("Contents of ");
+            fs_vga_print(filename);
+            fs_vga_print(":\n");
             for (uint32_t j = 0; j < file->size; j++) {
-                vga_putchar(file->data[j]);
+                fs_vga_putchar(file->data[j]);
             }
-            vga_print("\n");
+            fs_vga_print("\n");
             return;
         }
     }
-    vga_print("File not found: ");
-    vga_print(filename);
-    vga_print("\n");
+    fs_vga_print("File not found: ");
+    fs_vga_print(filename);
+    fs_vga_print("\n");
 }
 
 void fs_write_file(const char* filename, const char* data, uint32_t size) {
@@ -110,7 +140,7 @@ void fs_write_file(const char* filename, const char* data, uint32_t size) {
         memcpy(file->data, data, file->size);
         current_directory->file_count++;
     } else {
-        vga_print("Directory full\n");
+        fs_vga_print("Directory full\n");
     }
 }
 
@@ -121,11 +151,11 @@ void fs_create_directory(const char* dirname) {
         dir->size = 0;
         dir->is_directory = 1;
         current_directory->file_count++;
-        vga_print("Directory created: ");
-        vga_print(dirname);
-        vga_print("\n");
+        fs_vga_print("Directory created: ");
+        fs_vga_print(dirname);
+        fs_vga_print("\n");
     } else {
-        vga_print("Directory full\n");
+        fs_vga_print("Directory full\n");
     }
 }
 
@@ -138,15 +168,15 @@ void fs_delete_file(const char* filename) {
                 current_directory->files[j] = current_directory->files[j + 1];
             }
             current_directory->file_count--;
-            vga_print("Deleted: ");
-            vga_print(filename);
-            vga_print("\n");
+            fs_vga_print("Deleted: ");
+            fs_vga_print(filename);
+            fs_vga_print("\n");
             return;
         }
     }
-    vga_print("File not found: ");
-    vga_print(filename);
-    vga_print("\n");
+    fs_vga_print("File not found: ");
+    fs_vga_print(filename);
+    fs_vga_print("\n");
 }
 
 void fs_change_directory(const char* dirname) {
@@ -154,7 +184,7 @@ void fs_change_directory(const char* dirname) {
         // Go to parent directory (simplified - just go to root)
         current_directory = &root_directory;
         strcpy(current_path, "/");
-        vga_print("Changed to root directory\n");
+        fs_vga_print("Changed to root directory\n");
         return;
     }
     
@@ -167,18 +197,18 @@ void fs_change_directory(const char* dirname) {
                 strcat(current_path, "/");
             }
             strcat(current_path, dirname);
-            vga_print("Changed directory to: ");
-            vga_print(current_path);
-            vga_print("\n");
+            fs_vga_print("Changed directory to: ");
+            fs_vga_print(current_path);
+            fs_vga_print("\n");
             return;
         }
     }
-    vga_print("Directory not found: ");
-    vga_print(dirname);
-    vga_print("\n");
+    fs_vga_print("Directory not found: ");
+    fs_vga_print(dirname);
+    fs_vga_print("\n");
 }
 
 void fs_print_working_directory(void) {
-    vga_print(current_path);
-    vga_print("\n");
+    fs_vga_print(current_path);
+    fs_vga_print("\n");
 }

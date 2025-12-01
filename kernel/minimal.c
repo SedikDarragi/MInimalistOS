@@ -8,6 +8,7 @@
 void shell_init(void);
 void shell_run(void);
 void idt_init(void);
+void fs_init(void);
 
 // Simple delay function
 static void delay(int count) {
@@ -66,6 +67,11 @@ void kmain(void) {
     
     // Print a message after IDT init
     vga_puts(0, 2, "INTERRUPTS INITIALIZED", 0x1F);
+    
+    // Initialize filesystem
+    vga_puts(0, 3, "INITIALIZING FILESYSTEM...", 0x1F);
+    fs_init();
+    vga_puts(0, 4, "FILESYSTEM READY", 0x1F);
 
     // Initialize and run the shell
     shell_init();
