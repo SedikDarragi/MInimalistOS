@@ -29,9 +29,9 @@ static void vga_puts(int x, int y, const char *str, uint8_t color) {
 
 // Kernel entry point
 void kmain(void) {
-    // Debug: Write to serial port
-    volatile char *serial = (volatile char*)0x3F8;
-    *serial = 'C';  // C for C code
+    // Debug: Write to serial port - DISABLED (causes triple fault)
+    // volatile char *serial = (volatile char*)0x3F8;
+    // *serial = 'C';  // C for C code
     
     // Don't clear screen immediately - let's see if the assembly pattern is visible
     // Clear screen with black background

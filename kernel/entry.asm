@@ -61,19 +61,14 @@ _start:
     mov byte [0xB8006], 'K'
     mov byte [0xB8007], 0x0F
     
-    ; Serial port disabled - requires TSS with I/O permissions
-    ; mov dx, 0x3F8
-    ; mov al, 'K'
-    ; out dx, al
+    ; Set up stack for C code
+    mov esp, 0x90000
     
-    ; Simple signature: Fill VGA with 'K' to show we're here
-    mov edi, 0xB8000
-    mov eax, 0x0C4B  ; Red 'K' on black background
-    mov ecx, 2000     ; Fill entire screen
-    cld
-    rep stosw
+    ; Call C kernel main function
+    extern kmain
+    call kmain
     
-    ; Infinite loop to test if we reach here
+    ; If kmain returns, hang
     cli
 .hang:
     hlt
