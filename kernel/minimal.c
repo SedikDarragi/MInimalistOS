@@ -9,6 +9,7 @@ void shell_init(void);
 void shell_run(void);
 void idt_init(void);
 void fs_init(void);
+void process_init(void);
 
 // Simple delay function
 static void delay(int count) {
@@ -72,6 +73,11 @@ void kmain(void) {
     vga_puts(0, 3, "INITIALIZING FILESYSTEM...", 0x1F);
     fs_init();
     vga_puts(0, 4, "FILESYSTEM READY", 0x1F);
+    
+    // Initialize process system
+    vga_puts(0, 5, "INITIALIZING PROCESSES...", 0x1F);
+    process_init();
+    vga_puts(0, 6, "PROCESS SYSTEM READY", 0x1F);
 
     // Initialize and run the shell
     shell_init();

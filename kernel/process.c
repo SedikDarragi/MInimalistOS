@@ -1,6 +1,23 @@
 #include "process.h"
-#include "../drivers/vga.h"
+#include "../include/vga.h"
 #include "utils.h"
+
+// Local VGA functions for process system
+static void proc_vga_print(const char* str) {
+    volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
+    static int pos = 80 * 10; // Start at line 10
+    
+    while (*str) {
+        if (*str == '\n') {
+            pos = ((pos / 80) + 1) * 80;
+            if (pos >= 80 * 25) pos = 0;
+        } else {
+            vga[pos++] = (0x0F << 8) | *str;
+            if (pos >= 80 * 25) pos = 0;
+        }
+        str++;
+    }
+}
 
 // Suppress unused parameter warnings
 #define UNUSED(x) (void)(x)
@@ -50,8 +67,8 @@ process_t* process_get(int pid) {
 }
 
 void process_print_list(void) {
-    vga_print("  PID  STATE     RUNTIME  PRIORITY  NAME\n");
-    vga_print("  ---  --------  -------  --------  ----\n");
+    proc_vga_print("  PID  STATE     RUNTIME  PRIORITY  NAME\n");
+    proc_vga_print("  ---  --------  -------  --------  ----\n");
     
     for (int i = 0; i < next_pid; i++) {
         if (processes[i].pid == 0) continue;
@@ -59,35 +76,35 @@ void process_print_list(void) {
         // Print PID
         char pid_str[8];
         itoa(processes[i].pid, pid_str, 10);
-        vga_print("  ");
-        vga_print(pid_str);
-        vga_print("  ");
+        proc_vga_print("  ");
+        proc_vga_print(pid_str);
+        proc_vga_print("  ");
         
         // Print state
         switch (processes[i].state) {
-            case PROCESS_RUNNING: vga_print("RUN     "); break;
-            case PROCESS_READY:   vga_print("READY   "); break;
-            case PROCESS_BLOCKED: vga_print("BLOCKED "); break;
-            case PROCESS_ZOMBIE:  vga_print("ZOMBIE  "); break;
-            default:              vga_print("?       "); break;
+            case PROCESS_RUNNING: proc_vga_print("RUN     "); break;
+            case PROCESS_READY:   proc_vga_print("READY   "); break;
+            case PROCESS_BLOCKED: proc_vga_print("BLOCKED "); break;
+            case PROCESS_ZOMBIE:  proc_vga_print("ZOMBIE  "); break;
+            default:              proc_vga_print("?       "); break;
         }
         
         // Print runtime
         char runtime_str[16];
         itoa(processes[i].runtime, runtime_str, 10);
-        vga_print("  ");
-        vga_print(runtime_str);
-        vga_print("  ");
+        proc_vga_print("  ");
+        proc_vga_print(runtime_str);
+        proc_vga_print("  ");
         
         // Print priority
         char priority_str[4];
         itoa(processes[i].priority, priority_str, 10);
-        vga_print("  ");
-        vga_print(priority_str);
-        vga_print("      ");
+        proc_vga_print("  ");
+        proc_vga_print(priority_str);
+        proc_vga_print("      ");
         
         // Print name
-        vga_print(processes[i].name);
-        vga_print("\n");
+        proc_vga_print(processes[i].name);
+        proc_vga_print("\n");
     }
 }
