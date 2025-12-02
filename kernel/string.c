@@ -1,4 +1,23 @@
 #include <stddef.h>
+#include <stdint.h>
+
+// Simple memory allocator
+static char heap[65536]; // 64KB heap
+static size_t heap_pos = 0;
+
+void* kmalloc(size_t size) {
+    if (heap_pos + size >= sizeof(heap)) {
+        return 0; // Out of memory
+    }
+    void* ptr = &heap[heap_pos];
+    heap_pos += size;
+    return ptr;
+}
+
+void kfree(void* ptr) {
+    // Simple allocator - no free implementation
+    (void)ptr;
+}
 
 // A simple implementation of memset
 void *memset(void *s, int c, size_t n) {
@@ -56,7 +75,8 @@ int strncmp(const char *s1, const char *s2, size_t n) {
         s1++;
         s2++;
     }
-    return n == SIZE_MAX ? 0 : *(const unsigned char*)s1 - *(const unsigned char*)s2;
+    if (n == (size_t)-1) return 0;
+    return *(const unsigned char*)s1 - *(const unsigned char*)s2;
 }
 
 // String length function
