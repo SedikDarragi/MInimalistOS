@@ -19,6 +19,27 @@ void kfree(void* ptr) {
     (void)ptr;
 }
 
+// I/O port functions
+void outb(uint16_t port, uint8_t value) {
+    __asm__ volatile ("outb %0, %1" : : "a"(value), "Nd"(port));
+}
+
+uint8_t inb(uint16_t port) {
+    uint8_t ret;
+    __asm__ volatile ("inb %1, %0" : "=a"(ret) : "Nd"(port));
+    return ret;
+}
+
+void outw(uint16_t port, uint16_t value) {
+    __asm__ volatile ("outw %0, %1" : : "a"(value), "Nd"(port));
+}
+
+uint16_t inw(uint16_t port) {
+    uint16_t ret;
+    __asm__ volatile ("inw %1, %0" : "=a"(ret) : "Nd"(port));
+    return ret;
+}
+
 // A simple implementation of memset
 void *memset(void *s, int c, size_t n) {
     unsigned char *p = s;
@@ -127,4 +148,26 @@ char* itoa(int value, char* str, int base) {
     }
     
     return rc;
+}
+
+// Memory comparison function
+int memcmp(const void* ptr1, const void* ptr2, size_t size) {
+    const unsigned char* p1 = ptr1;
+    const unsigned char* p2 = ptr2;
+    
+    for (size_t i = 0; i < size; i++) {
+        if (p1[i] != p2[i]) {
+            return p1[i] - p2[i];
+        }
+    }
+    return 0;
+}
+
+// Interrupt control functions
+void enable_interrupts(void) {
+    __asm__ volatile ("sti");
+}
+
+void disable_interrupts(void) {
+    __asm__ volatile ("cli");
 }

@@ -10,6 +10,8 @@ void shell_run(void);
 void idt_init(void);
 void fs_init(void);
 void process_init(void);
+void timer_init(void);
+void keyboard_init(void);
 
 // Simple delay function
 static void delay(int count) {
@@ -78,6 +80,16 @@ void kmain(void) {
     vga_puts(0, 5, "INITIALIZING PROCESSES...", 0x1F);
     process_init();
     vga_puts(0, 6, "PROCESS SYSTEM READY", 0x1F);
+    
+    // Initialize timer
+    vga_puts(0, 7, "INITIALIZING TIMER...", 0x1F);
+    timer_init();
+    vga_puts(0, 8, "TIMER READY", 0x1F);
+    
+    // Initialize keyboard
+    vga_puts(0, 9, "INITIALIZING KEYBOARD...", 0x1F);
+    keyboard_init();
+    vga_puts(0, 10, "KEYBOARD READY", 0x1F);
 
     // Initialize and run the shell
     shell_init();
