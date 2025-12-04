@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stddef.h> // For memset
 #include "idt.h"
+#include "kernel.h"
 
 // PIC I/O Ports
 #define PIC1_CMD    0x20
@@ -25,6 +26,9 @@ struct idt_ptr {
 
 struct idt_entry idt[256];
 struct idt_ptr   idtp;
+
+// Array of interrupt handlers
+static void (*interrupt_handlers[256])(struct regs*) = {0};
 
 // External assembly ISR/IRQ handlers
 extern void isr0(); extern void isr1(); extern void isr2(); extern void isr3();
@@ -73,6 +77,31 @@ void irq_handler(struct regs *r) {
         outb(PIC2_CMD, 0x20);
     }
     outb(PIC1_CMD, 0x20);
+    
+    // Call the handler if it exists
+    if (interrupt_handlers[r->int_no] != 0) {
+        interrupt_handlers[r->int_no](r);
+    }
+}
+
+// Register an interrupt handler
+void register_interrupt_handler(uint8_t n, void (*handler)(struct regs*)) {
+    interrupt_handlers[n] = handler;
+}
+
+// Enable a specific IRQ
+void enable_irq(uint8_t irq) {
+    uint16_t port;
+    uint8_t value;
+    
+    if (irq < 8) {
+        port = PIC1_DATA;
+    } else {
+        port = PIC2_DATA;
+        irq -= 8;
+    }
+    value = inb(port) & ~(1 << irq);
+    outb(port, value);
 }
 
 // Main IDT initialization

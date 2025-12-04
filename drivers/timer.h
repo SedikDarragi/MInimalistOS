@@ -2,9 +2,11 @@
 #define TIMER_H
 
 #include "../kernel/kernel.h"
+#include "idt.h"
 
 void timer_init(void);
 void timer_wait(uint32_t ticks);
 uint32_t timer_get_ticks(void);
+void timer_interrupt_handler(struct regs* r);
 
 #endif
