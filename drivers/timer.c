@@ -1,6 +1,7 @@
 #include "timer.h"
 #include "../kernel/kernel.h"
 #include "../include/idt.h"
+#include "../kernel/process.h"
 
 #define PIT_CMD_PORT 0x43
 #define PIT_CHANNEL0 0x40
@@ -13,17 +14,15 @@ void timer_interrupt_handler(struct regs* r) {
     (void)r; // Suppress unused parameter warning
     timer_ticks++;
     
+    // Call the scheduler every timer tick
+    schedule();
+    
     // Display timer tick count every 100 ticks (1 second)
     if (timer_ticks % 100 == 0) {
         // Simple VGA output to show timer is working
         volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
         vga[80*24 + 70] = 0x1F00 + ((timer_ticks / 100) % 10) + '0';
     }
-    
-    // Add process scheduling here later
-    // if (timer_ticks % 10 == 0) {
-    //     schedule();
-    // }
 }
 
 void timer_init(void) {

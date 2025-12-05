@@ -1,6 +1,8 @@
 #include "process.h"
 #include "../include/vga.h"
 #include "utils.h"
+#include "../include/idt.h"
+#include "context.h"
 
 // Local VGA functions for process system
 static void proc_vga_print(const char* str) {
@@ -24,16 +26,31 @@ static void proc_vga_print(const char* str) {
 
 static process_t processes[MAX_PROCESSES];
 static int next_pid = 1;
+static int current_process = 0;
+static int scheduler_ticks = 0;
+static process_t* current_process_ptr = NULL;
+
+// External test process functions
+extern void test_process_1(void);
+extern void test_process_2(void);
 
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
     
     // Create initial kernel process
     process_create("kernel", NULL);
+    
+    // Create test processes
+    process_create("test1", test_process_1);
+    process_create("test2", test_process_2);
+    
+    // Set current process to kernel process
+    current_process = 0;
+    current_process_ptr = &processes[0];
+    current_process_ptr->state = PROCESS_RUNNING;
 }
 
 int process_create(const char* name, void (*entry_point)()) {
-    UNUSED(entry_point);  // Will be used when process scheduling is implemented
     if (next_pid >= MAX_PROCESSES) {
         return -1; // No more process slots
     }
@@ -46,7 +63,12 @@ int process_create(const char* name, void (*entry_point)()) {
     p->priority = 1;
     p->runtime = 0;
     
-    // TODO: Set up stack and context for the new process
+    // Set up process context if we have an entry point
+    if (entry_point) {
+        // Initialize context with stack top and entry point
+        uint32_t stack_top = (uint32_t)p->stack + STACK_SIZE;
+        context_init(&p->context, entry_point, stack_top);
+    }
     
     return next_pid++;
 }
@@ -107,4 +129,55 @@ void process_print_list(void) {
         proc_vga_print(processes[i].name);
         proc_vga_print("\n");
     }
+}
+
+// Simple round-robin scheduler with context switching
+void schedule(void) {
+    scheduler_ticks++;
+    
+    // Update current process runtime
+    if (current_process_ptr && current_process_ptr->pid != 0) {
+        current_process_ptr->runtime++;
+        current_process_ptr->state = PROCESS_READY;
+    }
+    
+    // Find next ready process
+    int next = current_process;
+    int attempts = 0;
+    
+    do {
+        next = (next + 1) % next_pid;
+        attempts++;
+        
+        // Skip empty slots and zombie processes
+        if (processes[next].pid != 0 && processes[next].state == PROCESS_READY) {
+            process_t* old_process = current_process_ptr;
+            current_process = next;
+            current_process_ptr = &processes[current_process];
+            current_process_ptr->state = PROCESS_RUNNING;
+            
+            // Show scheduler activity every 100 ticks
+            if (scheduler_ticks % 100 == 0) {
+                volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
+                vga[80*24 + 75] = 0x0F00 + ((current_process % 10) + '0');
+            }
+            
+            // Perform context switch if we have a different process
+            if (old_process != current_process_ptr && old_process && current_process_ptr) {
+                context_switch(&old_process->context, &current_process_ptr->context);
+            }
+            
+            return;
+        }
+    } while (attempts < next_pid);
+    
+    // No ready processes found, stay with current
+    if (current_process_ptr && current_process_ptr->pid != 0) {
+        current_process_ptr->state = PROCESS_RUNNING;
+    }
+}
+
+// Get current process
+process_t* process_get_current(void) {
+    return current_process_ptr;
 }
