@@ -1,0 +1,152 @@
+#include "syscall.h"
+#include "process.h"
+#include "../include/idt.h"
+#include "../include/vga.h"
+#include "string.h"
+
+// System call handler table
+typedef uint32_t (*syscall_func_t)(uint32_t, uint32_t, uint32_t, uint32_t);
+
+// Wrapper functions with correct signature
+static uint32_t sys_exit_wrapper(uint32_t status, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_exit(status);
+}
+
+static uint32_t sys_write_wrapper(uint32_t fd, uint32_t buf, uint32_t count, uint32_t unused4) {
+    (void)unused4;
+    return sys_write(fd, (const char*)buf, count);
+}
+
+static uint32_t sys_read_wrapper(uint32_t fd, uint32_t buf, uint32_t count, uint32_t unused4) {
+    (void)fd; (void)buf; (void)count; (void)unused4;
+    return sys_read(fd, (char*)buf, count);
+}
+
+static uint32_t sys_fork_wrapper(uint32_t unused1, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused1; (void)unused2; (void)unused3; (void)unused4;
+    return sys_fork();
+}
+
+static uint32_t sys_wait_wrapper(uint32_t pid, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)pid; (void)unused2; (void)unused3; (void)unused4;
+    return sys_wait(pid);
+}
+
+static uint32_t sys_exec_wrapper(uint32_t path, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)path; (void)unused2; (void)unused3; (void)unused4;
+    return sys_exec((const char*)path);
+}
+
+static uint32_t sys_getpid_wrapper(uint32_t unused1, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused1; (void)unused2; (void)unused3; (void)unused4;
+    return sys_getpid();
+}
+
+static uint32_t sys_yield_wrapper(uint32_t unused1, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused1; (void)unused2; (void)unused3; (void)unused4;
+    return sys_yield();
+}
+
+static const syscall_func_t syscall_table[] = {
+    [SYS_EXIT]   = sys_exit_wrapper,
+    [SYS_WRITE]  = sys_write_wrapper,
+    [SYS_READ]   = sys_read_wrapper,
+    [SYS_FORK]   = sys_fork_wrapper,
+    [SYS_WAIT]   = sys_wait_wrapper,
+    [SYS_EXEC]   = sys_exec_wrapper,
+    [SYS_GETPID] = sys_getpid_wrapper,
+    [SYS_YIELD]  = sys_yield_wrapper,
+};
+
+// System call interrupt handler
+void syscall_interrupt_handler(struct regs* r) {
+    uint32_t syscall_num = r->eax;
+    
+    if (syscall_num < sizeof(syscall_table) / sizeof(syscall_table[0]) && syscall_table[syscall_num]) {
+        // Call the appropriate system call
+        uint32_t result = syscall_table[syscall_num](r->ebx, r->ecx, r->edx, r->esi);
+        r->eax = result;  // Return value in EAX
+    } else {
+        r->eax = SYS_ERROR;  // Invalid system call
+    }
+}
+
+// Initialize system calls
+void syscall_init(void) {
+    // Register system call interrupt handler (int 0x80)
+    register_interrupt_handler(0x80, syscall_interrupt_handler);
+}
+
+// User-level system call interface
+uint32_t syscall(uint32_t num, uint32_t arg1, uint32_t arg2, uint32_t arg3) {
+    uint32_t result;
+    
+    asm volatile (
+        "int $0x80"
+        : "=a" (result)
+        : "a" (num), "b" (arg1), "c" (arg2), "d" (arg3)
+        : "memory"
+    );
+    
+    return result;
+}
+
+// System call implementations
+uint32_t sys_exit(uint32_t status) {
+    process_exit(status);
+    return SYS_SUCCESS;
+}
+
+uint32_t sys_write(uint32_t fd, const char* buf, uint32_t count) {
+    if (fd == 1) {  // stdout
+        volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
+        static int pos = 80 * 15; // Start at line 15
+        
+        for (uint32_t i = 0; i < count && buf[i]; i++) {
+            if (buf[i] == '\n') {
+                pos = ((pos / 80) + 1) * 80;
+                if (pos >= 80 * 25) pos = 80 * 15;
+            } else {
+                vga[pos++] = 0x0F00 | buf[i];
+                if (pos >= 80 * 25) pos = 80 * 15;
+            }
+        }
+        return count;
+    }
+    return SYS_ERROR;
+}
+
+uint32_t sys_read(uint32_t fd, char* buf, uint32_t count) {
+    (void)fd; (void)buf; (void)count; // Suppress unused parameter warnings
+    // For now, just return error
+    return SYS_ERROR;
+}
+
+uint32_t sys_fork(void) {
+    // For now, just return current PID (simplified)
+    return sys_getpid();
+}
+
+uint32_t sys_wait(uint32_t pid) {
+    (void)pid; // Suppress unused parameter warning
+    // For now, just return success
+    return SYS_SUCCESS;
+}
+
+uint32_t sys_exec(const char* path) {
+    (void)path; // Suppress unused parameter warning
+    // For now, just return error
+    return SYS_ERROR;
+}
+
+uint32_t sys_getpid(void) {
+    process_t* current = process_get_current();
+    return current ? current->pid : 0;
+}
+
+uint32_t sys_yield(void) {
+    // Call scheduler to switch to another process
+    schedule();
+    return SYS_SUCCESS;
+}

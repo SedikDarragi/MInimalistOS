@@ -33,6 +33,8 @@ static process_t* current_process_ptr = NULL;
 // External test process functions
 extern void test_process_1(void);
 extern void test_process_2(void);
+extern void user_process_1(void);
+extern void user_process_2(void);
 
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
@@ -43,6 +45,10 @@ void process_init(void) {
     // Create test processes
     process_create("test1", test_process_1);
     process_create("test2", test_process_2);
+    
+    // Create user processes that use system calls
+    process_create("user1", user_process_1);
+    process_create("user2", user_process_2);
     
     // Set current process to kernel process
     current_process = 0;
