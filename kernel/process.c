@@ -35,6 +35,7 @@ extern void test_process_1(void);
 extern void test_process_2(void);
 extern void user_process_1(void);
 extern void user_process_2(void);
+extern void memory_test_process(void);
 
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
@@ -49,6 +50,9 @@ void process_init(void) {
     // Create user processes that use system calls
     process_create("user1", user_process_1);
     process_create("user2", user_process_2);
+    
+    // Create memory test process
+    process_create("memtest", memory_test_process);
     
     // Set current process to kernel process
     current_process = 0;

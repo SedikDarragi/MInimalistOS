@@ -1,24 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// Simple memory allocator
-static char heap[65536]; // 64KB heap
-static size_t heap_pos = 0;
-
-void* kmalloc(size_t size) {
-    if (heap_pos + size >= sizeof(heap)) {
-        return 0; // Out of memory
-    }
-    void* ptr = &heap[heap_pos];
-    heap_pos += size;
-    return ptr;
-}
-
-void kfree(void* ptr) {
-    // Simple allocator - no free implementation
-    (void)ptr;
-}
-
 // I/O port functions
 void outb(uint16_t port, uint8_t value) {
     __asm__ volatile ("outb %0, %1" : : "a"(value), "Nd"(port));
