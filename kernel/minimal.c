@@ -15,6 +15,7 @@ void keyboard_init(void);
 void syscall_init(void);
 void memory_init(void);
 void paging_init(void);
+void usermode_init(void);
 
 // Simple delay function
 static void delay(int count) {
@@ -89,25 +90,30 @@ void kmain(void) {
     syscall_init();
     vga_puts(0, 8, "SYSCALLS READY", 0x1F);
     
+    // Initialize user mode
+    vga_puts(0, 9, "INITIALIZING USER MODE...", 0x1F);
+    usermode_init();
+    vga_puts(0, 10, "USER MODE READY", 0x1F);
+    
     // Initialize filesystem
-    vga_puts(0, 9, "INITIALIZING FILESYSTEM...", 0x1F);
+    vga_puts(0, 11, "INITIALIZING FILESYSTEM...", 0x1F);
     fs_init();
-    vga_puts(0, 10, "FILESYSTEM READY", 0x1F);
+    vga_puts(0, 12, "FILESYSTEM READY", 0x1F);
     
     // Initialize process system
-    vga_puts(0, 11, "INITIALIZING PROCESSES...", 0x1F);
+    vga_puts(0, 13, "INITIALIZING PROCESSES...", 0x1F);
     process_init();
-    vga_puts(0, 12, "PROCESS SYSTEM READY", 0x1F);
+    vga_puts(0, 14, "PROCESS SYSTEM READY", 0x1F);
     
     // Initialize timer
-    vga_puts(0, 13, "INITIALIZING TIMER...", 0x1F);
+    vga_puts(0, 15, "INITIALIZING TIMER...", 0x1F);
     timer_init();
-    vga_puts(0, 14, "TIMER READY", 0x1F);
+    vga_puts(0, 16, "TIMER READY", 0x1F);
     
     // Initialize keyboard
-    vga_puts(0, 15, "INITIALIZING KEYBOARD...", 0x1F);
+    vga_puts(0, 17, "INITIALIZING KEYBOARD...", 0x1F);
     keyboard_init();
-    vga_puts(0, 16, "KEYBOARD READY", 0x1F);
+    vga_puts(0, 18, "KEYBOARD READY", 0x1F);
 
     // Initialize and run the shell
     shell_init();
