@@ -37,6 +37,7 @@ extern void user_process_1(void);
 extern void user_process_2(void);
 extern void memory_test_process(void);
 extern void user_program_main(void);
+extern void fs_test_process(void);
 
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
@@ -57,6 +58,9 @@ void process_init(void) {
     
     // Create user mode process
     process_create("userprog", user_program_main);
+    
+    // Create file system test process
+    process_create("fstest", fs_test_process);
     
     // Set current process to kernel process
     current_process = 0;

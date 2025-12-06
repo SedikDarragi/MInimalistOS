@@ -2,6 +2,7 @@
 #include "process.h"
 #include "../include/idt.h"
 #include "../include/vga.h"
+#include "../include/filesystem.h"
 #include "string.h"
 
 // System call handler table
@@ -48,6 +49,26 @@ static uint32_t sys_yield_wrapper(uint32_t unused1, uint32_t unused2, uint32_t u
     return sys_yield();
 }
 
+static uint32_t sys_open_wrapper(uint32_t filename, uint32_t mode, uint32_t unused3, uint32_t unused4) {
+    (void)unused3; (void)unused4;
+    return sys_open((const char*)filename, mode);
+}
+
+static uint32_t sys_close_wrapper(uint32_t fd, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_close((int)fd);
+}
+
+static uint32_t sys_seek_wrapper(uint32_t fd, uint32_t position, uint32_t unused3, uint32_t unused4) {
+    (void)unused3; (void)unused4;
+    return sys_seek((int)fd, position);
+}
+
+static uint32_t sys_stat_wrapper(uint32_t filename, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)filename; (void)unused2; (void)unused3; (void)unused4;
+    return sys_stat((const char*)filename);
+}
+
 static const syscall_func_t syscall_table[] = {
     [SYS_EXIT]   = sys_exit_wrapper,
     [SYS_WRITE]  = sys_write_wrapper,
@@ -57,6 +78,10 @@ static const syscall_func_t syscall_table[] = {
     [SYS_EXEC]   = sys_exec_wrapper,
     [SYS_GETPID] = sys_getpid_wrapper,
     [SYS_YIELD]  = sys_yield_wrapper,
+    [SYS_OPEN]   = sys_open_wrapper,
+    [SYS_CLOSE]  = sys_close_wrapper,
+    [SYS_SEEK]   = sys_seek_wrapper,
+    [SYS_STAT]   = sys_stat_wrapper,
 };
 
 // System call interrupt handler
@@ -149,4 +174,24 @@ uint32_t sys_yield(void) {
     // Call scheduler to switch to another process
     schedule();
     return SYS_SUCCESS;
+}
+
+uint32_t sys_open(const char* filename, uint32_t mode) {
+    int fd = fs_open(filename, mode);
+    return (fd >= 0) ? fd : SYS_ERROR;
+}
+
+uint32_t sys_close(int fd) {
+    int result = fs_close(fd);
+    return (result == 0) ? SYS_SUCCESS : SYS_ERROR;
+}
+
+uint32_t sys_seek(int fd, uint32_t position) {
+    int result = fs_seek(fd, position);
+    return (result >= 0) ? result : SYS_ERROR;
+}
+
+uint32_t sys_stat(const char* filename) {
+    uint32_t size = get_file_size(filename);
+    return size;
 }

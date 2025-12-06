@@ -12,6 +12,10 @@
 #define SYS_EXEC    6
 #define SYS_GETPID  7
 #define SYS_YIELD   8
+#define SYS_OPEN    9
+#define SYS_CLOSE   10
+#define SYS_SEEK    11
+#define SYS_STAT    12
 
 // System call return values
 #define SYS_SUCCESS 0
@@ -43,5 +47,9 @@ uint32_t sys_wait(uint32_t pid);
 uint32_t sys_exec(const char* path);
 uint32_t sys_getpid(void);
 uint32_t sys_yield(void);
+uint32_t sys_open(const char* filename, uint32_t mode);
+uint32_t sys_close(int fd);
+uint32_t sys_seek(int fd, uint32_t position);
+uint32_t sys_stat(const char* filename);
 
 #endif
