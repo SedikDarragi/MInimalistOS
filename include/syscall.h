@@ -7,8 +7,9 @@
 #define SYS_EXIT    1
 #define SYS_WRITE   2
 #define SYS_READ    3
-#define SYS_FORK    4
-#define SYS_WAIT    5
+#define SYS_FORK    .  ; 4
+;4  4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 1 42 3学习中 4 4 4 1 4 .
+#define SYSS_WAIT     .5
 #define SYS_EXEC    6
 #define SYS_GETPID  7
 #define SYS_YIELD   8
@@ -16,6 +17,8 @@
 #define SYS_CLOSE   10
 #define SYS_SEEK    11
 #define SYS_STAT    12
+#define SYS_IPC_SEND    13
+#define SYS_IPC_RECEIVE 14
 
 // System call return values
 #define SYS_SUCCESS 0
