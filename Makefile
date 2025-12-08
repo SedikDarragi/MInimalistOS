@@ -48,7 +48,7 @@ CFLAGS += -m32 -ffreestanding -fno-builtin -fno-stack-protector \
 ASFLAGS = -f elf32
 
 # Source files
-KERNEL_SRCS = kernel/minimal.c kernel/shell_new.c kernel/idt.c kernel/string.c fs/filesystem_enhanced.c kernel/process.c drivers/timer.c drivers/keyboard.c kernel/context.c kernel/test_process.c kernel/syscall.c kernel/user_process.c kernel/memory.c kernel/memory_test.c kernel/usermode.c kernel/user_program.c kernel/fs_test.c
+KERNEL_SRCS = kernel/minimal.c kernel/shell_new.c kernel/idt.c kernel/string.c fs/filesystem_enhanced.c kernel/process.c drivers/timer.c drivers/keyboard.c kernel/context.c kernel/test_process.c kernel/syscall.c kernel/user_process.c kernel/memory.c kernel/memory_test.c kernel/usermode.c kernel/user_program.c kernel/fs_test.c kernel/ipc.c kernel/ipc_test.c
 KERNEL_ASM_SRCS = kernel/entry.asm kernel/idt_asm.s kernel/irq.asm kernel/context.asm
 
 # Object files

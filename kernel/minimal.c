@@ -8,14 +8,15 @@
 void shell_init(void);
 void shell_run(void);
 void idt_init(void);
-void fs_init(void);
+void filesystem_init(void);
 void process_init(void);
 void timer_init(void);
 void keyboard_init(void);
-void syscall_init(void);
 void memory_init(void);
 void paging_init(void);
+void syscall_init(void);
 void usermode_init(void);
+void ipc_init(void);
 
 // Simple delay function
 static void delay(int count) {
@@ -91,13 +92,16 @@ void kmain(void) {
     vga_puts(0, 8, "SYSCALLS READY", 0x1F);
     
     // Initialize user mode
-    vga_puts(0, 9, "INITIALIZING USER MODE...", 0x1F);
+    vga_puts(0, 9, "[OK] User mode initialized", 0x0A);
     usermode_init();
-    vga_puts(0, 10, "USER MODE READY", 0x1F);
+    
+    // Initialize IPC
+    vga_puts(0, 10, "[OK] IPC initialized", 0x0A);
+    ipc_init();
     
     // Initialize filesystem
     vga_puts(0, 11, "INITIALIZING FILESYSTEM...", 0x1F);
-    fs_init();
+    filesystem_init();
     vga_puts(0, 12, "FILESYSTEM READY", 0x1F);
     
     // Initialize process system

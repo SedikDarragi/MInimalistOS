@@ -7,9 +7,8 @@
 #define SYS_EXIT    1
 #define SYS_WRITE   2
 #define SYS_READ    3
-#define SYS_FORK    .  ; 4
-;4  4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 1 42 3学习中 4 4 4 1 4 .
-#define SYSS_WAIT     .5
+#define SYS_FORK    4
+#define SYS_WAIT    5
 #define SYS_EXEC    6
 #define SYS_GETPID  7
 #define SYS_YIELD   8
@@ -54,5 +53,7 @@ uint32_t sys_open(const char* filename, uint32_t mode);
 uint32_t sys_close(int fd);
 uint32_t sys_seek(int fd, uint32_t position);
 uint32_t sys_stat(const char* filename);
+uint32_t sys_ipc_send(uint32_t receiver, uint8_t type, const void* data, uint16_t length);
+uint32_t sys_ipc_receive(uint32_t sender, void* msg);
 
 #endif
