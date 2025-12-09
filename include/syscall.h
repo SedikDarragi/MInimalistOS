@@ -18,6 +18,8 @@
 #define SYS_STAT    12
 #define SYS_IPC_SEND    13
 #define SYS_IPC_RECEIVE 14
+#define SYS_NETWORK_SEND  15
+#define SYS_NETWORK_RECEIVE 16
 
 // System call return values
 #define SYS_SUCCESS 0
@@ -55,5 +57,7 @@ uint32_t sys_seek(int fd, uint32_t position);
 uint32_t sys_stat(const char* filename);
 uint32_t sys_ipc_send(uint32_t receiver, uint8_t type, const void* data, uint16_t length);
 uint32_t sys_ipc_receive(uint32_t sender, void* msg);
+uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length);
+uint32_t sys_network_receive(void* packet);
 
 #endif

@@ -4,6 +4,7 @@
 #include "../include/vga.h"
 #include "../include/filesystem.h"
 #include "../include/ipc.h"
+#include "../include/network.h"
 #include "string.h"
 
 // System call handler table
@@ -79,6 +80,15 @@ static uint32_t sys_ipc_receive_wrapper(uint32_t sender, uint32_t msg, uint32_t 
     return sys_ipc_receive(sender, (void*)msg);
 }
 
+static uint32_t sys_network_send_wrapper(uint32_t dst_ip, uint32_t type, uint32_t data, uint32_t length) {
+    return sys_network_send(dst_ip, (uint8_t)type, (const void*)data, (uint16_t)length);
+}
+
+static uint32_t sys_network_receive_wrapper(uint32_t packet, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_network_receive((void*)packet);
+}
+
 static const syscall_func_t syscall_table[] = {
     [SYS_EXIT]       = sys_exit_wrapper,
     [SYS_WRITE]      = sys_write_wrapper,
@@ -94,6 +104,8 @@ static const syscall_func_t syscall_table[] = {
     [SYS_STAT]       = sys_stat_wrapper,
     [SYS_IPC_SEND]   = sys_ipc_send_wrapper,
     [SYS_IPC_RECEIVE] = sys_ipc_receive_wrapper,
+    [SYS_NETWORK_SEND]   = sys_network_send_wrapper,
+    [SYS_NETWORK_RECEIVE] = sys_network_receive_wrapper,
 };
 
 // System call interrupt handler
