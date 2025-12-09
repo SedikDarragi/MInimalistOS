@@ -38,8 +38,6 @@ extern void user_process_2(void);
 extern void memory_test_process(void);
 extern void user_program_main(void);
 extern void fs_test_process(void);
-extern void ipc_test_sender(void);
-extern void ipc_test_receiver(void);
 
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
@@ -63,10 +61,6 @@ void process_init(void) {
     
     // Create file system test process
     process_create("fstest", fs_test_process);
-    
-    // Create IPC test processes
-    process_create("ipcsend", ipc_test_sender);
-    process_create("ipcrecv", ipc_test_receiver);
     
     // Set current process to kernel process
     current_process = 0;
