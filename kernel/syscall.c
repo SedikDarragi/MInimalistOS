@@ -5,6 +5,7 @@
 #include "../include/filesystem.h"
 #include "../include/ipc.h"
 #include "../include/network.h"
+#include "../include/vm.h"
 #include "string.h"
 
 // System call handler table
@@ -89,6 +90,21 @@ static uint32_t sys_network_receive_wrapper(uint32_t packet, uint32_t unused2, u
     return sys_network_receive((void*)packet);
 }
 
+static uint32_t sys_vm_alloc_wrapper(uint32_t size, uint32_t flags, uint32_t unused3, uint32_t unused4) {
+    (void)unused3; (void)unused4;
+    return sys_vm_alloc(size, flags);
+}
+
+static uint32_t sys_vm_free_wrapper(uint32_t addr, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_vm_free(addr);
+}
+
+static uint32_t sys_vm_map_wrapper(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags, uint32_t unused4) {
+    (void)unused4;
+    return sys_vm_map(virt_addr, phys_addr, flags);
+}
+
 static const syscall_func_t syscall_table[] = {
     [SYS_EXIT]       = sys_exit_wrapper,
     [SYS_WRITE]      = sys_write_wrapper,
@@ -106,6 +122,9 @@ static const syscall_func_t syscall_table[] = {
     [SYS_IPC_RECEIVE] = sys_ipc_receive_wrapper,
     [SYS_NETWORK_SEND]   = sys_network_send_wrapper,
     [SYS_NETWORK_RECEIVE] = sys_network_receive_wrapper,
+    [SYS_VM_ALLOC]   = sys_vm_alloc_wrapper,
+    [SYS_VM_FREE]    = sys_vm_free_wrapper,
+    [SYS_VM_MAP]     = sys_vm_map_wrapper,
 };
 
 // System call interrupt handler
@@ -229,5 +248,21 @@ uint32_t sys_ipc_send(uint32_t receiver, uint8_t type, const void* data, uint16_
 uint32_t sys_ipc_receive(uint32_t sender, void* msg) {
     (void)sender; (void)msg;
     // Direct implementation for now
+    return 0;
+}
+
+uint32_t sys_vm_alloc(uint32_t size, uint32_t flags) {
+    (void)size; (void)flags;
+    // Direct implementation for now
+    return 0x10000000;  // Return fixed address
+}
+
+uint32_t sys_vm_free(uint32_t addr) {
+    (void)addr;
+    return 0;
+}
+
+uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags) {
+    (void)virt_addr; (void)phys_addr; (void)flags;
     return 0;
 }

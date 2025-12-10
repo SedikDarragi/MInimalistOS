@@ -20,6 +20,9 @@
 #define SYS_IPC_RECEIVE 14
 #define SYS_NETWORK_SEND  15
 #define SYS_NETWORK_RECEIVE 16
+#define SYS_VM_ALLOC    17
+#define SYS_VM_FREE     18
+#define SYS_VM_MAP      19
 
 // System call return values
 #define SYS_SUCCESS 0
@@ -59,5 +62,8 @@ uint32_t sys_ipc_send(uint32_t receiver, uint8_t type, const void* data, uint16_
 uint32_t sys_ipc_receive(uint32_t sender, void* msg);
 uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length);
 uint32_t sys_network_receive(void* packet);
+uint32_t sys_vm_alloc(uint32_t size, uint32_t flags);
+uint32_t sys_vm_free(uint32_t addr);
+uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags);
 
 #endif
