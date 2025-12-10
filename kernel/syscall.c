@@ -6,6 +6,7 @@
 #include "../include/ipc.h"
 #include "../include/network.h"
 #include "../include/vm.h"
+#include "../include/device.h"
 #include "string.h"
 
 // System call handler table
@@ -105,6 +106,31 @@ static uint32_t sys_vm_map_wrapper(uint32_t virt_addr, uint32_t phys_addr, uint3
     return sys_vm_map(virt_addr, phys_addr, flags);
 }
 
+static uint32_t sys_device_open_wrapper(uint32_t name, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_device_open((const char*)name);
+}
+
+static uint32_t sys_device_close_wrapper(uint32_t name, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_device_close((const char*)name);
+}
+
+static uint32_t sys_device_read_wrapper(uint32_t name, uint32_t buffer, uint32_t size, uint32_t unused4) {
+    (void)unused4;
+    return sys_device_read((const char*)name, (void*)buffer, size);
+}
+
+static uint32_t sys_device_write_wrapper(uint32_t name, uint32_t buffer, uint32_t size, uint32_t unused4) {
+    (void)unused4;
+    return sys_device_write((const char*)name, (const void*)buffer, size);
+}
+
+static uint32_t sys_device_ioctl_wrapper(uint32_t name, uint32_t cmd, uint32_t arg, uint32_t unused4) {
+    (void)unused4;
+    return sys_device_ioctl((const char*)name, cmd, (void*)arg);
+}
+
 static const syscall_func_t syscall_table[] = {
     [SYS_EXIT]       = sys_exit_wrapper,
     [SYS_WRITE]      = sys_write_wrapper,
@@ -125,6 +151,11 @@ static const syscall_func_t syscall_table[] = {
     [SYS_VM_ALLOC]   = sys_vm_alloc_wrapper,
     [SYS_VM_FREE]    = sys_vm_free_wrapper,
     [SYS_VM_MAP]     = sys_vm_map_wrapper,
+    [SYS_DEVICE_OPEN]   = sys_device_open_wrapper,
+    [SYS_DEVICE_CLOSE]  = sys_device_close_wrapper,
+    [SYS_DEVICE_READ]   = sys_device_read_wrapper,
+    [SYS_DEVICE_WRITE]  = sys_device_write_wrapper,
+    [SYS_DEVICE_IOCTL]  = sys_device_ioctl_wrapper,
 };
 
 // System call interrupt handler
@@ -264,5 +295,30 @@ uint32_t sys_vm_free(uint32_t addr) {
 
 uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags) {
     (void)virt_addr; (void)phys_addr; (void)flags;
+    return 0;
+}
+
+uint32_t sys_device_open(const char* name) {
+    (void)name;
+    return 0;
+}
+
+uint32_t sys_device_close(const char* name) {
+    (void)name;
+    return 0;
+}
+
+uint32_t sys_device_read(const char* name, void* buffer, uint32_t size) {
+    (void)name; (void)buffer; (void)size;
+    return 0;
+}
+
+uint32_t sys_device_write(const char* name, const void* buffer, uint32_t size) {
+    (void)name; (void)buffer; (void)size;
+    return 0;
+}
+
+uint32_t sys_device_ioctl(const char* name, uint32_t cmd, void* arg) {
+    (void)name; (void)cmd; (void)arg;
     return 0;
 }

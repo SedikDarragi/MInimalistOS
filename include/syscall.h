@@ -23,6 +23,11 @@
 #define SYS_VM_ALLOC    17
 #define SYS_VM_FREE     18
 #define SYS_VM_MAP      19
+#define SYS_DEVICE_OPEN  20
+#define SYS_DEVICE_CLOSE 21
+#define SYS_DEVICE_READ  22
+#define SYS_DEVICE_WRITE 23
+#define SYS_DEVICE_IOCTL 24
 
 // System call return values
 #define SYS_SUCCESS 0
@@ -65,5 +70,10 @@ uint32_t sys_network_receive(void* packet);
 uint32_t sys_vm_alloc(uint32_t size, uint32_t flags);
 uint32_t sys_vm_free(uint32_t addr);
 uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags);
+uint32_t sys_device_open(const char* name);
+uint32_t sys_device_close(const char* name);
+uint32_t sys_device_read(const char* name, void* buffer, uint32_t size);
+uint32_t sys_device_write(const char* name, const void* buffer, uint32_t size);
+uint32_t sys_device_ioctl(const char* name, uint32_t cmd, void* arg);
 
 #endif
