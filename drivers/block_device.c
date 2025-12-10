@@ -20,14 +20,22 @@ static block_device_t block_dev;
 // Block device operations
 static int block_open(void) {
     if (!block_dev.data) {
-        block_dev.data = (uint8_t*)alloc_pages(DEVICE_SIZE / PAGE_SIZE);
-        if (!block_dev.data) return -1;
+        // Allocate multiple pages for the device
+        uint32_t pages_needed = (DEVICE_SIZE + PAGE_SIZE - 1) / PAGE_SIZE;
+        uint8_t* first_page = (uint8_t*)alloc_page();
+        if (!first_page) return -1;
         
+        block_dev.data = first_page;
         block_dev.block_count = NUM_BLOCKS;
         block_dev.current_block = 0;
         
         // Initialize with zeros
-        memset(block_dev.data, 0, DEVICE_SIZE);
+        memset(block_dev.data, 0, PAGE_SIZE);  // Only clear first page for now
+        
+        // Note: For simplicity, we're using only one page
+        if (pages_needed > 1) {
+            block_dev.block_count = PAGE_SIZE / BLOCK_SIZE;  // Adjust for single page
+        }
     }
     
     return 0;

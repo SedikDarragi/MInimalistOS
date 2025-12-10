@@ -41,6 +41,7 @@ extern void fs_test_process(void);
 extern void network_test_sender(void);
 extern void network_test_receiver(void);
 extern void vm_test_process(void);
+extern void device_test_process(void);
 
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
@@ -71,6 +72,9 @@ void process_init(void) {
     
     // Create virtual memory test process
     process_create("vmtest", vm_test_process);
+    
+    // Create device driver test process
+    process_create("devtest", device_test_process);
     
     // Set current process to kernel process
     current_process = 0;

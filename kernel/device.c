@@ -1,4 +1,5 @@
 #include "../include/device.h"
+#include "../include/memory.h"
 #include "../include/syscall.h"
 #include "../include/vga.h"
 #include "string.h"
@@ -41,7 +42,7 @@ int device_unregister(const char* name) {
             } else {
                 device_list = current->next;
             }
-            free_page((void*)current);
+            free_page((uint32_t)current);
             return 0;
         }
         prev = current;
