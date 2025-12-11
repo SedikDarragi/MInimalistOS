@@ -10,7 +10,6 @@ void security_test_process(void) {
     
     // Test user ID operations
     uint32_t uid = syscall(SYS_GETUID, 0, 0, 0);
-    uint32_t gid = syscall(SYS_GETGID, 0, 0, 0);
     
     char uid_msg[] = "SEC Test: Current UID: 0000\n";
     // Simple hex conversion

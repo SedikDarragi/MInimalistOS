@@ -10,6 +10,9 @@
 #include "../include/security.h"
 #include "string.h"
 
+// External current security context
+extern security_context_t current_context;
+
 // System call handler table
 typedef uint32_t (*syscall_func_t)(uint32_t, uint32_t, uint32_t, uint32_t);
 
@@ -132,6 +135,36 @@ static uint32_t sys_device_ioctl_wrapper(uint32_t name, uint32_t cmd, uint32_t a
     return sys_device_ioctl((const char*)name, cmd, (void*)arg);
 }
 
+static uint32_t sys_setuid_wrapper(uint32_t uid, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_setuid(uid);
+}
+
+static uint32_t sys_setgid_wrapper(uint32_t gid, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_setgid(gid);
+}
+
+static uint32_t sys_getuid_wrapper(uint32_t unused1, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused1; (void)unused2; (void)unused3; (void)unused4;
+    return sys_getuid();
+}
+
+static uint32_t sys_getgid_wrapper(uint32_t unused1, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused1; (void)unused2; (void)unused3; (void)unused4;
+    return sys_getgid();
+}
+
+static uint32_t sys_chmod_wrapper(uint32_t path, uint32_t mode, uint32_t unused3, uint32_t unused4) {
+    (void)unused3; (void)unused4;
+    return sys_chmod((const char*)path, mode);
+}
+
+static uint32_t sys_chown_wrapper(uint32_t path, uint32_t uid, uint32_t gid, uint32_t unused4) {
+    (void)unused4;
+    return sys_chown((const char*)path, uid, gid);
+}
+
 static const syscall_func_t syscall_table[] = {
     [SYS_EXIT]       = sys_exit_wrapper,
     [SYS_WRITE]      = sys_write_wrapper,
@@ -157,6 +190,12 @@ static const syscall_func_t syscall_table[] = {
     [SYS_DEVICE_READ]   = sys_device_read_wrapper,
     [SYS_DEVICE_WRITE]  = sys_device_write_wrapper,
     [SYS_DEVICE_IOCTL]  = sys_device_ioctl_wrapper,
+    [SYS_SETUID]     = sys_setuid_wrapper,
+    [SYS_SETGID]     = sys_setgid_wrapper,
+    [SYS_GETUID]     = sys_getuid_wrapper,
+    [SYS_GETGID]     = sys_getgid_wrapper,
+    [SYS_CHMOD]      = sys_chmod_wrapper,
+    [SYS_CHOWN]      = sys_chown_wrapper,
 };
 
 // System call interrupt handler
