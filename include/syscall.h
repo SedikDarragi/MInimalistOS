@@ -28,6 +28,12 @@
 #define SYS_DEVICE_READ  22
 #define SYS_DEVICE_WRITE 23
 #define SYS_DEVICE_IOCTL 24
+#define SYS_SETUID       25
+#define SYS_SETGID       26
+#define SYS_GETUID       27
+#define SYS_GETGID       28
+#define SYS_CHMOD        29
+#define SYS_CHOWN        30
 
 // System call return values
 #define SYS_SUCCESS 0
@@ -75,5 +81,11 @@ uint32_t sys_device_close(const char* name);
 uint32_t sys_device_read(const char* name, void* buffer, uint32_t size);
 uint32_t sys_device_write(const char* name, const void* buffer, uint32_t size);
 uint32_t sys_device_ioctl(const char* name, uint32_t cmd, void* arg);
+uint32_t sys_setuid(uint32_t uid);
+uint32_t sys_setgid(uint32_t gid);
+uint32_t sys_getuid(void);
+uint32_t sys_getgid(void);
+uint32_t sys_chmod(const char* path, uint32_t mode);
+uint32_t sys_chown(const char* path, uint32_t uid, uint32_t gid);
 
 #endif

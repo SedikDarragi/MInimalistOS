@@ -7,6 +7,7 @@
 #include "../include/network.h"
 #include "../include/vm.h"
 #include "../include/device.h"
+#include "../include/security.h"
 #include "string.h"
 
 // System call handler table
