@@ -297,28 +297,3 @@ uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags) {
     (void)virt_addr; (void)phys_addr; (void)flags;
     return 0;
 }
-
-uint32_t sys_device_open(const char* name) {
-    (void)name;
-    return 0;
-}
-
-uint32_t sys_device_close(const char* name) {
-    (void)name;
-    return 0;
-}
-
-uint32_t sys_device_read(const char* name, void* buffer, uint32_t size) {
-    (void)name; (void)buffer; (void)size;
-    return 0;
-}
-
-uint32_t sys_device_write(const char* name, const void* buffer, uint32_t size) {
-    (void)name; (void)buffer; (void)size;
-    return 0;
-}
-
-uint32_t sys_device_ioctl(const char* name, uint32_t cmd, void* arg) {
-    (void)name; (void)cmd; (void)arg;
-    return 0;
-}
