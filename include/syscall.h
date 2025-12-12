@@ -16,30 +16,25 @@
 #define SYS_CLOSE   10
 #define SYS_SEEK    11
 #define SYS_STAT    12
-#define SYS_IPC_SEND    13
-#define SYS_IPC_RECEIVE 14
-#define SYS_NETWORK_SEND  15
-#define SYS_NETWORK_RECEIVE 16
-#define SYS_VM_ALLOC    17
-#define SYS_VM_FREE     18
-#define SYS_VM_MAP      19
-#define SYS_DEVICE_OPEN  20
-#define SYS_DEVICE_CLOSE 21
-#define SYS_DEVICE_READ  22
-#define SYS_DEVICE_WRITE 23
-#define SYS_DEVICE_IOCTL 24
-#define SYS_SETUID       25
-#define SYS_SETGID       26
-#define SYS_GETUID       27
-#define SYS_GETGID       28
-#define SYS_CHMOD        29
-#define SYS_CHOWN        30
-#define SYS_LOG          31
-#define SYS_GET_STATS    32
-#define SYS_DUMP_LOGS    33
-#define SYS_POWER_STATE  34
-#define SYS_GET_BATTERY_INFO 35
-#define SYS_GET_POWER_STATS 36
+#define SYS_NETWORK_SEND  13
+#define SYS_NETWORK_RECEIVE 14
+#define SYS_DEVICE_OPEN  15
+#define SYS_DEVICE_CLOSE 16
+#define SYS_DEVICE_READ  17
+#define SYS_DEVICE_WRITE 18
+#define SYS_DEVICE_IOCTL 19
+#define SYS_SETUID       20
+#define SYS_SETGID       21
+#define SYS_GETUID       22
+#define SYS_GETGID       23
+#define SYS_CHMOD        24
+#define SYS_CHOWN        25
+#define SYS_LOG          26
+#define SYS_GET_STATS    27
+#define SYS_DUMP_LOGS    28
+#define SYS_POWER_STATE  29
+#define SYS_GET_BATTERY_INFO 30
+#define SYS_GET_POWER_STATS 31
 
 // System call return values
 #define SYS_SUCCESS 0
@@ -75,13 +70,8 @@ uint32_t sys_open(const char* filename, uint32_t mode);
 uint32_t sys_close(int fd);
 uint32_t sys_seek(int fd, uint32_t position);
 uint32_t sys_stat(const char* filename);
-uint32_t sys_ipc_send(uint32_t receiver, uint8_t type, const void* data, uint16_t length);
-uint32_t sys_ipc_receive(uint32_t sender, void* msg);
 uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length);
 uint32_t sys_network_receive(void* packet);
-uint32_t sys_vm_alloc(uint32_t size, uint32_t flags);
-uint32_t sys_vm_free(uint32_t addr);
-uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags);
 uint32_t sys_device_open(const char* name);
 uint32_t sys_device_close(const char* name);
 uint32_t sys_device_read(const char* name, void* buffer, uint32_t size);

@@ -3,9 +3,7 @@
 #include "../include/idt.h"
 #include "../include/vga.h"
 #include "../include/filesystem.h"
-#include "../include/ipc.h"
 #include "../include/network.h"
-#include "../include/vm.h"
 #include "../include/device.h"
 #include "../include/security.h"
 #include "../include/monitor.h"
@@ -75,17 +73,8 @@ static uint32_t sys_seek_wrapper(uint32_t fd, uint32_t position, uint32_t unused
 }
 
 static uint32_t sys_stat_wrapper(uint32_t filename, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
-    (void)filename; (void)unused2; (void)unused3; (void)unused4;
+    (void)unused2; (void)unused3; (void)unused4;
     return sys_stat((const char*)filename);
-}
-
-static uint32_t sys_ipc_send_wrapper(uint32_t receiver, uint32_t type, uint32_t data, uint32_t length) {
-    return sys_ipc_send(receiver, (uint8_t)type, (const void*)data, (uint16_t)length);
-}
-
-static uint32_t sys_ipc_receive_wrapper(uint32_t sender, uint32_t msg, uint32_t unused3, uint32_t unused4) {
-    (void)unused3; (void)unused4;
-    return sys_ipc_receive(sender, (void*)msg);
 }
 
 static uint32_t sys_network_send_wrapper(uint32_t dst_ip, uint32_t type, uint32_t data, uint32_t length) {
@@ -95,21 +84,6 @@ static uint32_t sys_network_send_wrapper(uint32_t dst_ip, uint32_t type, uint32_
 static uint32_t sys_network_receive_wrapper(uint32_t packet, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
     (void)unused2; (void)unused3; (void)unused4;
     return sys_network_receive((void*)packet);
-}
-
-static uint32_t sys_vm_alloc_wrapper(uint32_t size, uint32_t flags, uint32_t unused3, uint32_t unused4) {
-    (void)unused3; (void)unused4;
-    return sys_vm_alloc(size, flags);
-}
-
-static uint32_t sys_vm_free_wrapper(uint32_t addr, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
-    (void)unused2; (void)unused3; (void)unused4;
-    return sys_vm_free(addr);
-}
-
-static uint32_t sys_vm_map_wrapper(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags, uint32_t unused4) {
-    (void)unused4;
-    return sys_vm_map(virt_addr, phys_addr, flags);
 }
 
 static uint32_t sys_device_open_wrapper(uint32_t name, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
@@ -210,13 +184,8 @@ static const syscall_func_t syscall_table[] = {
     [SYS_CLOSE]      = sys_close_wrapper,
     [SYS_SEEK]       = sys_seek_wrapper,
     [SYS_STAT]       = sys_stat_wrapper,
-    [SYS_IPC_SEND]   = sys_ipc_send_wrapper,
-    [SYS_IPC_RECEIVE] = sys_ipc_receive_wrapper,
     [SYS_NETWORK_SEND]   = sys_network_send_wrapper,
     [SYS_NETWORK_RECEIVE] = sys_network_receive_wrapper,
-    [SYS_VM_ALLOC]   = sys_vm_alloc_wrapper,
-    [SYS_VM_FREE]    = sys_vm_free_wrapper,
-    [SYS_VM_MAP]     = sys_vm_map_wrapper,
     [SYS_DEVICE_OPEN]   = sys_device_open_wrapper,
     [SYS_DEVICE_CLOSE]  = sys_device_close_wrapper,
     [SYS_DEVICE_READ]   = sys_device_read_wrapper,

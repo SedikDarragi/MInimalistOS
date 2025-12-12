@@ -7,24 +7,22 @@ ifneq (,$(findstring i686-elf-,$(shell which i686-elf-gcc 2>/dev/null)))
     CC = i686-elf-gcc
     AS = i686-elf-as
     LD = i686-elf-ld
-    CFLAGS += -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs \
+    CFLAGS = -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs \
               -Wall -Wextra -Werror $(INCLUDES) -g -D__is_kernel -I.\
               -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
 else
-    # Try to use system gcc with 32-bit
+    # Use system gcc with 32-bit
     CC = gcc
     AS = nasm
     LD = ld
-    CFLAGS += -m32 -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs \
+    CFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs \
               -Wall -Wextra -Werror $(INCLUDES) -g -D__is_kernel -I.\
               -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx \
               -I./include -I./kernel \
               -O0 -fno-omit-frame-pointer -fno-pie -fno-pic \
               -fno-common -fno-strict-aliasing -fomit-frame-pointer
 
-    LDFLAGS += -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
-    
-    # Check if 32-bit libraries are installed (check for Arch Linux first, then Debian/Ubuntu)
+    # Check if 32-bit libraries are installed
     ifeq (,$(wildcard /usr/lib32/libc.so))
         ifeq (,$(wildcard /usr/lib/i386-linux-gnu/libc.so))
             $(error 32-bit libraries not found! On Arch Linux: sudo pacman -S lib32-gcc-libs lib32-glibc. On Debian/Ubuntu: sudo apt install gcc-multilib)
@@ -32,23 +30,13 @@ else
     endif
 endif
 
-# Base compiler flags
+# Base flags
 INCLUDES = -I./include -I./kernel -I.
-
-# Linker flags (only set once)
 LDFLAGS = -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
-
-# Compiler flags
-CFLAGS += -m32 -ffreestanding -fno-builtin -fno-stack-protector \
-          -Wall -Wextra -Werror -nostdlib -nostartfiles -nodefaultlibs \
-          -fno-pie -fno-pic -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx \
-          -I./include -I./kernel -I. -g
-
-# Assembler flags
 ASFLAGS = -f elf32
 
 # Source files
-KERNEL_SRCS = kernel/minimal.c kernel/shell_new.c kernel/idt.c kernel/string.c fs/filesystem_enhanced.c kernel/process.c drivers/timer.c drivers/keyboard.c kernel/context.c kernel/test_process.c kernel/syscall.c kernel/user_process.c kernel/memory.c kernel/memory_test.c kernel/usermode.c kernel/user_program.c kernel/fs_test.c kernel/network.c kernel/network_test.c kernel/vm.c kernel/vm_test.c kernel/device.c kernel/device_test.c drivers/block_device.c drivers/char_device.c kernel/security.c kernel/security_test.c kernel/monitor.c kernel/monitor_test.c kernel/power.c kernel/power_test.c
+KERNEL_SRCS = kernel/minimal.c kernel/shell_new.c kernel/idt.c kernel/string.c fs/filesystem_enhanced.c kernel/process.c drivers/timer.c drivers/keyboard.c kernel/context.c kernel/test_process.c kernel/syscall.c kernel/user_process.c kernel/memory.c kernel/memory_test.c kernel/usermode.c kernel/user_program.c kernel/fs_test.c kernel/network.c kernel/network_test.c kernel/device.c kernel/device_test.c drivers/block_device.c drivers/char_device.c kernel/security.c kernel/security_test.c kernel/monitor.c kernel/monitor_test.c kernel/power.c kernel/power_test.c
 KERNEL_ASM_SRCS = kernel/entry.asm kernel/idt_asm.s kernel/irq.asm kernel/context.asm
 
 # Object files
