@@ -37,6 +37,9 @@
 #define SYS_LOG          31
 #define SYS_GET_STATS    32
 #define SYS_DUMP_LOGS    33
+#define SYS_POWER_STATE  34
+#define SYS_GET_BATTERY_INFO 35
+#define SYS_GET_POWER_STATS 36
 
 // System call return values
 #define SYS_SUCCESS 0
@@ -93,5 +96,8 @@ uint32_t sys_chown(const char* path, uint32_t uid, uint32_t gid);
 uint32_t sys_log(uint8_t level, const char* message);
 uint32_t sys_get_stats(uint32_t stats_type, void* buffer);
 uint32_t sys_dump_logs(void);
+uint32_t sys_power_state(uint32_t state);
+uint32_t sys_get_battery_info(void* buffer);
+uint32_t sys_get_power_stats(void* buffer);
 
 #endif

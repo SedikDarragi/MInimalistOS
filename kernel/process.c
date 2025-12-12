@@ -44,6 +44,7 @@ extern void vm_test_process(void);
 extern void device_test_process(void);
 extern void security_test_process(void);
 extern void monitor_test_process(void);
+extern void power_test_process(void);
 
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
@@ -83,6 +84,9 @@ void process_init(void) {
     
     // Create monitoring test process
     process_create("montest", monitor_test_process);
+    
+    // Create power management test process
+    process_create("powertest", power_test_process);
     
     // Set current process to kernel process
     current_process = 0;

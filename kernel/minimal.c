@@ -22,6 +22,7 @@ void vm_init(void);
 void device_init(void);
 void security_init(void);
 void monitor_init(void);
+void power_init(void);
 
 // Simple delay function
 static void delay(int count) {
@@ -124,25 +125,29 @@ void kmain(void) {
     vga_puts(0, 15, "[OK] Monitoring System initialized", 0x0A);
     monitor_init();
     
+    // Initialize Power Management
+    vga_puts(0, 16, "[OK] Power Management initialized", 0x0A);
+    power_init();
+    
     // Initialize filesystem
-    vga_puts(0, 16, "INITIALIZING FILESYSTEM...", 0x1F);
+    vga_puts(0, 17, "INITIALIZING FILESYSTEM...", 0x1F);
     fs_init();
-    vga_puts(0, 17, "FILESYSTEM READY", 0x1F);
+    vga_puts(0, 18, "FILESYSTEM READY", 0x1F);
     
     // Initialize process system
-    vga_puts(0, 18, "INITIALIZING PROCESSES...", 0x1F);
+    vga_puts(0, 19, "INITIALIZING PROCESSES...", 0x1F);
     process_init();
-    vga_puts(0, 19, "PROCESS SYSTEM READY", 0x1F);
+    vga_puts(0, 20, "PROCESS SYSTEM READY", 0x1F);
     
     // Initialize timer
-    vga_puts(0, 20, "INITIALIZING TIMER...", 0x1F);
+    vga_puts(0, 21, "INITIALIZING TIMER...", 0x1F);
     timer_init();
-    vga_puts(0, 21, "TIMER READY", 0x1F);
+    vga_puts(0, 22, "TIMER READY", 0x1F);
     
     // Initialize keyboard
-    vga_puts(0, 22, "INITIALIZING KEYBOARD...", 0x1F);
+    vga_puts(0, 23, "INITIALIZING KEYBOARD...", 0x1F);
     keyboard_init();
-    vga_puts(0, 23, "KEYBOARD READY", 0x1F);
+    vga_puts(0, 24, "KEYBOARD READY", 0x1F);
 
     // Initialize and run the shell
     shell_init();

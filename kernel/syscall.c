@@ -9,6 +9,7 @@
 #include "../include/device.h"
 #include "../include/security.h"
 #include "../include/monitor.h"
+#include "../include/power.h"
 #include "string.h"
 
 // External current security context
@@ -181,6 +182,21 @@ static uint32_t sys_dump_logs_wrapper(uint32_t unused1, uint32_t unused2, uint32
     return sys_dump_logs();
 }
 
+static uint32_t sys_power_state_wrapper(uint32_t state, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_power_state(state);
+}
+
+static uint32_t sys_get_battery_info_wrapper(uint32_t buffer, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_get_battery_info((void*)buffer);
+}
+
+static uint32_t sys_get_power_stats_wrapper(uint32_t buffer, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_get_power_stats((void*)buffer);
+}
+
 static const syscall_func_t syscall_table[] = {
     [SYS_EXIT]       = sys_exit_wrapper,
     [SYS_WRITE]      = sys_write_wrapper,
@@ -215,6 +231,9 @@ static const syscall_func_t syscall_table[] = {
     [SYS_LOG]        = sys_log_wrapper,
     [SYS_GET_STATS]  = sys_get_stats_wrapper,
     [SYS_DUMP_LOGS]  = sys_dump_logs_wrapper,
+    [SYS_POWER_STATE]  = sys_power_state_wrapper,
+    [SYS_GET_BATTERY_INFO] = sys_get_battery_info_wrapper,
+    [SYS_GET_POWER_STATS] = sys_get_power_stats_wrapper,
 };
 
 // System call interrupt handler
