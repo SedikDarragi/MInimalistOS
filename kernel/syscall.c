@@ -8,6 +8,7 @@
 #include "../include/vm.h"
 #include "../include/device.h"
 #include "../include/security.h"
+#include "../include/monitor.h"
 #include "string.h"
 
 // External current security context
@@ -165,6 +166,21 @@ static uint32_t sys_chown_wrapper(uint32_t path, uint32_t uid, uint32_t gid, uin
     return sys_chown((const char*)path, uid, gid);
 }
 
+static uint32_t sys_log_wrapper(uint32_t level, uint32_t message, uint32_t unused3, uint32_t unused4) {
+    (void)unused3; (void)unused4;
+    return sys_log((uint8_t)level, (const char*)message);
+}
+
+static uint32_t sys_get_stats_wrapper(uint32_t stats_type, uint32_t buffer, uint32_t unused3, uint32_t unused4) {
+    (void)unused3; (void)unused4;
+    return sys_get_stats(stats_type, (void*)buffer);
+}
+
+static uint32_t sys_dump_logs_wrapper(uint32_t unused1, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused1; (void)unused2; (void)unused3; (void)unused4;
+    return sys_dump_logs();
+}
+
 static const syscall_func_t syscall_table[] = {
     [SYS_EXIT]       = sys_exit_wrapper,
     [SYS_WRITE]      = sys_write_wrapper,
@@ -196,6 +212,9 @@ static const syscall_func_t syscall_table[] = {
     [SYS_GETGID]     = sys_getgid_wrapper,
     [SYS_CHMOD]      = sys_chmod_wrapper,
     [SYS_CHOWN]      = sys_chown_wrapper,
+    [SYS_LOG]        = sys_log_wrapper,
+    [SYS_GET_STATS]  = sys_get_stats_wrapper,
+    [SYS_DUMP_LOGS]  = sys_dump_logs_wrapper,
 };
 
 // System call interrupt handler

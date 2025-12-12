@@ -43,6 +43,7 @@ extern void network_test_receiver(void);
 extern void vm_test_process(void);
 extern void device_test_process(void);
 extern void security_test_process(void);
+extern void monitor_test_process(void);
 
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
@@ -79,6 +80,9 @@ void process_init(void) {
     
     // Create security test process
     process_create("sectest", security_test_process);
+    
+    // Create monitoring test process
+    process_create("montest", monitor_test_process);
     
     // Set current process to kernel process
     current_process = 0;

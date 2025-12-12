@@ -34,6 +34,9 @@
 #define SYS_GETGID       28
 #define SYS_CHMOD        29
 #define SYS_CHOWN        30
+#define SYS_LOG          31
+#define SYS_GET_STATS    32
+#define SYS_DUMP_LOGS    33
 
 // System call return values
 #define SYS_SUCCESS 0
@@ -87,5 +90,8 @@ uint32_t sys_getuid(void);
 uint32_t sys_getgid(void);
 uint32_t sys_chmod(const char* path, uint32_t mode);
 uint32_t sys_chown(const char* path, uint32_t uid, uint32_t gid);
+uint32_t sys_log(uint8_t level, const char* message);
+uint32_t sys_get_stats(uint32_t stats_type, void* buffer);
+uint32_t sys_dump_logs(void);
 
 #endif
