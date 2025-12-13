@@ -1,8 +1,9 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include "../kernel/kernel.h"
-#include "idt.h"
+#include <stdint.h>
+#include "../include/idt.h"
+#include "../kernel/io.h"
 
 void timer_init(void);
 void timer_wait(uint32_t ticks);

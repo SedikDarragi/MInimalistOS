@@ -45,7 +45,21 @@ KERNEL_OBJS = $(KERNEL_SRCS:.c=.o) $(patsubst %.asm,%.o,$(filter %.asm,$(KERNEL_
 # Remove duplicates
 KERNEL_OBJS := $(sort $(KERNEL_OBJS))
 
+# Enable parallel builds
+MAKEFLAGS += -j$(shell nproc 2>/dev/null || echo 4)
+
+# Optimized build targets
+.PHONY: all clean run run-enhanced debug bochs test size run-vnc run-debug run-monitor clean-all
+
 all: os.img
+
+# Enhanced clean target
+clean-all: clean
+	@echo "Removing all generated files..."
+	@find . -name "*.o" -delete 2>/dev/null || true
+	@find . -name "*.bin" -delete 2>/dev/null || true
+	@find . -name "*.elf" -delete 2>/dev/null || true
+	@find . -name "*.log" -delete 2>/dev/null || true
 
 os.img: boot/debug_boot.bin kernel.bin
 	@echo "Creating disk image..."

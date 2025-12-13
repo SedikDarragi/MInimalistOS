@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stddef.h> // For memset
 #include "idt.h"
-#include "kernel.h"
+#include "io.h"
 
 // PIC I/O Ports
 #define PIC1_CMD    0x20

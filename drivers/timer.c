@@ -1,5 +1,4 @@
 #include "timer.h"
-#include "../kernel/kernel.h"
 #include "../include/idt.h"
 #include "../kernel/process.h"
 

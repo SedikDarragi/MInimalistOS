@@ -40,7 +40,6 @@ extern void user_program_main(void);
 extern void fs_test_process(void);
 extern void network_test_sender(void);
 extern void network_test_receiver(void);
-extern void vm_test_process(void);
 extern void device_test_process(void);
 extern void security_test_process(void);
 extern void monitor_test_process(void);
@@ -72,9 +71,6 @@ void process_init(void) {
     // Create network test processes
     process_create("netsend", network_test_sender);
     process_create("netrecv", network_test_receiver);
-    
-    // Create virtual memory test process
-    process_create("vmtest", vm_test_process);
     
     // Create device driver test process
     process_create("devtest", device_test_process);
