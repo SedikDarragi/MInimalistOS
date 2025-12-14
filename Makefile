@@ -182,11 +182,15 @@ $(BUILD_DIR):
 	$(E) "  CC      $@"
 	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
 
+# Pattern rule for NASM assembly files
 %.o: %.asm
-	$(AS) -f elf32 $< -o $@
+	$(E) "  AS      $@"
+	$(Q)nasm -f elf32 $< -o $@
 
+# Pattern rule for GAS assembly files
 %.o: %.s
-	$(AS) -f elf32 $< -o $@
+	$(E) "  AS      $@"
+	$(Q)$(CC) -m32 -c $< -o $@
 
 clean:
 	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/debug_boot.bin boot/minimal_boot_new.bin
