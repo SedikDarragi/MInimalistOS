@@ -1,3 +1,7 @@
+# Get the directory of this Makefile
+MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
+PROJECT_DIR := $(patsubst %/,%,$(dir $(MKFILE_PATH)))
+
 # Toolchain configuration
 HOST_OS := $(shell uname -s)
 
@@ -55,28 +59,28 @@ WARN_CFLAGS = -Wall -Wextra -Werror \
               -Wuninitialized -Wstrict-prototypes
 
 # Base flags
-INCLUDES = -I./include -I./kernel -I.
+# Include directories
+INCLUDES = -I"$(PROJECT_DIR)/include" -I"$(PROJECT_DIR)/kernel" -I"$(PROJECT_DIR)" -I"$(PROJECT_DIR)/drivers" -I"$(PROJECT_DIR)/fs"
 LDFLAGS = -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
 ASFLAGS = -f elf32
 
 # Source file organization
-KERNEL_SRCS := $(shell find kernel/ -name '*.c' -not -name 'test_*.c' -not -name '*_test.c')
-KERNEL_TEST_SRCS := $(shell find kernel/ -name '*_test.c')
-DRIVER_SRCS := $(shell find drivers/ -name '*.c')
-FS_SRCS := $(shell find fs/ -name '*.c')
+KERNEL_SRCS := $(shell find "$(PROJECT_DIR)/kernel" -name '*.c' -not -name 'test_*.c' -not -name '*_test.c')
+KERNEL_TEST_SRCS := $(shell find "$(PROJECT_DIR)/kernel" -name '*_test.c')
+DRIVER_SRCS := $(shell find "$(PROJECT_DIR)/drivers" -name '*.c')
+FS_SRCS := $(shell find "$(PROJECT_DIR)/fs" -name '*.c')
 
-# Assembly sources
-KERNEL_ASM_SRCS := $(shell find kernel/ -name '*.asm' -o -name '*.s')
+# Assembly sources (both .s and .asm)
+KERNEL_ASM_SRCS := $(shell find "$(PROJECT_DIR)/kernel" -name '*.s' -o -name '*.asm')
 
 # Combine all source files
 ALL_SRCS := $(KERNEL_SRCS) $(KERNEL_TEST_SRCS) $(DRIVER_SRCS) $(FS_SRCS)
 
 # Generate dependencies
-DEPS := $(ALL_SRCS:.c=.d) $(KERNEL_ASM_SRCS:.asm=.d) $(KERNEL_ASM_SRCS:.s=.d)
+DEPS := $(ALL_SRCS:.c=.d) $(patsubst %.s,%.d,$(filter %.s,$(KERNEL_ASM_SRCS)))
 
 # Object files
 KERNEL_OBJS = $(ALL_SRCS:.c=.o) \
-              $(patsubst %.asm,%.o,$(filter %.asm,$(KERNEL_ASM_SRCS))) \
               $(patsubst %.s,%.o,$(filter %.s,$(KERNEL_ASM_SRCS)))
 
 # Remove duplicates and sort
@@ -182,19 +186,21 @@ $(BUILD_DIR):
 	$(E) "  CC      $@"
 	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
 
-# Pattern rule for NASM assembly files
-%.o: %.asm
-	$(E) "  AS      $@"
-	$(Q)nasm -f elf32 $< -o $@
-
-# Pattern rule for GAS assembly files
+# Pattern rule for GAS assembly files (.s)
 %.o: %.s
 	$(E) "  AS      $@"
 	$(Q)$(CC) -m32 -c $< -o $@
 
+# Pattern rule for NASM assembly files (.asm)
+%.o: %.asm
+	$(E) "  NASM    $@"
+	$(Q)nasm -f elf32 $< -o $@
+
 clean:
-	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/debug_boot.bin boot/minimal_boot_new.bin
-	rm -f qemu_debug.log qemu.log serial.log
+	@echo "  CLEAN"
+	@rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/debug_boot.bin boot/minimal_boot_new.bin 2>/dev/null || true
+	@rm -f qemu_debug.log qemu.log serial.log 2>/dev/null || true
+	@rm -f $(DEPS) 2>/dev/null || true
 
 # Size information
 size: kernel.elf
