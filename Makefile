@@ -1,28 +1,17 @@
-CC = gcc
-AS = nasm
-LD = ld
+# Toolchain configuration
+HOST_OS := $(shell uname -s)
 
-# Cross-compiler for 32-bit
+# Detect if we're cross-compiling or using native tools
 ifneq (,$(findstring i686-elf-,$(shell which i686-elf-gcc 2>/dev/null)))
-    CC = i686-elf-gcc
-    AS = i686-elf-as
-    LD = i686-elf-ld
-    CFLAGS = -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs \
-              -Wall -Wextra -Werror $(INCLUDES) -g -D__is_kernel -I.\
-              -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
+    # Cross-compiler toolchain
+    TOOLCHAIN_PREFIX = i686-elf-
+    CROSS_COMPILING = 1
 else
-    # Use system gcc with 32-bit
-    CC = gcc
-    AS = nasm
-    LD = ld
-    CFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs \
-              -Wall -Wextra -Werror $(INCLUDES) -g -D__is_kernel -I.\
-              -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx \
-              -I./include -I./kernel \
-              -O0 -fno-omit-frame-pointer -fno-pie -fno-pic \
-              -fno-common -fno-strict-aliasing -fomit-frame-pointer
-
-    # Check if 32-bit libraries are installed
+    # Native toolchain with 32-bit support
+    TOOLCHAIN_PREFIX =
+    CROSS_COMPILING = 0
+    
+    # Check for 32-bit support on host system
     ifeq (,$(wildcard /usr/lib32/libc.so))
         ifeq (,$(wildcard /usr/lib/i386-linux-gnu/libc.so))
             $(error 32-bit libraries not found! On Arch Linux: sudo pacman -S lib32-gcc-libs lib32-glibc. On Debian/Ubuntu: sudo apt install gcc-multilib)
@@ -30,36 +19,124 @@ else
     endif
 endif
 
+# Tool definitions with prefix
+CC = $(TOOLCHAIN_PREFIX)gcc
+AS = $(TOOLCHAIN_PREFIX)as
+LD = $(TOOLCHAIN_PREFIX)ld
+OBJCOPY = $(TOOLCHAIN_PREFIX)objcopy
+
+# Base CFLAGS
+BASE_CFLAGS = -Wall -Wextra -Werror \
+              -ffreestanding -fno-builtin -fno-stack-protector \
+              -nostartfiles -nodefaultlibs \
+              -g -D__is_kernel \
+              -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx \
+              -fno-omit-frame-pointer -fno-pie -fno-pic \
+              -fno-common -fno-strict-aliasing -fomit-frame-pointer
+
+# Architecture-specific flags
+ifeq ($(CROSS_COMPILING),0)
+    CFLAGS += -m32
+endif
+
+# Optimizations (enable with make OPTIMIZE=1)
+ifdef OPTIMIZE
+    CFLAGS += -O2 -fno-strict-aliasing -fomit-frame-pointer
+else
+    CFLAGS += -O0 -g3
+endif
+
+# Warning flags
+WARN_CFLAGS = -Wall -Wextra -Werror \
+              -Wshadow -Wpointer-arith -Wcast-align \
+              -Wwrite-strings -Wmissing-prototypes \
+              -Wmissing-declarations -Wredundant-decls \
+              -Wnested-externs -Winline -Wno-long-long \
+              -Wuninitialized -Wstrict-prototypes
+
 # Base flags
 INCLUDES = -I./include -I./kernel -I.
 LDFLAGS = -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
 ASFLAGS = -f elf32
 
-# Source files
-KERNEL_SRCS = kernel/minimal.c kernel/shell_new.c kernel/idt.c kernel/string.c fs/filesystem_enhanced.c kernel/process.c drivers/timer.c drivers/keyboard.c kernel/context.c kernel/test_process.c kernel/syscall.c kernel/user_process.c kernel/memory.c kernel/memory_test.c kernel/usermode.c kernel/user_program.c kernel/fs_test.c kernel/network.c kernel/network_test.c kernel/device.c kernel/device_test.c drivers/block_device.c drivers/char_device.c kernel/security.c kernel/security_test.c kernel/monitor.c kernel/monitor_test.c kernel/power.c kernel/power_test.c
-KERNEL_ASM_SRCS = kernel/entry.asm kernel/idt_asm.s kernel/irq.asm kernel/context.asm
+# Source file organization
+KERNEL_SRCS := $(shell find kernel/ -name '*.c' -not -name 'test_*.c' -not -name '*_test.c')
+KERNEL_TEST_SRCS := $(shell find kernel/ -name '*_test.c')
+DRIVER_SRCS := $(shell find drivers/ -name '*.c')
+FS_SRCS := $(shell find fs/ -name '*.c')
+
+# Assembly sources
+KERNEL_ASM_SRCS := $(shell find kernel/ -name '*.asm' -o -name '*.s')
+
+# Combine all source files
+ALL_SRCS := $(KERNEL_SRCS) $(KERNEL_TEST_SRCS) $(DRIVER_SRCS) $(FS_SRCS)
+
+# Generate dependencies
+DEPS := $(ALL_SRCS:.c=.d) $(KERNEL_ASM_SRCS:.asm=.d) $(KERNEL_ASM_SRCS:.s=.d)
 
 # Object files
-KERNEL_OBJS = $(KERNEL_SRCS:.c=.o) $(patsubst %.asm,%.o,$(filter %.asm,$(KERNEL_ASM_SRCS))) $(patsubst %.s,%.o,$(filter %.s,$(KERNEL_ASM_SRCS)))
+KERNEL_OBJS = $(ALL_SRCS:.c=.o) \
+              $(patsubst %.asm,%.o,$(filter %.asm,$(KERNEL_ASM_SRCS))) \
+              $(patsubst %.s,%.o,$(filter %.s,$(KERNEL_ASM_SRCS)))
 
-# Remove duplicates
+# Remove duplicates and sort
 KERNEL_OBJS := $(sort $(KERNEL_OBJS))
 
-# Enable parallel builds
-MAKEFLAGS += -j$(shell nproc 2>/dev/null || echo 4)
+# Include generated dependencies
+-include $(DEPS)
+
+# Build configuration
+BUILD_DIR = build
+BUILD_TYPE ?= debug
+
+# Set optimization level based on build type
+ifeq ($(BUILD_TYPE),release)
+    CFLAGS += -O2 -DNDEBUG
+else
+    CFLAGS += -O0 -g3 -DDEBUG
+endif
+
+# Enable parallel builds with auto-detection of CPU cores
+NUM_CPUS := $(shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 2)
+MAKEFLAGS += -j$(NUM_CPUS)
+
+# Verbose build (enable with make V=1)
+ifdef V
+    Q =
+    E = @:
+else
+    Q = @
+    E = @echo
+endif
 
 # Optimized build targets
 .PHONY: all clean run run-enhanced debug bochs test size run-vnc run-debug run-monitor clean-all
 
 all: os.img
 
-# Enhanced clean target
+# Clean targets
+clean:
+	$(E) "  CLEAN"
+	@rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img
+	@rm -f boot/*.bin boot/*.lst
+	@rm -f qemu_*.log serial.log
+
+# Deep clean
 clean-all: clean
-	@echo "Removing all generated files..."
+	$(E) "  CLEAN   All generated files"
 	@find . -name "*.o" -delete 2>/dev/null || true
+	@find . -name "*.d" -delete 2>/dev/null || true
 	@find . -name "*.bin" -delete 2>/dev/null || true
 	@find . -name "*.elf" -delete 2>/dev/null || true
 	@find . -name "*.log" -delete 2>/dev/null || true
+	@rm -rf $(BUILD_DIR)
+
+# Create dependency files
+%.d: %.c
+	@$(CC) $(CFLAGS) -MM -MT "$*.o $@" -o $@ $<
+
+# Phony targets
+.PHONY: all clean clean-all run debug test size
 
 os.img: boot/debug_boot.bin kernel.bin
 	@echo "Creating disk image..."
@@ -85,11 +162,25 @@ boot/debug_boot.bin: boot/debug_boot.asm
 kernel.bin: kernel.elf
 	objcopy -O binary $< $@ --pad-to 0x5000
 
-kernel.elf: $(KERNEL_OBJS) link.ld
-	$(LD) $(LDFLAGS) -o $@ $(KERNEL_OBJS)
+# Linker flags
+LDFLAGS += -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
+LDFLAGS += -Wl,-Map=$(BUILD_DIR)/kernel.map -Wl,--gc-sections
 
+# Link kernel
+kernel.elf: $(KERNEL_OBJS) link.ld | $(BUILD_DIR)
+	$(E) "  LD      $@"
+	$(Q)$(LD) $(LDFLAGS) -o $@ $(KERNEL_OBJS)
+	$(E) "  SIZE    $@"
+	@$(SIZE) $@ || true
+
+# Create build directory
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
+
+# Pattern rule for compiling C files
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(E) "  CC      $@"
+	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
 
 %.o: %.asm
 	$(AS) -f elf32 $< -o $@
@@ -101,17 +192,26 @@ clean:
 	rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/debug_boot.bin boot/minimal_boot_new.bin
 	rm -f qemu_debug.log qemu.log serial.log
 
-# Check kernel size
-size: kernel.bin
-	@echo "Kernel size:"
-	@wc -c kernel.bin
-	@echo "Max size: 64KB"
-	@echo "Available: $$((65536 - $$(wc -c < kernel.bin))) bytes left"
+# Size information
+size: kernel.elf
+	@echo "\n=== Kernel Size Information ==="
+	@$(SIZE) kernel.elf || true
+	@echo "\nSection sizes:"
+	@$(OBJDUMP) -h kernel.elf | \
+	    awk '/^\s*[0-9]+\s+\S+\s+[0-9a-f]+/ {printf "%-20s %8s bytes\n", $$2, $$3}' || true
+	@echo "\nTotal size: $$(stat -c%s kernel.bin) bytes"
+	@echo "Available: $$((65536 - $$(stat -c%s kernel.bin))) bytes left (64KB total)"
+
+# QEMU configuration
+QEMU = qemu-system-i386
+QEMU_OPTS = -m 32M -monitor stdio -no-reboot -no-shutdown
+QEMU_DISK = -drive file=os.img,format=raw,if=ide
+QEMU_DEBUG = -d int,cpu_reset -D qemu.log
 
 # Run the OS in QEMU with basic settings
 run: os.img
-	@echo "Starting QEMU..."
-	@qemu-system-i386 -drive file=os.img,format=raw,if=ide -vga std -display sdl
+	$(E) "  QEMU    $<"
+	@$(QEMU) $(QEMU_OPTS) $(QEMU_DISK) -vga std -display sdl
 
 # Run QEMU with debug output and GDB server
 debug: os.img
