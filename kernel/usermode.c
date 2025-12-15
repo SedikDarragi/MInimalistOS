@@ -1,6 +1,6 @@
 #include "../include/usermode.h"
 #include "../include/memory.h"
-#include "../include/process.h"
+#include "process.h"
 #include "../include/idt.h"
 #include "../include/vga.h"
 #include "../include/string.h"
