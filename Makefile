@@ -1,7 +1,3 @@
-# Get the directory of this Makefile
-MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
-PROJECT_DIR := $(patsubst %/,%,$(dir $(MKFILE_PATH)))
-
 # Toolchain configuration
 HOST_OS := $(shell uname -s)
 
@@ -60,18 +56,18 @@ WARN_CFLAGS = -Wall -Wextra -Werror \
 
 # Base flags
 # Include directories
-INCLUDES = -I"$(PROJECT_DIR)/include" -I"$(PROJECT_DIR)/kernel" -I"$(PROJECT_DIR)" -I"$(PROJECT_DIR)/drivers" -I"$(PROJECT_DIR)/fs"
+INCLUDES = -I./include -I./kernel -I. -I./drivers -I./fs
 LDFLAGS = -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
 ASFLAGS = -f elf32
 
 # Source file organization
-KERNEL_SRCS := $(shell find "$(PROJECT_DIR)/kernel" -name '*.c' -not -name 'test_*.c' -not -name '*_test.c')
-KERNEL_TEST_SRCS := $(shell find "$(PROJECT_DIR)/kernel" -name '*_test.c')
-DRIVER_SRCS := $(shell find "$(PROJECT_DIR)/drivers" -name '*.c')
-FS_SRCS := $(shell find "$(PROJECT_DIR)/fs" -name '*.c')
+KERNEL_SRCS := $(shell find kernel/ -name '*.c' -not -name 'test_*.c' -not -name '*_test.c')
+KERNEL_TEST_SRCS := $(shell find kernel/ -name '*_test.c')
+DRIVER_SRCS := $(shell find drivers/ -name '*.c')
+FS_SRCS := $(shell find fs/ -name '*.c')
 
 # Assembly sources (both .s and .asm)
-KERNEL_ASM_SRCS := $(shell find "$(PROJECT_DIR)/kernel" -name '*.s' -o -name '*.asm')
+KERNEL_ASM_SRCS := $(shell find kernel/ -name '*.s' -o -name '*.asm')
 
 # Combine all source files
 ALL_SRCS := $(KERNEL_SRCS) $(KERNEL_TEST_SRCS) $(DRIVER_SRCS) $(FS_SRCS)
@@ -196,11 +192,6 @@ $(BUILD_DIR):
 	$(E) "  NASM    $@"
 	$(Q)nasm -f elf32 $< -o $@
 
-clean:
-	@echo "  CLEAN"
-	@rm -f $(KERNEL_OBJS) kernel.elf kernel.bin os.img boot/debug_boot.bin boot/minimal_boot_new.bin 2>/dev/null || true
-	@rm -f qemu_debug.log qemu.log serial.log 2>/dev/null || true
-	@rm -f $(DEPS) 2>/dev/null || true
 
 # Size information
 size: kernel.elf

@@ -1,9 +1,9 @@
-#include "usermode.h"
-#include "memory.h"
-#include "process.h"
+#include "../include/usermode.h"
+#include "../include/memory.h"
+#include "../include/process.h"
 #include "../include/idt.h"
 #include "../include/vga.h"
-#include "string.h"
+#include "../include/string.h"
 
 // TSS for task switching
 static tss_t kernel_tss;
