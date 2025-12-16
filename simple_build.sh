@@ -20,7 +20,7 @@ nasm -f elf32 kernel/context.asm -o kernel/context_asm.o
 
 # Link the kernel
 echo "Linking kernel..."
-ld -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000 -o kernel.elf kernel/*.o drivers/*.o fs/*.o
+ld -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000 -o kernel.elf *.o kernel/*.o
 
 # Create binary
 echo "Creating binary..."
