@@ -61,8 +61,9 @@ LDFLAGS = -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
 ASFLAGS = -f elf32
 
 # Source file organization
-KERNEL_SRCS := $(shell find kernel/ -name '*.c' -not -name 'test_*.c' -not -name '*_test.c')
+KERNEL_SRCS := $(shell find kernel/ -name '*.c' -not -name 'test_*.c' -not -name '*_test.c' -not -name 'tests.c')
 KERNEL_TEST_SRCS := $(shell find kernel/ -name '*_test.c')
+TEST_SRCS := kernel/tests.c
 DRIVER_SRCS := $(shell find drivers/ -name '*.c')
 FS_SRCS := $(shell find fs/ -name '*.c')
 
@@ -71,6 +72,7 @@ KERNEL_ASM_SRCS := $(shell find kernel/ -name '*.s' -o -name '*.asm')
 
 # Combine all source files
 ALL_SRCS := $(KERNEL_SRCS) $(KERNEL_TEST_SRCS) $(DRIVER_SRCS) $(FS_SRCS)
+TEST_ALL_SRCS := $(KERNEL_SRCS) $(TEST_SRCS) $(KERNEL_TEST_SRCS) $(DRIVER_SRCS) $(FS_SRCS)
 
 # Generate dependencies
 DEPS := $(ALL_SRCS:.c=.d) $(patsubst %.s,%.d,$(filter %.s,$(KERNEL_ASM_SRCS)))
@@ -136,7 +138,7 @@ clean-all: clean
 	@$(CC) $(CFLAGS) -MM -MT "$*.o $@" -o $@ $<
 
 # Phony targets
-.PHONY: all clean clean-all run debug test size
+.PHONY: all clean clean-all run debug test size run-test
 
 os.img: boot/debug_boot.bin kernel.bin
 	@echo "Creating disk image..."
@@ -170,6 +172,13 @@ LDFLAGS += -Wl,-Map=$(BUILD_DIR)/kernel.map -Wl,--gc-sections
 kernel.elf: $(KERNEL_OBJS) link.ld | $(BUILD_DIR)
 	$(E) "  LD      $@"
 	$(Q)$(LD) $(LDFLAGS) -o $@ $(KERNEL_OBJS)
+	$(E) "  SIZE    $@"
+	@$(SIZE) $@ || true
+
+# Link test kernel
+tests.elf: $(TEST_ALL_SRCS:.c=.o) $(KERNEL_ASM_SRCS:.s=.o) link.ld | $(BUILD_DIR)
+	$(E) "  LD      $@"
+	$(Q)$(LD) $(LDFLAGS) -o $@ $(TEST_ALL_SRCS:.c=.o) $(KERNEL_ASM_SRCS:.s=.o)
 	$(E) "  SIZE    $@"
 	@$(SIZE) $@ || true
 
