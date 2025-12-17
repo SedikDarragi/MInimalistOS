@@ -1,1 +1,3 @@
-kernel/string.o kernel/string.d: kernel/string.c
+kernel/string.o: kernel/string.c include/stddef.h include/stdint.h
+include/stddef.h:
+include/stdint.h:

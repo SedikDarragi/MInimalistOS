@@ -1,3 +1,9 @@
-kernel/fs_test.o kernel/fs_test.d: kernel/fs_test.c \
- kernel/../include/filesystem.h kernel/../include/syscall.h \
- kernel/../include/vga.h kernel/../include/string.h
+kernel/fs_test.o: kernel/fs_test.c kernel/../include/filesystem.h \
+ include/stdint.h kernel/../include/syscall.h kernel/../include/vga.h \
+ include/stddef.h kernel/../include/string.h
+kernel/../include/filesystem.h:
+include/stdint.h:
+kernel/../include/syscall.h:
+kernel/../include/vga.h:
+include/stddef.h:
+kernel/../include/string.h:

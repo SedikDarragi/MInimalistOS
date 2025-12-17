@@ -47,11 +47,11 @@ bool test_memcpy(void) {
 
 // String test suite
 test_case_t string_tests[] = {
-    { "strlen", test_strlen },
-    { "strcpy", test_strcpy },
-    { "strcmp", test_strcmp },
-    { "memset", test_memset },
-    { "memcpy", test_memcpy },
+    { "strlen", test_strlen, false },
+    { "strcpy", test_strcpy, false },
+    { "strcmp", test_strcmp, false },
+    { "memset", test_memset, false },
+    { "memcpy", test_memcpy, false },
 };
 
 test_suite_t string_test_suite = {

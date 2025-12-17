@@ -1,2 +1,5 @@
-drivers/keyboard.o drivers/keyboard.d: drivers/keyboard.c \
- drivers/keyboard.h drivers/../kernel/io.h
+drivers/keyboard.o: drivers/keyboard.c drivers/keyboard.h \
+ include/stdint.h drivers/../kernel/io.h
+drivers/keyboard.h:
+include/stdint.h:
+drivers/../kernel/io.h:

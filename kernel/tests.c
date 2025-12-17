@@ -1,5 +1,6 @@
 #include "test.h"
 #include "string_tests.h"
+#include "../drivers/vga.h"
 
 void run_all_tests(void) {
     // Run string tests

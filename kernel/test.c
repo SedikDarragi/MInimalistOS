@@ -32,11 +32,26 @@ void print_test_results(const test_suite_t* suite) {
     vga_print("\nTest Results for ");
     vga_print(suite->name);
     vga_print(":\n");
+    
+    // Print numbers as strings (simplified for now)
     vga_print("  Total:   ");
-    vga_print_uint(suite->num_tests);
+    if (suite->num_tests < 10) vga_putchar('0' + suite->num_tests);
+    else if (suite->num_tests < 100) {
+        vga_putchar('0' + (suite->num_tests / 10));
+        vga_putchar('0' + (suite->num_tests % 10));
+    }
     vga_print("\n  Passed:  ");
-    vga_print_uint(suite->passed_tests);
+    if (suite->passed_tests < 10) vga_putchar('0' + suite->passed_tests);
+    else if (suite->passed_tests < 100) {
+        vga_putchar('0' + (suite->passed_tests / 10));
+        vga_putchar('0' + (suite->passed_tests % 10));
+    }
     vga_print("\n  Failed:  ");
-    vga_print_uint(suite->num_tests - suite->passed_tests);
+    unsigned int failed = suite->num_tests - suite->passed_tests;
+    if (failed < 10) vga_putchar('0' + failed);
+    else if (failed < 100) {
+        vga_putchar('0' + (failed / 10));
+        vga_putchar('0' + (failed % 10));
+    }
     vga_print("\n\n");
 }

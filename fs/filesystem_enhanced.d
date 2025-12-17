@@ -1,3 +1,8 @@
-fs/filesystem_enhanced.o fs/filesystem_enhanced.d: \
- fs/filesystem_enhanced.c fs/../include/filesystem.h fs/../include/vga.h \
- fs/../include/string.h
+fs/filesystem_enhanced.o: fs/filesystem_enhanced.c \
+ fs/../include/filesystem.h include/stdint.h fs/../include/vga.h \
+ include/stddef.h fs/../include/string.h
+fs/../include/filesystem.h:
+include/stdint.h:
+fs/../include/vga.h:
+include/stddef.h:
+fs/../include/string.h:
