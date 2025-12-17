@@ -1,5 +1,6 @@
 #include "../drivers/vga.h"
 #include "../include/string.h"
+#include "log.h"
 
 // Test case structure
 typedef struct {
@@ -62,8 +63,9 @@ bool test_memcpy(void) {
 
 // Test runner
 void run_tests(void) {
-    vga_clear();
-    vga_print("=== Kernel Test Runner ===\n\n");
+    log_init();
+    log_info("=== Kernel Test Runner Started ===");
+    log_info("");
     
     size_t passed = 0;
     size_t total = sizeof(tests) / sizeof(tests[0]);
@@ -79,6 +81,9 @@ void run_tests(void) {
         vga_print(tests[i].name);
         vga_print("\n");
     }
+    
+    log_info("=== Test Results ===");
+    log_info("Tests completed. Analyzing results...");
     
     vga_print("\n=== Results ===\n");
     vga_print("Passed: ");
@@ -115,11 +120,14 @@ void run_tests(void) {
     
     if (passed == total) {
         vga_print("ALL TESTS PASSED!\n");
+        log_info("All tests completed successfully!");
     } else {
         vga_print("SOME TESTS FAILED!\n");
+        log_warn("Some tests failed. Check output above.");
     }
     
     vga_print("\nSystem halted.");
+    log_info("Test runner completed. System halted.");
 }
 
 // Kernel entry point
