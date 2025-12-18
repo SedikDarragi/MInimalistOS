@@ -137,8 +137,14 @@ clean-all: clean
 %.d: %.c
 	@$(CC) $(CFLAGS) -MM -MT "$*.o $@" -o $@ $<
 
+# Run comprehensive test suite
+test-all:
+	@echo "Running comprehensive OS kernel test suite..."
+	@chmod +x test_runner.sh
+	@./test_runner.sh
+
 # Phony targets
-.PHONY: all clean clean-all run debug test size run-test simple-test run-simple-test memory-test run-memory-test interrupt-test run-interrupt-test keyboard-test run-keyboard-test
+.PHONY: all clean clean-all run debug test size run-test simple-test run-simple-test memory-test run-memory-test interrupt-test run-interrupt-test keyboard-test run-keyboard-test test-all
 
 os.img: boot/debug_boot.bin kernel.bin
 	@echo "Creating disk image..."
