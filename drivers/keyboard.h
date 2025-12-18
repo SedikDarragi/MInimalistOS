@@ -10,5 +10,7 @@
 void keyboard_init(void);
 char keyboard_getchar(void);
 int keyboard_available(void);
+int keyboard_is_pressed(int scancode);
+void keyboard_get_status(int* shift, int* ctrl, int* alt, int* caps, int* num, int* scroll);
 
 #endif

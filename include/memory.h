@@ -53,5 +53,11 @@ void flush_tlb(void);
 void heap_init(void);
 void* kmalloc(uint32_t size);
 void kfree(void* ptr);
+void* kmalloc_aligned(uint32_t size, uint32_t alignment);
+void* kcalloc(uint32_t num, uint32_t size);
+
+// Memory statistics
+void memory_stats(uint32_t* total_pages, uint32_t* used_pages, uint32_t* free_pages);
+void heap_stats(uint32_t* total_heap, uint32_t* used_heap);
 
 #endif

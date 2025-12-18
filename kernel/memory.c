@@ -157,3 +157,42 @@ void kfree(void* ptr) {
     // For simplicity, we don't implement freeing in this simple heap
     (void)ptr;
 }
+
+// Memory statistics
+void memory_stats(uint32_t* total, uint32_t* used, uint32_t* free) {
+    if (total) *total = total_pages;
+    if (used) *used = used_pages;
+    if (free) *free = total_pages - used_pages;
+}
+
+// Get heap statistics
+void heap_stats(uint32_t* total_heap, uint32_t* used_heap) {
+    if (total_heap) *total_heap = HEAP_SIZE;
+    if (used_heap) *used_heap = heap_pos;
+}
+
+// Enhanced heap allocator with better alignment
+void* kmalloc_aligned(uint32_t size, uint32_t alignment) {
+    // Align the heap position
+    uint32_t aligned_pos = (heap_pos + alignment - 1) & ~(alignment - 1);
+    
+    if (aligned_pos + size > HEAP_SIZE) {
+        return NULL;  // Out of heap memory
+    }
+    
+    void* ptr = &heap[aligned_pos];
+    heap_pos = aligned_pos + size;
+    return ptr;
+}
+
+// Zero-initialized allocation
+void* kcalloc(uint32_t num, uint32_t size) {
+    uint32_t total_size = num * size;
+    void* ptr = kmalloc(total_size);
+    
+    if (ptr) {
+        memset(ptr, 0, total_size);
+    }
+    
+    return ptr;
+}

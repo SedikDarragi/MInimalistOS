@@ -1,208 +1,188 @@
 #include "../drivers/vga.h"
 #include "io.h"
+#include "log.h"
 
 // ISR (Interrupt Service Routine) stubs
 void isr0() {
     // Division by zero exception
-    vga_print("Division by zero exception!\n");
-    while(1) {}
+    log_critical("Division by zero exception!");
+    panic("Division by zero");
 }
 
 void isr1() {
     // Debug exception
-    vga_print("Debug exception!\n");
-    while(1) {}
+    log_debug("Debug exception occurred");
 }
 
 void isr2() {
     // Non-maskable interrupt
-    vga_print("Non-maskable interrupt!\n");
-    while(1) {}
+    log_critical("Non-maskable interrupt received!");
+    log_info("Hardware failure detected");
 }
 
 void isr3() {
     // Breakpoint exception
-    vga_print("Breakpoint exception!\n");
-    while(1) {}
+    log_debug("Breakpoint exception - debugger breakpoint hit");
 }
 
 void isr4() {
     // Overflow exception
-    vga_print("Overflow exception!\n");
-    while(1) {}
+    log_error("Overflow exception detected");
 }
 
 void isr5() {
     // Bound range exceeded exception
-    vga_print("Bound range exceeded exception!\n");
-    while(1) {}
+    log_error("Bound range exceeded exception");
 }
 
 void isr6() {
     // Invalid opcode exception
-    vga_print("Invalid opcode exception!\n");
-    while(1) {}
+    log_error("Invalid opcode exception - corrupted instruction");
 }
 
 void isr7() {
     // Device not available exception
-    vga_print("Device not available exception!\n");
-    while(1) {}
+    log_error("Device not available - FPU or coprocessor error");
 }
 
 void isr8() {
     // Double fault exception
-    vga_print("Double fault exception!\n");
-    while(1) {}
+    log_critical("Double fault exception - critical system error!");
+    panic("Double fault");
 }
 
 void isr9() {
     // Coprocessor segment overrun
-    vga_print("Coprocessor segment overrun!\n");
-    while(1) {}
+    log_error("Coprocessor segment overrun");
 }
 
 void isr10() {
     // Invalid TSS exception
-    vga_print("Invalid TSS exception!\n");
-    while(1) {}
+    log_error("Invalid TSS exception - task state segment error");
 }
 
 void isr11() {
     // Segment not present exception
-    vga_print("Segment not present exception!\n");
-    while(1) {}
+    log_error("Segment not present exception");
 }
 
 void isr12() {
-    // Stack-segment fault exception
-    vga_print("Stack-segment fault exception!\n");
-    while(1) {}
+    // Stack segment fault
+    log_error("Stack segment fault - stack corruption");
 }
 
 void isr13() {
-    // General protection fault exception
-    vga_print("General protection fault exception!\n");
-    while(1) {}
+    // General protection fault
+    log_error("General protection fault - memory access violation");
 }
 
 void isr14() {
-    // Page fault exception
-    vga_print("Page fault exception!\n");
-    while(1) {}
+    // Page fault
+    log_error("Page fault - invalid memory access");
 }
 
 void isr15() {
     // Reserved exception
-    vga_print("Reserved exception!\n");
-    while(1) {}
+    log_error("Reserved exception");
 }
 
 void isr16() {
     // x87 floating-point exception
-    vga_print("x87 floating-point exception!\n");
-    while(1) {}
+    log_error("x87 floating-point exception");
 }
 
 void isr17() {
     // Alignment check exception
-    vga_print("Alignment check exception!\n");
-    while(1) {}
+    log_error("Alignment check exception");
 }
 
 void isr18() {
     // Machine check exception
-    vga_print("Machine check exception!\n");
-    while(1) {}
+    log_critical("Machine check exception - hardware error!");
+    panic("Machine check");
 }
 
 void isr19() {
     // SIMD floating-point exception
-    vga_print("SIMD floating-point exception!\n");
-    while(1) {}
+    log_error("SIMD floating-point exception");
 }
 
 void isr20() {
     // Virtualization exception
-    vga_print("Virtualization exception!\n");
-    while(1) {}
+    log_error("Virtualization exception");
 }
 
 void isr21() {
     // Reserved exception
-    vga_print("Reserved exception!\n");
-    while(1) {}
+    log_error("Reserved exception");
 }
 
 void isr22() {
     // Reserved exception
-    vga_print("Reserved exception!\n");
-    while(1) {}
+    log_error("Reserved exception");
 }
 
 void isr23() {
     // Reserved exception
-    vga_print("Reserved exception!\n");
-    while(1) {}
+    log_error("Reserved exception");
 }
 
 void isr24() {
     // Reserved exception
-    vga_print("Reserved exception!\n");
-    while(1) {}
+    log_error("Reserved exception");
 }
 
 void isr25() {
     // Reserved exception
-    vga_print("Reserved exception!\n");
-    while(1) {}
+    log_error("Reserved exception");
 }
 
 void isr26() {
     // Reserved exception
-    vga_print("Reserved exception!\n");
-    while(1) {}
+    log_error("Reserved exception");
 }
 
 void isr27() {
     // Reserved exception
-    vga_print("Reserved exception!\n");
-    while(1) {}
+    log_error("Reserved exception");
 }
 
 void isr28() {
     // Reserved exception
-    vga_print("Reserved exception!\n");
-    while(1) {}
+    log_error("Reserved exception");
 }
 
 void isr29() {
     // Reserved exception
-    vga_print("Reserved exception!\n");
-    while(1) {}
+    log_error("Reserved exception");
 }
 
 void isr30() {
     // Reserved exception
-    vga_print("Reserved exception!\n");
-    while(1) {}
+    log_error("Reserved exception");
 }
 
 void isr31() {
     // Reserved exception
-    vga_print("Reserved exception!\n");
-    while(1) {}
+    log_error("Reserved exception");
 }
 
 // IRQ (Interrupt Request) handlers
 void irq0() {
-    // Timer (PIT)
+    // Timer
+    static uint32_t tick_count = 0;
+    tick_count++;
+    if (tick_count % 100 == 0) {
+        log_debug("Timer tick");
+    }
     // Send EOI to PIC
     outb(0x20, 0x20);
 }
 
 void irq1() {
     // Keyboard
+    uint8_t scancode = inb(0x60);
+    log_debug("Keyboard scancode received");
     // Send EOI to PIC
     outb(0x20, 0x20);
 }

@@ -138,7 +138,7 @@ clean-all: clean
 	@$(CC) $(CFLAGS) -MM -MT "$*.o $@" -o $@ $<
 
 # Phony targets
-.PHONY: all clean clean-all run debug test size run-test simple-test run-simple-test
+.PHONY: all clean clean-all run debug test size run-test simple-test run-simple-test memory-test run-memory-test interrupt-test run-interrupt-test keyboard-test run-keyboard-test
 
 os.img: boot/debug_boot.bin kernel.bin
 	@echo "Creating disk image..."
@@ -246,7 +246,7 @@ test: tests.elf
 	@echo "Run 'make run-test' to execute tests in QEMU"
 
 # Simple test kernel (working version)
-simple-test: kernel/simple_test.o kernel/string.o drivers/vga.o
+simple-test: kernel/simple_test.o kernel/string.o kernel/log.o drivers/vga.o
 	@echo "Building simple test kernel..."
 	$(Q)$(LD) -m elf_i386 -T link_simple_test.ld -nostdlib -z max-page-size=0x1000 -o simple_test.elf $^
 	@echo "Simple test kernel built successfully"
@@ -264,6 +264,66 @@ run-simple-test: simple-test
 	@dd if=simple_test.bin of=simple_test.img seek=1 conv=notrunc 2>/dev/null
 	@echo "Starting QEMU with simple test kernel..."
 	@qemu-system-i386 -m 32M -drive file=simple_test.img,format=raw,if=ide -vga std -display sdl -no-reboot
+
+# Memory test kernel
+memory-test: kernel/memory_test.o kernel/memory.o kernel/log.o drivers/vga.o kernel/string.o
+	@echo "Building memory test kernel..."
+	$(Q)$(LD) -m elf_i386 -T link_simple_test.ld -nostdlib -z max-page-size=0x1000 -o memory_test.elf $^
+	@echo "Memory test kernel built successfully"
+
+# Compile memory test without stack protection
+kernel/memory_test.o: kernel/memory_test.c
+	$(E) "  CC      $@"
+	$(Q)$(CC) $(CFLAGS) -fno-stack-protector $(INCLUDES) -MMD -MP -c $< -o $@
+
+# Interrupt test kernel
+interrupt-test: kernel/interrupt_test.o kernel/idt.o kernel/isr.o kernel/memory.o kernel/log.o drivers/vga.o kernel/string.o
+	@echo "Building interrupt test kernel..."
+	$(Q)$(LD) -m elf_i386 -T link_simple_test.ld -nostdlib -z max-page-size=0x1000 -o interrupt_test.elf $^
+	@echo "Interrupt test kernel built successfully"
+
+# Compile interrupt test without stack protection
+kernel/interrupt_test.o: kernel/interrupt_test.c
+	$(E) "  CC      $@"
+	$(Q)$(CC) $(CFLAGS) -fno-stack-protector $(INCLUDES) -MMD -MP -c $< -o $@
+
+# Keyboard test kernel
+keyboard-test: kernel/keyboard_test.o drivers/keyboard.o drivers/vga.o kernel/log.o kernel/string.o
+	@echo "Building keyboard test kernel..."
+	$(Q)$(LD) -m elf_i386 -T link_simple_test.ld -nostdlib -z max-page-size=0x1000 -o keyboard_test.elf $^
+	@echo "Keyboard test kernel built successfully"
+
+# Compile keyboard test without stack protection
+kernel/keyboard_test.o: kernel/keyboard_test.c
+	$(E) "  CC      $@"
+	$(Q)$(CC) $(CFLAGS) -fno-stack-protector $(INCLUDES) -MMD -MP -c $< -o $@
+
+# Run keyboard test kernel in QEMU
+run-keyboard-test: keyboard-test
+	@echo "Creating keyboard test disk image..."
+	@objcopy -O binary keyboard_test.elf keyboard_test.bin
+	@dd if=boot/debug_boot.bin of=keyboard_test.img bs=512 count=1 conv=notrunc 2>/dev/null
+	@dd if=keyboard_test.bin of=keyboard_test.img seek=1 conv=notrunc 2>/dev/null
+	@echo "Starting QEMU with keyboard test kernel..."
+	@qemu-system-i386 -m 32M -drive file=keyboard_test.img,format=raw,if=ide -vga std -display sdl -no-reboot
+
+# Run interrupt test kernel in QEMU
+run-interrupt-test: interrupt-test
+	@echo "Creating interrupt test disk image..."
+	@objcopy -O binary interrupt_test.elf interrupt_test.bin
+	@dd if=boot/debug_boot.bin of=interrupt_test.img bs=512 count=1 conv=notrunc 2>/dev/null
+	@dd if=interrupt_test.bin of=interrupt_test.img seek=1 conv=notrunc 2>/dev/null
+	@echo "Starting QEMU with interrupt test kernel..."
+	@qemu-system-i386 -m 32M -drive file=interrupt_test.img,format=raw,if=ide -vga std -display sdl -no-reboot
+
+# Run memory test kernel in QEMU
+run-memory-test: memory-test
+	@echo "Creating memory test disk image..."
+	@objcopy -O binary memory_test.elf memory_test.bin
+	@dd if=boot/debug_boot.bin of=memory_test.img bs=512 count=1 conv=notrunc 2>/dev/null
+	@dd if=memory_test.bin of=memory_test.img seek=1 conv=notrunc 2>/dev/null
+	@echo "Starting QEMU with memory test kernel..."
+	@qemu-system-i386 -m 32M -drive file=memory_test.img,format=raw,if=ide -vga std -display sdl -no-reboot
 
 # Run test kernel in QEMU (original complex version)
 run-test: tests.elf
