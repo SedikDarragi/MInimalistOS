@@ -171,7 +171,7 @@ kernel.bin: kernel.elf
 	objcopy -O binary $< $@ --pad-to 0x5000
 
 # Linker flags
-LDFLAGS += -Wl,-Map=$(BUILD_DIR)/kernel.map -Wl,--gc-sections
+LDFLAGS += -Wl,-Map,$(BUILD_DIR)/kernel.map -Wl,--gc-sections
 
 # Link kernel
 kernel.elf: $(KERNEL_OBJS) link.ld | $(BUILD_DIR)

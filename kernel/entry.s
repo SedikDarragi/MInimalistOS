@@ -1,88 +1,59 @@
-[bits 32]
-section .text.entry
-global _start
+/* Entry point for the kernel - GAS syntax version */
 
-; Constants for VGA text mode
-VGA_BUFFER equ 0xB8000
-VGA_WIDTH  equ 80
-VGA_HEIGHT equ 25
+.set VGA_BUFFER, 0xB8000
+.set VGA_WIDTH, 80
+.set VGA_HEIGHT, 25
 
-; Magic number for multiboot header
-MAGIC     equ 0x1BADB002
-FLAGS     equ 0x0
-CHECKSUM  equ -(MAGIC + FLAGS)
+/* Multiboot header constants */
+.set MAGIC, 0x1BADB002
+.set FLAGS, 0x0
+.set CHECKSUM, -(MAGIC + FLAGS)
 
-; Multiboot header (required by some bootloaders)
-section .multiboot
-align 4
-    dd MAGIC
-    dd FLAGS
-    dd CHECKSUM
+/* Stack configuration */
+.set STACK_SIZE, 0x4000  /* 16KB stack */
 
-; Kernel entry point
-section .text.entry
-global _start
+.section .multiboot
+.align 4
+.long MAGIC
+.long FLAGS
+.long CHECKSUM
 
-; Stack configuration
-STACK_SIZE equ 0x4000  ; 16KB stack
-
-; Function to write a character to VGA memory
-; Input: AL = character, AH = color, EDI = offset from VGA_BUFFER (in bytes)
-vga_putc_at:
-    mov [VGA_BUFFER + edi], ax
-    ret
-
-; Function to print a string
-; Input: ESI = string, AH = color, EDI = offset from VGA_BUFFER (in bytes)
-vga_puts_at:
-    pusha
-    xor ecx, ecx
-    cld                 ; Clear direction flag (increment ESI)
-.print_loop:
-    lodsb               ; Load byte from [DS:ESI] into AL
-    test al, al
-    jz .done
-    
-    ; Write character and attribute to VGA memory
-    mov [es:VGA_BUFFER + edi + ecx*2], ax
-    
-    inc ecx
-    jmp .print_loop
-.done:
-    popa
-    ret
+.section .text.entry
+.global _start
 
 _start:
-    ; Debug: Write to VGA FIRST to see if we reach here
-    mov byte [0xB8000], 'X'
-    mov byte [0xB8001], 0x0F
+    /* Debug: Write to VGA FIRST to see if we reach here */
+    movb $'X', %al
+    movb $0x0F, %ah
+    movw %ax, (VGA_BUFFER)
     
-    ; Write 'K' to show kernel is running
-    mov byte [0xB8006], 'K'
-    mov byte [0xB8007], 0x0F
+    /* Write 'K' to show kernel is running */
+    movb $'K', %al
+    movb $0x0F, %ah
+    movw %ax, (VGA_BUFFER + 6)
     
-    ; Set up stack for C code
-    mov esp, 0x90000
+    /* Set up stack for C code */
+    movl $0x90000, %esp
     
-    ; Call C kernel main function
-    extern kmain
+    /* Call C kernel main function */
     call kmain
     
-    ; If kmain returns, hang
+    /* If kmain returns, hang */
     cli
 .hang:
     hlt
     jmp .hang
 
-section .rodata
-msg_kernel_loaded db "Kernel loaded successfully!", 0
-msg_hello        db "Protected mode active!", 0
-msg_cpuid       db "CPU: ", 0
+.section .rodata
+msg_kernel_loaded:
+    .asciz "Kernel loaded successfully!"
+msg_hello:
+    .asciz "Protected mode active!"
+msg_cpuid:
+    .asciz "CPU: "
 
-section .bss
-align 16
+.section .bss
+.align 16
 stack_bottom:
-    resb STACK_SIZE
+    .space STACK_SIZE
 stack_top:
-    ; Add a magic number at the top of the stack for debugging
-    dd 0xDEADBEEF
