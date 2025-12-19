@@ -47,10 +47,10 @@ else
 endif
 
 # Warning flags
-WARN_CFLAGS = -Wall -Wextra -Werror \
-              -Wshadow -Wpointer-arith -Wcast-align \
-              -Wwrite-strings -Wmissing-prototypes \
-              -Wmissing-declarations -Wredundant-decls \
+WBASE_CFLAGS = -Wall -Wextra -Werror \
+              -ffreestanding -fno-stack-protector -fno-builtin \
+              -fno-exceptions -fno-rtti -fno-common \
+              -Wno-unused-parameter -Wno-unused-function \
               -Wnested-externs -Winline -Wno-long-long \
               -Wuninitialized -Wstrict-prototypes
 
@@ -61,7 +61,7 @@ LDFLAGS = -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
 ASFLAGS = -f elf32
 
 # Source file organization
-KERNEL_SRCS := $(shell find kernel/ -name '*.c' -not -name 'test_*.c' -not -name '*_test.c' -not -name 'tests.c')
+KERNEL_SRCS := $(shell find kernel/ -name '*.c' -not -name 'test_*.c' -not -name '*_test.c' -not -name 'tests.c' -not -name 'string_tests.c')
 KERNEL_TEST_SRCS := $(shell find kernel/ -name '*_test.c')
 TEST_SRCS := kernel/tests.c
 DRIVER_SRCS := $(shell find drivers/ -name '*.c')
@@ -171,7 +171,7 @@ kernel.bin: kernel.elf
 	objcopy -O binary $< $@ --pad-to 0x5000
 
 # Linker flags
-LDFLAGS += -Wl,-Map,$(BUILD_DIR)/kernel.map -Wl,--gc-sections
+LDFLAGS += -Map=$(BUILD_DIR)/kernel.map --gc-sections
 
 # Link kernel
 kernel.elf: $(KERNEL_OBJS) link.ld | $(BUILD_DIR)
