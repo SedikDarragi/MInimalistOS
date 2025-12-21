@@ -150,10 +150,22 @@ void process_print_list(void) {
     for (int i = 0; i < MAX_PROCESSES; i++) {
         if (processes[i].pid != 0) {
             char buffer[64];
-            snprintf(buffer, sizeof(buffer), "%-3d  %-5s  %s\n", 
-                    processes[i].pid, 
-                    processes[i].state == 1 ? "RUN" : "STOP",
-                    processes[i].name);
+            // Simple string formatting without snprintf
+            strcpy(buffer, "PID ");
+            // Convert PID to string (simplified)
+            if (processes[i].pid < 10) {
+                buffer[4] = processes[i].pid + '0';
+                buffer[5] = ' ';
+                buffer[6] = '\0';
+            } else {
+                buffer[4] = (processes[i].pid / 10) + '0';
+                buffer[5] = (processes[i].pid % 10) + '0';
+                buffer[6] = ' ';
+                buffer[7] = '\0';
+            }
+            strcat(buffer, processes[i].state == 1 ? "RUN  " : "STOP ");
+            strcat(buffer, processes[i].name);
+            strcat(buffer, "\n");
             vga_print(buffer);
         }
     }
