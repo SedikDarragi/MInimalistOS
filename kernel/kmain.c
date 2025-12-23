@@ -6,6 +6,7 @@
 #include "../drivers/serial.h"
 #include "../include/filesystem.h"
 #include "../include/syscall.h"
+#include "../drivers/keyboard_intl.h"
 
 void kmain(void) {
     vga_clear();
@@ -39,6 +40,17 @@ void kmain(void) {
     
     vga_print("Initializing system call interface...\n");
     syscall_init();
+    
+    vga_print("Initializing international keyboard...\n");
+    if (keyboard_intl_init() == 0) {
+        vga_print("Keyboard INTL: OK\n");
+        log_info("International keyboard driver initialized");
+        vga_print("Current layout: ");
+        vga_print((char*)keyboard_intl_get_layout_name());
+        vga_print("\n");
+    } else {
+        vga_print("Keyboard INTL: FAILED\n");
+    }
     
     vga_print("Core systems initialized successfully\n");
     

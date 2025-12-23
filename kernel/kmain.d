@@ -1,19 +1,7 @@
-kernel/kmain.o: kernel/kmain.c kernel/../drivers/vga.h include/stdint.h \
- include/stddef.h kernel/../include/string.h kernel/../kernel/log.h \
+kernel/kmain.o kernel/kmain.d: kernel/kmain.c kernel/../drivers/vga.h \
+ kernel/../include/string.h kernel/../kernel/log.h \
  kernel/../kernel/../drivers/vga.h kernel/../include/process_simple.h \
  kernel/../drivers/timer.h kernel/../drivers/../include/idt.h \
  kernel/../drivers/../kernel/io.h kernel/../drivers/serial.h \
- kernel/../include/filesystem.h kernel/../include/syscall.h
-kernel/../drivers/vga.h:
-include/stdint.h:
-include/stddef.h:
-kernel/../include/string.h:
-kernel/../kernel/log.h:
-kernel/../kernel/../drivers/vga.h:
-kernel/../include/process_simple.h:
-kernel/../drivers/timer.h:
-kernel/../drivers/../include/idt.h:
-kernel/../drivers/../kernel/io.h:
-kernel/../drivers/serial.h:
-kernel/../include/filesystem.h:
-kernel/../include/syscall.h:
+ kernel/../include/filesystem.h kernel/../include/syscall.h \
+ kernel/../drivers/keyboard_intl.h
