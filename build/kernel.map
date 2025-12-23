@@ -1,0 +1,15 @@
+
+Merging program properties
+
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x1) and drivers/serial.o (0x9)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x0) and drivers/serial.o (0x1)
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x9) and drivers/block_device.o (0x1)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x1) and drivers/block_device.o (0x0)
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x9) and drivers/char_device.o (0x1)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x1) and drivers/char_device.o (0x0)
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x9) and fs/filesystem_enhanced.o (0x1)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x1) and fs/filesystem_enhanced.o (0x0)
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x9) and fs/vfs_simple.o (0x1)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x1) and fs/vfs_simple.o (0x0)
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x9) and fs/ramfs_simple.o (0x1)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x1) and fs/ramfs_simple.o (0x0)

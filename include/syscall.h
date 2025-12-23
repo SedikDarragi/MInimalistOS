@@ -25,7 +25,8 @@
 // System call handler
 void syscall_init(void);
 int syscall_dispatch(uint32_t syscall_num, uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
-int syscall_register(uint32_t syscall_num, void* handler);
+typedef int (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+int syscall_register(uint32_t syscall_num, syscall_handler_t handler);
 
 // System call implementations
 int sys_exit(uint32_t exit_code, uint32_t arg2, uint32_t arg3, uint32_t arg4);
