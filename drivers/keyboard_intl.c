@@ -136,7 +136,7 @@ int keyboard_intl_set_layout(int layout_index) {
     }
     
     current_layout = layout_index;
-    log_info("Keyboard layout set to: %s", keyboard_layouts[layout_index].name);
+    log_info("Keyboard layout changed");
     return 0;
 }
 
