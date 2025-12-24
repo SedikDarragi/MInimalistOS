@@ -7,6 +7,7 @@
 #include "../include/filesystem.h"
 #include "../include/syscall.h"
 #include "../drivers/keyboard_intl.h"
+#include "../include/program_loader.h"
 
 void kmain(void) {
     vga_clear();
