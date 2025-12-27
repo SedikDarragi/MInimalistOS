@@ -53,6 +53,14 @@ void kmain(void) {
         vga_print("Keyboard INTL: FAILED\n");
     }
     
+    vga_print("Initializing program loader...\n");
+    if (program_loader_init() == 0) {
+        vga_print("Program Loader: OK\n");
+        log_info("Program loader initialized");
+    } else {
+        vga_print("Program Loader: FAILED\n");
+    }
+    
     vga_print("Core systems initialized successfully\n");
     
     // Create a test process

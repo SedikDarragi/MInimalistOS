@@ -6,6 +6,11 @@
 #include "../drivers/vga.h"
 #include "../include/string.h"
 
+// SEEK constants for fs_seek
+#define SEEK_SET 0
+#define SEEK_CUR 1
+#define SEEK_END 2
+
 // ELF 32-bit structures
 typedef struct {
     uint32_t e_magic;
@@ -124,17 +129,9 @@ int program_load(const char* filename, program_info_t* prog_info) {
         return -1;
     }
     
-    // Get file size
-    int file_size = fs_seek(fd, 0, SEEK_END);
-    if (file_size <= 0 || file_size > MAX_PROGRAM_SIZE) {
-        fs_close(fd);
-        log_info("Invalid program file size");
-        return -1;
-    }
-    
-    // Read ELF header
+    // Read ELF header first to get file size
     elf32_header_t header;
-    fs_seek(fd, 0, SEEK_SET);
+    fs_seek(fd, 0);
     if (fs_read(fd, &header, sizeof(header)) != sizeof(header)) {
         fs_close(fd);
         log_info("Failed to read ELF header");
@@ -157,7 +154,7 @@ int program_load(const char* filename, program_info_t* prog_info) {
         return -1;
     }
     
-    fs_seek(fd, header.e_phoff, SEEK_SET);
+    fs_seek(fd, header.e_phoff);
     if (fs_read(fd, phdrs, ph_size) != ph_size) {
         program_free_memory(phdrs, ph_size);
         fs_close(fd);
@@ -198,7 +195,7 @@ int program_load(const char* filename, program_info_t* prog_info) {
             
             // Read segment data
             if (filesz > 0) {
-                fs_seek(fd, phdrs[i].p_offset, SEEK_SET);
+                fs_seek(fd, phdrs[i].p_offset);
                 if (fs_read(fd, (uint8_t*)segment_ptr + vaddr, filesz) != filesz) {
                     program_free_memory(phdrs, ph_size);
                     fs_close(fd);
