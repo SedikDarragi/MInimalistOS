@@ -67,7 +67,7 @@ TEST_SRCS := kernel/tests.c
 DRIVER_SRCS := $(shell find drivers/ -name '*.c' -not -name 'mouse.c')
 FS_SRCS := $(shell find fs/ -name '*.c' -not -name 'vfs.c' -not -name 'ramfs.c')
 
-# Assembly sources (both .s and .asm)
+# Assembly sources (both .s and .asm) yeahh
 KERNEL_ASM_SRCS := $(shell find kernel/ -name '*.s' -o -name '*.asm')
 
 # Combine all source files
