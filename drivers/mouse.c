@@ -46,7 +46,7 @@ uint8_t mouse_read(void) {
     return inb(PS2_DATA_PORT);
 }
 
-// Very simple on-screen cursor: single character
+// Very simple on-screen cursor: single character drawn via vga_print_at
 static void draw_cursor(void) {
     // Clamp to screen
     if (mouse_x < 0) mouse_x = 0;
@@ -54,13 +54,15 @@ static void draw_cursor(void) {
     if (mouse_x >= VGA_WIDTH)  mouse_x = VGA_WIDTH - 1;
     if (mouse_y >= VGA_HEIGHT) mouse_y = VGA_HEIGHT - 1;
 
-    vga_put_at('X', mouse_x, mouse_y, 0x0F);
+    char s[2] = {'X', '\0'};
+    vga_print_at(s, mouse_x, mouse_y);
 }
 
 static void clear_cursor(void) {
     if (mouse_x < 0 || mouse_y < 0 || mouse_x >= VGA_WIDTH || mouse_y >= VGA_HEIGHT)
         return;
-    vga_put_at(' ', mouse_x, mouse_y, 0x0F);
+    char s[2] = {' ', '\0'};
+    vga_print_at(s, mouse_x, mouse_y);
 }
 
 // IRQ12 handler (called via IDT/irq_common_stub)

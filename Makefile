@@ -71,7 +71,8 @@ FS_SRCS := $(shell find fs/ -name '*.c' -not -name 'vfs.c' -not -name 'ramfs.c')
 KERNEL_ASM_SRCS := $(shell find kernel/ -name '*.s' -o -name '*.asm')
 
 # Combine all source files
-ALL_SRCS := $(KERNEL_SRCS) $(KERNEL_TEST_SRCS) $(DRIVER_SRCS) $(FS_SRCS)
+# Main kernel should NOT include test sources; keep tests only in TEST_ALL_SRCS
+ALL_SRCS := $(KERNEL_SRCS) $(DRIVER_SRCS) $(FS_SRCS)
 TEST_ALL_SRCS := $(KERNEL_SRCS) $(TEST_SRCS) $(KERNEL_TEST_SRCS) $(DRIVER_SRCS) $(FS_SRCS)
 
 # Generate dependencies

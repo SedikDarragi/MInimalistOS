@@ -1,0 +1,158 @@
+     1                                  [org 0x7c00]
+     2                                  [bits 16]
+     3                                  
+     4                                  KERNEL_OFFSET equ 0x1000
+     5                                  CODE_SEG equ 8
+     6                                  DATA_SEG equ 16
+     7                                  
+     8                                  _start:
+     9 00000000 EB00                        jmp main
+    10                                  
+    11                                  main:
+    12 00000002 FA                          cli
+    13 00000003 31C0                        xor ax, ax
+    14 00000005 8ED8                        mov ds, ax
+    15 00000007 8EC0                        mov es, ax
+    16 00000009 8ED0                        mov ss, ax
+    17 0000000B BC0090                      mov sp, 0x9000
+    18                                      
+    19                                      ; Write 'B' to VGA to show we're in main
+    20                                      ; Use segment:offset addressing for VGA memory
+    21 0000000E 06                          push es
+    22 0000000F B800B8                      mov ax, 0xB800
+    23 00000012 8EC0                        mov es, ax
+    24 00000014 26C606000042                mov byte [es:0x0000], 'B'
+    25 0000001A 26C60601000F                mov byte [es:0x0001], 0x0F
+    26 00000020 07                          pop es
+    27                                      
+    28                                      ; Load kernel
+    29 00000021 BB0010                      mov bx, KERNEL_OFFSET
+    30 00000024 8EC3                        mov es, bx
+    31 00000026 31DB                        xor bx, bx
+    32 00000028 B80000                      mov ax, 0x0000
+    33 0000002B 8EC0                        mov es, ax
+    34 0000002D BB0010                      mov bx, KERNEL_OFFSET
+    35 00000030 B610                        mov dh, 16
+    36 00000032 B280                        mov dl, 0x80
+    37 00000034 E81600                      call disk_load
+    38                                      
+    39                                      ; Write 'L' to VGA to show disk load completed
+    40 00000037 06                          push es
+    41 00000038 B800B8                      mov ax, 0xB800
+    42 0000003B 8EC0                        mov es, ax
+    43 0000003D 26C60602004C                mov byte [es:0x0002], 'L'
+    44 00000043 26C60603000F                mov byte [es:0x0003], 0x0F
+    45 00000049 07                          pop es
+    46                                      
+    47                                      ; Switch to protected mode
+    48 0000004A E83500                      call switch_to_pm
+    49                                  
+    50                                  disk_load:
+    51 0000004D 60                          pusha
+    52 0000004E 88F3                        mov bl, dh
+    53 00000050 B402                        mov ah, 0x02
+    54 00000052 88D8                        mov al, bl
+    55 00000054 B500                        mov ch, 0x00
+    56 00000056 B600                        mov dh, 0x00
+    57 00000058 B102                        mov cl, 0x02
+    58 0000005A B280                        mov dl, 0x80
+    59 0000005C CD13                        int 0x13
+    60 0000005E 7202                        jc .error
+    61 00000060 61                          popa
+    62 00000061 C3                          ret
+    63                                  .error:
+    64 00000062 EBFE                        jmp $
+    65                                  
+    66                                  ; GDT
+    67                                  gdt_start:
+    68 00000064 0000000000000000            dq 0x0
+    69                                      ; Code segment
+    70 0000006C FFFF                        dw 0xFFFF
+    71 0000006E 0000                        dw 0x0
+    72 00000070 00                          db 0x0
+    73 00000071 9A                          db 10011010b
+    74 00000072 CF                          db 11001111b
+    75 00000073 00                          db 0x0
+    76                                      ; Data segment - with I/O access
+    77 00000074 FFFF                        dw 0xFFFF
+    78 00000076 0000                        dw 0x0
+    79 00000078 00                          db 0x0
+    80 00000079 92                          db 10010010b
+    81 0000007A CF                          db 11001111b
+    82 0000007B 00                          db 0x0
+    83                                  gdt_end:
+    84                                  
+    85                                  gdt_descriptor:
+    86 0000007C 1700                        dw gdt_end - gdt_start - 1
+    87 0000007E [647C0000]                  dd gdt_start + 0x7C00
+    88                                  
+    89                                  switch_to_pm:
+    90 00000082 FA                          cli
+    91                                      
+    92                                      ; Write 'S' to VGA to show we're in switch_to_pm
+    93 00000083 06                          push es
+    94 00000084 B800B8                      mov ax, 0xB800
+    95 00000087 8EC0                        mov es, ax
+    96 00000089 26C606040053                mov byte [es:0x0004], 'S'
+    97 0000008F 26C60605000F                mov byte [es:0x0005], 0x0F
+    98 00000095 07                          pop es
+    99                                      
+   100 00000096 0F0116[7C00]                lgdt [gdt_descriptor]
+   101                                      
+   102                                      ; Write 'G' to VGA to show GDT loaded
+   103 0000009B 06                          push es
+   104 0000009C B800B8                      mov ax, 0xB800
+   105 0000009F 8EC0                        mov es, ax
+   106 000000A1 26C606060047                mov byte [es:0x0006], 'G'
+   107 000000A7 26C60607000F                mov byte [es:0x0007], 0x0F
+   108 000000AD 07                          pop es
+   109                                      
+   110                                      ; Enable protected mode - manual encoding for 16-bit mode
+   111 000000AE 0F20C0                      db 0x0F, 0x20, 0xC0  ; mov eax, cr0
+   112 000000B1 83C801                      or ax, 1  ; Set bit 0 (Protection Enable)
+   113 000000B4 0F22C0                      db 0x0F, 0x22, 0xC0  ; mov cr0, eax
+   114                                      
+   115                                      ; Write 'P' to VGA to show protected mode enabled
+   116 000000B7 06                          push es
+   117 000000B8 B800B8                      mov ax, 0xB800
+   118 000000BB 8EC0                        mov es, ax
+   119 000000BD 26C606080050                mov byte [es:0x0008], 'P'
+   120 000000C3 26C60609000F                mov byte [es:0x0009], 0x0F
+   121 000000C9 07                          pop es
+   122                                      
+   123                                      ; Far jump to protected mode - use proper encoding
+   124 000000CA EA                          db 0xEA  ; jmp far opcode
+   125 000000CB [CF00]                      dw protected_mode_entry  ; offset (relative to current segment)
+   126 000000CD 0800                        dw CODE_SEG  ; segment selector
+   127                                  
+   128                                  [bits 32]
+   129                                  protected_mode_entry:
+   130                                      ; Set up data segment registers
+   131 000000CF 66B81000                    mov ax, DATA_SEG
+   132 000000D3 8ED8                        mov ds, ax
+   133 000000D5 8ED0                        mov ss, ax
+   134 000000D7 8EC0                        mov es, ax
+   135 000000D9 8EE0                        mov fs, ax
+   136 000000DB 8EE8                        mov gs, ax
+   137                                      
+   138 000000DD BC00000900                  mov esp, 0x90000
+   139                                      
+   140                                      ; Write 'P' to VGA to show we're in protected mode
+   141 000000E2 C60500800B0050              mov byte [0xB8000], 'P'
+   142 000000E9 C60501800B000F              mov byte [0xB8001], 0x0F
+   143                                      
+   144                                      ; Write '3' to VGA to show we're about to jump to kernel
+   145 000000F0 C60502800B0033              mov byte [0xB8002], '3'
+   146 000000F7 C60503800B000F              mov byte [0xB8003], 0x0F
+   147                                      
+   148                                      ; Write 'J' to VGA to show we're jumping
+   149 000000FE C60504800B004A              mov byte [0xB8004], 'J'
+   150 00000105 C60505800B000F              mov byte [0xB8005], 0x0F
+   151                                      
+   152                                      ; Try using a different jump method
+   153                                      ; Load the address into a register and jump
+   154 0000010C B82F100000                  mov eax, 0x102f
+   155 00000111 FFE0                        jmp eax
+   156                                  
+   157 00000113 00<rep EBh>             times 510 - ($-$$) db 0
+   158 000001FE 55AA                    dw 0xAA55
