@@ -32,10 +32,11 @@
 
 // Function declarations
 void mouse_init(void);
-void mouse_install_handler(void (*handler)(uint8_t, int8_t, int8_t, int8_t));
 void mouse_wait(uint8_t type);
 void mouse_write(uint8_t data);
 uint8_t mouse_read(void);
-void mouse_handle_interrupt(void);
+int mouse_get_x(void);
+int mouse_get_y(void);
+int mouse_get_buttons(void);
 
 #endif // MOUSE_H
