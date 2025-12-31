@@ -7,6 +7,7 @@
 #include "../include/filesystem.h"
 #include "../include/syscall.h"
 #include "../drivers/keyboard_intl.h"
+#include "../drivers/mouse.h"
 #include "../include/program_loader.h"
 
 void kmain(void) {
@@ -42,7 +43,7 @@ void kmain(void) {
     vga_print("Initializing system call interface...\n");
     syscall_init();
     
-    vga_print("Initializing international keyboard...\n");
+    vga_print("Initializing keyboard (intl)...\n");
     if (keyboard_intl_init() == 0) {
         vga_print("Keyboard INTL: OK\n");
         log_info("International keyboard driver initialized");
@@ -52,6 +53,9 @@ void kmain(void) {
     } else {
         vga_print("Keyboard INTL: FAILED\n");
     }
+    
+    vga_print("Initializing mouse...\n");
+    mouse_init();
     
     vga_print("Initializing program loader...\n");
     if (program_loader_init() == 0) {
