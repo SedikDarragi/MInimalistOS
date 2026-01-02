@@ -28,6 +28,9 @@ int syscall_dispatch(uint32_t syscall_num, uint32_t arg1, uint32_t arg2, uint32_
 typedef int (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
 int syscall_register(uint32_t syscall_num, syscall_handler_t handler);
 
+// C wrapper for invoking a system call from C code
+int syscall(uint32_t syscall_num, uint32_t arg1, uint32_t arg2, uint32_t arg3);
+
 // System call implementations
 int sys_exit(uint32_t exit_code, uint32_t arg2, uint32_t arg3, uint32_t arg4);
 int sys_write(uint32_t fd, uint32_t buffer, uint32_t count, uint32_t arg4);
