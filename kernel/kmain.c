@@ -9,6 +9,7 @@
 #include "../drivers/keyboard_intl.h"
 #include "../drivers/mouse.h"
 #include "../include/program_loader.h"
+#include "../include/net.h"
 
 void kmain(void) {
     vga_clear();
@@ -24,6 +25,9 @@ void kmain(void) {
     } else {
         vga_print("Serial port: FAILED\n");
     }
+    
+    vga_print("Initializing network core...\n");
+    net_init();
     
     vga_print("Initializing process management...\n");
     process_init();
