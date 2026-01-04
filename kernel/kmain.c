@@ -10,6 +10,7 @@
 #include "../drivers/mouse.h"
 #include "../include/program_loader.h"
 #include "../include/net.h"
+#include "../drivers/net_ne2k.h"
 
 void kmain(void) {
     vga_clear();
@@ -28,6 +29,13 @@ void kmain(void) {
     
     vga_print("Initializing network core...\n");
     net_init();
+    
+    vga_print("Initializing NE2000 NIC (skeleton)...\n");
+    if (net_ne2k_init() == 0) {
+        vga_print("NE2000: registered as eth0 (skeleton)\n");
+    } else {
+        vga_print("NE2000: FAILED to register\n");
+    }
     
     vga_print("Initializing process management...\n");
     process_init();
