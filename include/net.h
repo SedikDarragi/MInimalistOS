@@ -34,4 +34,17 @@ void net_poll_all(void);
 uint32_t net_get_device_count(void);
 net_device_t* net_get_device(uint32_t index);
 
+// Frame receive entry point for NIC drivers (to be called from their RX path)
+void net_receive_frame(net_device_t* dev, const uint8_t* buf, uint32_t len);
+
+// Optional simple statistics
+typedef struct net_stats {
+    uint32_t rx_frames;
+    uint32_t rx_bytes;
+    uint32_t tx_frames;
+    uint32_t tx_bytes;
+} net_stats_t;
+
+void net_get_stats(net_stats_t* out);
+
 #endif // NET_H
