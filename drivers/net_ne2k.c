@@ -1,6 +1,7 @@
 #include "net_ne2k.h"
 #include "../kernel/log.h"
 #include "../kernel/io.h"
+#include "../include/pci.h"
 
 // NOTE: This is structured as a NE2000 driver but currently does not
 // perform real hardware I/O. It is safe to keep in-tree while we
@@ -29,9 +30,30 @@ enum {
 };
 
 // Stubbed hardware init: currently just logs and succeeds.
-// Later we will detect the device via PCI/ISA, reset it, and read MAC.
+// We now detect the device via PCI and log BAR0 and IRQ, but still
+// do not touch the NIC registers.
 static int ne2k_hw_init(void) {
-    log_info("NE2000 hw init stub (no real I/O yet)");
+    pci_device_t dev;
+
+    // QEMU ne2k_pci emulates an NE2000-compatible card. Its vendor/device
+    // IDs are implementation-defined; for many emulations, 0x10EC:0x8029
+    // (Realtek RTL-8029) is used. If this does not match your setup, we
+    // will simply log a warning and keep the driver as a no-op.
+    const uint16_t NE2K_VENDOR_ID = 0x10EC; // Realtek
+    const uint16_t NE2K_DEVICE_ID = 0x8029; // RTL-8029 (NE2000 compatible)
+
+    if (pci_find_device(NE2K_VENDOR_ID, NE2K_DEVICE_ID, &dev) != 0) {
+        log_warn("NE2000 PCI device not found (vendor=0x%04x device=0x%04x)", NE2K_VENDOR_ID, NE2K_DEVICE_ID);
+        return -1;
+    }
+
+    log_info("NE2000 PCI: bus=%u slot=%u func=%u bar0=0x%08x irq=%u",
+             dev.bus, dev.slot, dev.function, dev.bar0, dev.irq_line);
+
+    // For now we keep I/O base and IRQ only for future use; we still do not
+    // interact with the NIC registers so behavior remains safe.
+    ne2k_dev.driver_data = 0;
+
     return 0;
 }
 

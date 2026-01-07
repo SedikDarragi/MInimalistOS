@@ -61,7 +61,7 @@ LDFLAGS = -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
 ASFLAGS = -f elf32
 
 # Source file organization
-KERNEL_SRCS := $(shell find kernel/ -name '*.c' -not -name 'test_*.c' -not -name '*_test.c' -not -name 'tests.c' -not -name 'string_tests.c' -not -name 'process.c' -not -name 'monitor.c' -not -name 'power.c' -not -name 'interrupt_test.c' -not -name 'minimal.c' -not -name 'usermode.c' -not -name 'shell_new.c' -not -name 'fs_test.c' -not -name 'device_test.c' -not -name 'monitor_test.c' -not -name 'network_test.c' -not -name 'memory_test.c') kernel/kmain.c kernel/process_simple.c kernel/syscall_simple.c kernel/program_loader.c kernel/net_core.c
+KERNEL_SRCS := $(shell find kernel/ -name '*.c' -not -name 'test_*.c' -not -name '*_test.c' -not -name 'tests.c' -not -name 'string_tests.c' -not -name 'process.c' -not -name 'monitor.c' -not -name 'power.c' -not -name 'interrupt_test.c' -not -name 'minimal.c' -not -name 'usermode.c' -not -name 'shell_new.c' -not -name 'fs_test.c' -not -name 'device_test.c' -not -name 'monitor_test.c' -not -name 'network_test.c' -not -name 'memory_test.c') kernel/kmain.c kernel/process_simple.c kernel/syscall_simple.c kernel/program_loader.c kernel/net_core.c kernel/pci.c
 KERNEL_TEST_SRCS := $(shell find kernel/ -name '*_test.c')
 TEST_SRCS := kernel/tests.c
 DRIVER_SRCS := $(shell find drivers/ -name '*.c')
