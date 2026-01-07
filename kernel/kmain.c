@@ -11,6 +11,7 @@
 #include "../include/program_loader.h"
 #include "../include/net.h"
 #include "../drivers/net_ne2k.h"
+#include "../include/pci.h"
 
 void kmain(void) {
     vga_clear();
@@ -26,6 +27,9 @@ void kmain(void) {
     } else {
         vga_print("Serial port: FAILED\n");
     }
+
+    // Temporary: dump PCI bus 0 so we can see NIC vendor/device IDs
+    pci_dump_bus0();
     
     vga_print("Initializing network core...\n");
     net_init();

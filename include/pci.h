@@ -25,4 +25,7 @@ uint32_t pci_read_config_dword(uint8_t bus, uint8_t slot, uint8_t func, uint8_t 
 // Returns 0 on success and fills out, -1 on failure.
 int pci_find_device(uint16_t vendor, uint16_t device, pci_device_t* out);
 
+// Debug helper: log all devices on bus 0, function 0
+void pci_dump_bus0(void);
+
 #endif // PCI_H

@@ -60,3 +60,14 @@ int pci_find_device(uint16_t vendor, uint16_t device, pci_device_t* out) {
     log_warn("PCI device not found: vendor=0x%04x device=0x%04x", vendor, device);
     return -1;
 }
+
+void pci_dump_bus0(void) {
+    for (uint8_t slot = 0; slot < 32; ++slot) {
+        uint16_t v = pci_read_config_word(0, slot, 0, 0x00);
+        if (v == 0xFFFF) {
+            continue;
+        }
+        uint16_t d = pci_read_config_word(0, slot, 0, 0x02);
+        log_info("PCI bus0 slot=%u vendor=0x%04x device=0x%04x", slot, v, d);
+    }
+}
