@@ -22,3 +22,15 @@ boot/boot.bin
 # OS specific
 .DS_Store
 Thumbs.db
+
+# Generated dependency files
+*.d
+
+# Disk images
+*.img
+
+# NASM listings
+*.lst
+
+# Backup files
+*.bak
