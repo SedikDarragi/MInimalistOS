@@ -1,0 +1,55 @@
+Quick build - compiling essential files...
+Compiling kernel files...
+kmain.o OK
+log.o OK
+string.o OK
+memory.o OK
+idt.o OK
+isr.o OK
+pci.o OK
+net_core.o OK
+process_simple.o OK
+fs_test.o OK
+syscall_simple.o OK
+program_loader.o OK
+context.o OK
+monitor.o OK
+power.o OK
+Compiling driver files...
+vga.o OK
+keyboard.o OK
+keyboard_intl.o OK
+serial.o OK
+timer.o OK
+mouse.o OK
+net_ne2k.o OK
+Compiling filesystem files...
+filesystem_enhanced.o OK
+Compiling assembly files...
+entry.o OK
+idt_asm.o OK
+context.o OK
+context_switch.o OK
+Linking kernel...
+ld: kernel/context_switch.o: in function `context_switch':
+(.text+0x0): multiple definition of `context_switch'; kernel/context.o:(.text+0x0): first defined here
+ld: kernel/context_switch.o: in function `context_init':
+(.text+0x31): multiple definition of `context_init'; kernel/context.o:(.text+0x37): first defined here
+ld: kernel/monitor.o: in function `sys_log':
+/home/slime/Documents/OS copy copy copy/kernel/monitor.c:263: multiple definition of `sys_log'; kernel/syscall_simple.o:/home/slime/Documents/OS copy copy copy/kernel/syscall_simple.c:210: first defined here
+ld: kernel/monitor.o: in function `sys_get_stats':
+/home/slime/Documents/OS copy copy copy/kernel/monitor.c:268: multiple definition of `sys_get_stats'; kernel/syscall_simple.o:/home/slime/Documents/OS copy copy copy/kernel/syscall_simple.c:218: first defined here
+ld: kernel/power.o: in function `sys_power_state':
+/home/slime/Documents/OS copy copy copy/kernel/power.c:307: multiple definition of `sys_power_state'; kernel/syscall_simple.o:/home/slime/Documents/OS copy copy copy/kernel/syscall_simple.c:223: first defined here
+ld: kernel/power.o: in function `sys_get_battery_info':
+/home/slime/Documents/OS copy copy copy/kernel/power.c:310: multiple definition of `sys_get_battery_info'; kernel/syscall_simple.o:/home/slime/Documents/OS copy copy copy/kernel/syscall_simple.c:228: first defined here
+ld: kernel/power.o: in function `sys_get_power_stats':
+/home/slime/Documents/OS copy copy copy/kernel/power.c:314: multiple definition of `sys_get_power_stats'; kernel/syscall_simple.o:/home/slime/Documents/OS copy copy copy/kernel/syscall_simple.c:233: first defined here
+ld: kernel/fs_test.o: in function `fs_test_process':
+/home/slime/Documents/OS copy copy copy/kernel/fs_test.c:9:(.text+0x83): undefined reference to `syscall'
+ld: /home/slime/Documents/OS copy copy copy/kernel/fs_test.c:15:(.text+0x10a): undefined reference to `syscall'
+ld: /home/slime/Documents/OS copy copy copy/kernel/fs_test.c:23:(.text+0x1b6): undefined reference to `syscall'
+ld: /home/slime/Documents/OS copy copy copy/kernel/fs_test.c:38:(.text+0x287): undefined reference to `syscall'
+ld: /home/slime/Documents/OS copy copy copy/kernel/fs_test.c:41:(.text+0x2a0): undefined reference to `syscall'
+ld: kernel/fs_test.o:/home/slime/Documents/OS copy copy copy/kernel/fs_test.c:44: more undefined references to `syscall' follow
+Linking failed

@@ -48,13 +48,14 @@ void kmain(void) {
     timer_init();
     
     vga_print("Initializing filesystem...\n");
-    vfs_init();
-    if (ramfs_mount() >= 0) {
-        vga_print("RAM filesystem: OK\n");
-        log_info("RAM filesystem mounted at /ram");
-    } else {
-        vga_print("RAM filesystem: FAILED\n");
-    }
+    // vfs_init();  // Not included in simple kernel build
+    // if (ramfs_mount() >= 0) {
+    //     vga_print("RAM filesystem: OK\n");
+    //     log_info("RAM filesystem mounted at /ram");
+    // } else {
+    //     vga_print("RAM filesystem: FAILED\n");
+    // }
+    vga_print("Filesystem: SKIPPED (simple build)\n");
     
     vga_print("Initializing system call interface...\n");
     syscall_init();

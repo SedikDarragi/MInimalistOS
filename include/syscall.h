@@ -46,9 +46,9 @@
 
 // System call handler
 void syscall_init(void);
-int syscall_dispatch(uint32_t syscall_num, uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
-typedef int (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
-int syscall_register(uint32_t syscall_num, syscall_handler_t handler);
+uint32_t syscall_dispatch(uint32_t syscall_num, uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+typedef uint32_t (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+uint32_t syscall_register(uint32_t syscall_num, syscall_handler_t handler);
 
 // C wrapper for invoking a system call from C code
 uint32_t syscall(uint32_t syscall_num, uint32_t arg1, uint32_t arg2, uint32_t arg3);
@@ -86,7 +86,7 @@ uint32_t sys_getgid(void);
 uint32_t sys_chmod(const char* path, uint32_t mode);
 uint32_t sys_chown(const char* path, uint32_t uid, uint32_t gid);
 uint32_t sys_dump_logs(void);
-uint32_t sys_power_state(void);
+uint32_t sys_power_state(uint32_t state);
 uint32_t sys_get_battery_info(void* buffer);
 uint32_t sys_get_power_stats(void* buffer);
 

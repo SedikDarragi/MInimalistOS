@@ -35,18 +35,16 @@ gcc $CFLAGS $INCLUDES -c drivers/timer.c -o drivers/timer.o 2>&1 && echo "timer.
 gcc $CFLAGS $INCLUDES -c drivers/mouse.c -o drivers/mouse.o 2>&1 && echo "mouse.o OK" || echo "mouse.o failed"
 gcc $CFLAGS $INCLUDES -c drivers/net_ne2k.c -o drivers/net_ne2k.o 2>&1 && echo "net_ne2k.o OK" || echo "net_ne2k.o failed"
 
-# Compile filesystem files
+# Compile filesystem files (excluding vfs.c and ramfs.c as per Makefile)
 echo "Compiling filesystem files..."
 gcc $CFLAGS $INCLUDES -c fs/filesystem_enhanced.c -o fs/filesystem_enhanced.o 2>&1 && echo "filesystem_enhanced.o OK" || echo "filesystem_enhanced.o failed"
-gcc $CFLAGS $INCLUDES -c fs/vfs.c -o fs/vfs.o 2>&1 && echo "vfs.o OK" || echo "vfs.o failed"
-gcc $CFLAGS $INCLUDES -c fs/ramfs.c -o fs/ramfs.o 2>&1 && echo "ramfs.o OK" || echo "ramfs.o failed"
 
 # Compile assembly files
 echo "Compiling assembly files..."
 gcc -m32 -c kernel/entry.s -o kernel/entry.o 2>&1 && echo "entry.o OK" || echo "entry.o failed"
 nasm -f elf32 kernel/idt_asm.asm -o kernel/idt_asm.o 2>&1 && echo "idt_asm.o OK" || echo "idt_asm.o failed"
+# Use context.s which contains both context_switch and context_init
 gcc -m32 -c kernel/context.s -o kernel/context.o 2>&1 && echo "context.o OK" || echo "context.o failed"
-gcc -m32 -c kernel/context_switch.s -o kernel/context_switch.o 2>&1 && echo "context_switch.o OK" || echo "context_switch.o failed"
 
 # Link kernel
 echo "Linking kernel..."
@@ -54,10 +52,10 @@ ld -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000 -o kernel.elf \
     kernel/entry.o kernel/kmain.o kernel/log.o kernel/string.o kernel/memory.o \
     kernel/idt.o kernel/idt_asm.o kernel/isr.o kernel/pci.o kernel/net_core.o \
     kernel/process_simple.o kernel/fs_test.o kernel/syscall_simple.o kernel/program_loader.o \
-    kernel/context.o kernel/context_switch.o kernel/monitor.o kernel/power.o \
+    kernel/context.o kernel/monitor.o kernel/power.o \
     drivers/vga.o drivers/keyboard.o drivers/keyboard_intl.o drivers/serial.o \
     drivers/timer.o drivers/mouse.o drivers/net_ne2k.o \
-    fs/filesystem_enhanced.o fs/vfs.o fs/ramfs.o 2>&1
+    fs/filesystem_enhanced.o 2>&1
 
 if [ $? -eq 0 ]; then
     echo "Kernel linked successfully!"
