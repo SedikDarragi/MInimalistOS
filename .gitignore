@@ -34,3 +34,10 @@ Thumbs.db
 
 # Backup files
 *.bak
+
+# Test files (keep locally, exclude from repo)
+**/*test*
+**/*_test*
+link_test.ld
+link_simple_test.ld
+test_runner.sh
