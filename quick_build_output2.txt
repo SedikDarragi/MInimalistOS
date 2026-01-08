@@ -1,0 +1,33 @@
+Quick build - compiling essential files...
+Compiling kernel files...
+kmain.o OK
+log.o OK
+string.o OK
+memory.o OK
+idt.o OK
+isr.o OK
+Compiling driver files...
+vga.o OK
+keyboard.o OK
+serial.o OK
+timer.o OK
+Compiling assembly files...
+entry.o OK
+idt_asm.o OK
+Linking kernel...
+ld: kernel/kmain.o: in function `kmain':
+/home/slime/Documents/OS copy copy copy/kernel/kmain.c:32:(.text+0x74): undefined reference to `pci_dump_bus0'
+ld: /home/slime/Documents/OS copy copy copy/kernel/kmain.c:35:(.text+0x89): undefined reference to `net_init'
+ld: /home/slime/Documents/OS copy copy copy/kernel/kmain.c:38:(.text+0x9e): undefined reference to `net_ne2k_init'
+ld: /home/slime/Documents/OS copy copy copy/kernel/kmain.c:45:(.text+0xd9): undefined reference to `process_init'
+ld: /home/slime/Documents/OS copy copy copy/kernel/kmain.c:51:(.text+0x103): undefined reference to `vfs_init'
+ld: /home/slime/Documents/OS copy copy copy/kernel/kmain.c:52:(.text+0x108): undefined reference to `ramfs_mount'
+ld: /home/slime/Documents/OS copy copy copy/kernel/kmain.c:60:(.text+0x153): undefined reference to `syscall_init'
+ld: /home/slime/Documents/OS copy copy copy/kernel/kmain.c:63:(.text+0x168): undefined reference to `keyboard_intl_init'
+ld: /home/slime/Documents/OS copy copy copy/kernel/kmain.c:67:(.text+0x1a1): undefined reference to `keyboard_intl_get_layout_name'
+ld: /home/slime/Documents/OS copy copy copy/kernel/kmain.c:74:(.text+0x1e4): undefined reference to `mouse_init'
+ld: /home/slime/Documents/OS copy copy copy/kernel/kmain.c:77:(.text+0x1f9): undefined reference to `program_loader_init'
+ld: /home/slime/Documents/OS copy copy copy/kernel/kmain.c:87:(.text+0x24e): undefined reference to `process_create'
+ld: drivers/timer.o: in function `timer_interrupt_handler':
+/home/slime/Documents/OS copy copy copy/drivers/timer.c:17:(.text+0x33): undefined reference to `schedule'
+Linking failed

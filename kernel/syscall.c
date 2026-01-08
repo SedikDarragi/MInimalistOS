@@ -81,9 +81,9 @@ static uint32_t sys_network_send_wrapper(uint32_t dst_ip, uint32_t type, uint32_
     return sys_network_send(dst_ip, (uint8_t)type, (const void*)data, (uint16_t)length);
 }
 
-static uint32_t sys_network_receive_wrapper(uint32_t packet, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
-    (void)unused2; (void)unused3; (void)unused4;
-    return sys_network_receive((void*)packet);
+static uint32_t sys_network_receive_wrapper(uint32_t packet, uint32_t size, uint32_t unused3, uint32_t unused4) {
+    (void)unused3; (void)unused4;
+    return sys_network_receive((void*)packet, size);
 }
 
 static uint32_t sys_device_open_wrapper(uint32_t name, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
@@ -91,9 +91,9 @@ static uint32_t sys_device_open_wrapper(uint32_t name, uint32_t unused2, uint32_
     return sys_device_open((const char*)name);
 }
 
-static uint32_t sys_device_close_wrapper(uint32_t name, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+static uint32_t sys_device_close_wrapper(uint32_t fd, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
     (void)unused2; (void)unused3; (void)unused4;
-    return sys_device_close((const char*)name);
+    return sys_device_close(fd);
 }
 
 static uint32_t sys_device_read_wrapper(uint32_t name, uint32_t buffer, uint32_t size, uint32_t unused4) {
@@ -156,9 +156,10 @@ static uint32_t sys_dump_logs_wrapper(uint32_t unused1, uint32_t unused2, uint32
     return sys_dump_logs();
 }
 
-static uint32_t sys_power_state_wrapper(uint32_t state, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
-    (void)unused2; (void)unused3; (void)unused4;
-    return sys_power_state(state);
+static uint32_t sys_power_state_wrapper(uint32_t unused1, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused1; (void)unused2; (void)unused3; (void)unused4;
+    // Stub implementation
+    return 0;
 }
 
 static uint32_t sys_get_battery_info_wrapper(uint32_t buffer, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
@@ -302,8 +303,8 @@ uint32_t sys_open(const char* filename, uint32_t mode) {
     return (fd >= 0) ? fd : SYS_ERROR;
 }
 
-uint32_t sys_close(int fd) {
-    int result = fs_close(fd);
+uint32_t sys_close(uint32_t fd) {
+    int result = fs_close((int)fd);
     return (result == 0) ? SYS_SUCCESS : SYS_ERROR;
 }
 
@@ -342,5 +343,51 @@ uint32_t sys_vm_free(uint32_t addr) {
 
 uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags) {
     (void)virt_addr; (void)phys_addr; (void)flags;
+    return 0;
+}
+
+uint32_t sys_network_receive(void* buffer, uint32_t size) {
+    (void)buffer; (void)size;
+    // Stub implementation
+    return 0;
+}
+
+uint32_t sys_power_state(void) {
+    // Stub implementation
+    return 0;
+}
+
+uint32_t sys_get_battery_info(void* buffer) {
+    (void)buffer;
+    // Stub implementation
+    return 0;
+}
+
+uint32_t sys_get_power_stats(void* buffer) {
+    (void)buffer;
+    // Stub implementation
+    return 0;
+}
+
+uint32_t sys_dump_logs(void) {
+    // Stub implementation
+    return 0;
+}
+
+uint32_t sys_device_open(const char* name) {
+    (void)name;
+    // Stub implementation
+    return 0;
+}
+
+uint32_t sys_device_close(uint32_t fd) {
+    (void)fd;
+    // Stub implementation
+    return 0;
+}
+
+uint32_t sys_network_send(uint32_t dst_ip, uint32_t type, const void* data, uint32_t length) {
+    (void)dst_ip; (void)type; (void)data; (void)length;
+    // Stub implementation
     return 0;
 }

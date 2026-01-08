@@ -1,0 +1,19 @@
+=== Final Build Steps ===
+Checking for object files...
+Found 1 object files
+Linking kernel...
+ld: cannot find *.o: No such file or directory
+Linking failed, trying alternative...
+ld: cannot find kernel/kmain.o: No such file or directory
+ld: cannot find kernel/log.o: No such file or directory
+ld: cannot find kernel/string.o: No such file or directory
+ld: cannot find kernel/memory.o: No such file or directory
+ld: cannot find kernel/idt.o: No such file or directory
+ld: cannot find kernel/isr.o: No such file or directory
+ld: cannot find kernel/irq.asm.o: No such file or directory
+ld: cannot find drivers/vga.o: No such file or directory
+ld: cannot find drivers/keyboard.o: No such file or directory
+ld: cannot find drivers/serial.o: No such file or directory
+ld: cannot find drivers/timer.o: No such file or directory
+Alternative linking also failed
+Missing files for disk image

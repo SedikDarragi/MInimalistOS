@@ -72,9 +72,6 @@ int power_get_thermal_state(void);
 int power_set_fan_speed(uint32_t speed_rpm);
 uint32_t power_get_fan_speed(void);
 
-// System call wrappers
-uint32_t sys_power_state(uint32_t state);
-uint32_t sys_get_battery_info(void* buffer);
-uint32_t sys_get_power_stats(void* buffer);
+// System call wrappers (declared in syscall.h)
 
 #endif

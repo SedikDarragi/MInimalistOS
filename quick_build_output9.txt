@@ -1,0 +1,247 @@
+Quick build - compiling essential files...
+Compiling kernel files...
+kmain.o OK
+log.o OK
+string.o OK
+memory.o OK
+idt.o OK
+isr.o OK
+pci.o OK
+net_core.o OK
+kernel/process_simple.c: In function ‘schedule’:
+kernel/process_simple.c:138:18: error: unused variable ‘old’ [-Werror=unused-variable]
+  138 |         uint32_t old = current_process;
+      |                  ^~~
+cc1: all warnings being treated as errors
+process_simple.o failed
+fs_test.o OK
+kernel/syscall_simple.c: In function ‘syscall_init’:
+kernel/syscall_simple.c:28:29: error: assignment to ‘syscall_handler_t’ {aka ‘int (*)(unsigned int,  unsigned int,  unsigned int,  unsigned int)’} from incompatible pointer type ‘uint32_t (*)(uint32_t)’ {aka ‘unsigned int (*)(unsigned int)’} [-Wincompatible-pointer-types]
+   28 |     syscall_table[SYS_EXIT] = sys_exit;
+      |                             ^
+In file included from kernel/syscall_simple.c:1:
+kernel/../include/syscall.h:57:10: note: ‘sys_exit’ declared here
+   57 | uint32_t sys_exit(uint32_t status);
+      |          ^~~~~~~~
+kernel/syscall_simple.c:12:15: note: ‘syscall_handler_t’ declared here
+   12 | typedef int (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+      |               ^~~~~~~~~~~~~~~~~
+kernel/syscall_simple.c:29:30: error: assignment to ‘syscall_handler_t’ {aka ‘int (*)(unsigned int,  unsigned int,  unsigned int,  unsigned int)’} from incompatible pointer type ‘uint32_t (*)(uint32_t,  const char *, uint32_t)’ {aka ‘unsigned int (*)(unsigned int,  const char *, unsigned int)’} [-Wincompatible-pointer-types]
+   29 |     syscall_table[SYS_WRITE] = sys_write;
+      |                              ^
+kernel/../include/syscall.h:58:10: note: ‘sys_write’ declared here
+   58 | uint32_t sys_write(uint32_t fd, const char* buf, uint32_t count);
+      |          ^~~~~~~~~
+kernel/syscall_simple.c:12:15: note: ‘syscall_handler_t’ declared here
+   12 | typedef int (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+      |               ^~~~~~~~~~~~~~~~~
+kernel/syscall_simple.c:30:29: error: assignment to ‘syscall_handler_t’ {aka ‘int (*)(unsigned int,  unsigned int,  unsigned int,  unsigned int)’} from incompatible pointer type ‘uint32_t (*)(uint32_t,  char *, uint32_t)’ {aka ‘unsigned int (*)(unsigned int,  char *, unsigned int)’} [-Wincompatible-pointer-types]
+   30 |     syscall_table[SYS_READ] = sys_read;
+      |                             ^
+kernel/../include/syscall.h:59:10: note: ‘sys_read’ declared here
+   59 | uint32_t sys_read(uint32_t fd, char* buf, uint32_t count);
+      |          ^~~~~~~~
+kernel/syscall_simple.c:12:15: note: ‘syscall_handler_t’ declared here
+   12 | typedef int (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+      |               ^~~~~~~~~~~~~~~~~
+kernel/syscall_simple.c:31:29: error: assignment to ‘syscall_handler_t’ {aka ‘int (*)(unsigned int,  unsigned int,  unsigned int,  unsigned int)’} from incompatible pointer type ‘uint32_t (*)(const char *, uint32_t)’ {aka ‘unsigned int (*)(const char *, unsigned int)’} [-Wincompatible-pointer-types]
+   31 |     syscall_table[SYS_OPEN] = sys_open;
+      |                             ^
+kernel/../include/syscall.h:60:10: note: ‘sys_open’ declared here
+   60 | uint32_t sys_open(const char* path, uint32_t flags);
+      |          ^~~~~~~~
+kernel/syscall_simple.c:12:15: note: ‘syscall_handler_t’ declared here
+   12 | typedef int (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+      |               ^~~~~~~~~~~~~~~~~
+kernel/syscall_simple.c:32:30: error: assignment to ‘syscall_handler_t’ {aka ‘int (*)(unsigned int,  unsigned int,  unsigned int,  unsigned int)’} from incompatible pointer type ‘uint32_t (*)(uint32_t)’ {aka ‘unsigned int (*)(unsigned int)’} [-Wincompatible-pointer-types]
+   32 |     syscall_table[SYS_CLOSE] = sys_close;
+      |                              ^
+kernel/../include/syscall.h:61:10: note: ‘sys_close’ declared here
+   61 | uint32_t sys_close(uint32_t fd);
+      |          ^~~~~~~~~
+kernel/syscall_simple.c:12:15: note: ‘syscall_handler_t’ declared here
+   12 | typedef int (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+      |               ^~~~~~~~~~~~~~~~~
+kernel/syscall_simple.c:33:31: error: assignment to ‘syscall_handler_t’ {aka ‘int (*)(unsigned int,  unsigned int,  unsigned int,  unsigned int)’} from incompatible pointer type ‘uint32_t (*)(void)’ {aka ‘unsigned int (*)(void)’} [-Wincompatible-pointer-types]
+   33 |     syscall_table[SYS_GETPID] = sys_getpid;
+      |                               ^
+kernel/../include/syscall.h:62:10: note: ‘sys_getpid’ declared here
+   62 | uint32_t sys_getpid(void);
+      |          ^~~~~~~~~~
+kernel/syscall_simple.c:12:15: note: ‘syscall_handler_t’ declared here
+   12 | typedef int (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+      |               ^~~~~~~~~~~~~~~~~
+kernel/syscall_simple.c:34:30: error: assignment to ‘syscall_handler_t’ {aka ‘int (*)(unsigned int,  unsigned int,  unsigned int,  unsigned int)’} from incompatible pointer type ‘uint32_t (*)(void)’ {aka ‘unsigned int (*)(void)’} [-Wincompatible-pointer-types]
+   34 |     syscall_table[SYS_YIELD] = sys_yield;
+      |                              ^
+kernel/../include/syscall.h:63:10: note: ‘sys_yield’ declared here
+   63 | uint32_t sys_yield(void);
+      |          ^~~~~~~~~
+kernel/syscall_simple.c:12:15: note: ‘syscall_handler_t’ declared here
+   12 | typedef int (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+      |               ^~~~~~~~~~~~~~~~~
+kernel/syscall_simple.c:35:31: error: assignment to ‘syscall_handler_t’ {aka ‘int (*)(unsigned int,  unsigned int,  unsigned int,  unsigned int)’} from incompatible pointer type ‘uint32_t (*)(uint32_t)’ {aka ‘unsigned int (*)(unsigned int)’} [-Wincompatible-pointer-types]
+   35 |     syscall_table[SYS_MALLOC] = sys_malloc;
+      |                               ^
+kernel/../include/syscall.h:64:10: note: ‘sys_malloc’ declared here
+   64 | uint32_t sys_malloc(uint32_t size);
+      |          ^~~~~~~~~~
+kernel/syscall_simple.c:12:15: note: ‘syscall_handler_t’ declared here
+   12 | typedef int (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+      |               ^~~~~~~~~~~~~~~~~
+kernel/syscall_simple.c:36:29: error: assignment to ‘syscall_handler_t’ {aka ‘int (*)(unsigned int,  unsigned int,  unsigned int,  unsigned int)’} from incompatible pointer type ‘uint32_t (*)(uint32_t)’ {aka ‘unsigned int (*)(unsigned int)’} [-Wincompatible-pointer-types]
+   36 |     syscall_table[SYS_FREE] = sys_free;
+      |                             ^
+kernel/../include/syscall.h:65:10: note: ‘sys_free’ declared here
+   65 | uint32_t sys_free(uint32_t ptr);
+      |          ^~~~~~~~
+kernel/syscall_simple.c:12:15: note: ‘syscall_handler_t’ declared here
+   12 | typedef int (*syscall_handler_t)(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+      |               ^~~~~~~~~~~~~~~~~
+kernel/syscall_simple.c: At top level:
+kernel/syscall_simple.c:68:5: error: conflicting types for ‘sys_exit’; have ‘int(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+   68 | int sys_exit(uint32_t exit_code, uint32_t arg2, uint32_t arg3, uint32_t arg4) {
+      |     ^~~~~~~~
+kernel/../include/syscall.h:57:10: note: previous declaration of ‘sys_exit’ with type ‘uint32_t(uint32_t)’ {aka ‘unsigned int(unsigned int)’}
+   57 | uint32_t sys_exit(uint32_t status);
+      |          ^~~~~~~~
+kernel/syscall_simple.c:86:5: error: conflicting types for ‘sys_write’; have ‘int(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+   86 | int sys_write(uint32_t fd, uint32_t buffer, uint32_t count, uint32_t arg4) {
+      |     ^~~~~~~~~
+kernel/../include/syscall.h:58:10: note: previous declaration of ‘sys_write’ with type ‘uint32_t(uint32_t,  const char *, uint32_t)’ {aka ‘unsigned int(unsigned int,  const char *, unsigned int)’}
+   58 | uint32_t sys_write(uint32_t fd, const char* buf, uint32_t count);
+      |          ^~~~~~~~~
+kernel/syscall_simple.c:103:5: error: conflicting types for ‘sys_read’; have ‘int(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+  103 | int sys_read(uint32_t fd, uint32_t buffer, uint32_t count, uint32_t arg4) {
+      |     ^~~~~~~~
+kernel/../include/syscall.h:59:10: note: previous declaration of ‘sys_read’ with type ‘uint32_t(uint32_t,  char *, uint32_t)’ {aka ‘unsigned int(unsigned int,  char *, unsigned int)’}
+   59 | uint32_t sys_read(uint32_t fd, char* buf, uint32_t count);
+      |          ^~~~~~~~
+kernel/syscall_simple.c:120:5: error: conflicting types for ‘sys_open’; have ‘int(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+  120 | int sys_open(uint32_t path_ptr, uint32_t flags, uint32_t arg3, uint32_t arg4) {
+      |     ^~~~~~~~
+kernel/../include/syscall.h:60:10: note: previous declaration of ‘sys_open’ with type ‘uint32_t(const char *, uint32_t)’ {aka ‘unsigned int(const char *, unsigned int)’}
+   60 | uint32_t sys_open(const char* path, uint32_t flags);
+      |          ^~~~~~~~
+kernel/syscall_simple.c:128:5: error: conflicting types for ‘sys_close’; have ‘int(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+  128 | int sys_close(uint32_t fd, uint32_t arg2, uint32_t arg3, uint32_t arg4) {
+      |     ^~~~~~~~~
+kernel/../include/syscall.h:61:10: note: previous declaration of ‘sys_close’ with type ‘uint32_t(uint32_t)’ {aka ‘unsigned int(unsigned int)’}
+   61 | uint32_t sys_close(uint32_t fd);
+      |          ^~~~~~~~~
+kernel/syscall_simple.c:135:5: error: conflicting types for ‘sys_getpid’; have ‘int(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+  135 | int sys_getpid(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4) {
+      |     ^~~~~~~~~~
+kernel/../include/syscall.h:62:10: note: previous declaration of ‘sys_getpid’ with type ‘uint32_t(void)’ {aka ‘unsigned int(void)’}
+   62 | uint32_t sys_getpid(void);
+      |          ^~~~~~~~~~
+kernel/syscall_simple.c:142:5: error: conflicting types for ‘sys_yield’; have ‘int(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+  142 | int sys_yield(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4) {
+      |     ^~~~~~~~~
+kernel/../include/syscall.h:63:10: note: previous declaration of ‘sys_yield’ with type ‘uint32_t(void)’ {aka ‘unsigned int(void)’}
+   63 | uint32_t sys_yield(void);
+      |          ^~~~~~~~~
+kernel/syscall_simple.c:150:5: error: conflicting types for ‘sys_malloc’; have ‘int(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+  150 | int sys_malloc(uint32_t size, uint32_t arg2, uint32_t arg3, uint32_t arg4) {
+      |     ^~~~~~~~~~
+kernel/../include/syscall.h:64:10: note: previous declaration of ‘sys_malloc’ with type ‘uint32_t(uint32_t)’ {aka ‘unsigned int(unsigned int)’}
+   64 | uint32_t sys_malloc(uint32_t size);
+      |          ^~~~~~~~~~
+kernel/syscall_simple.c:158:5: error: conflicting types for ‘sys_free’; have ‘int(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+  158 | int sys_free(uint32_t ptr, uint32_t arg2, uint32_t arg3, uint32_t arg4) {
+      |     ^~~~~~~~
+kernel/../include/syscall.h:65:10: note: previous declaration of ‘sys_free’ with type ‘uint32_t(uint32_t)’ {aka ‘unsigned int(unsigned int)’}
+   65 | uint32_t sys_free(uint32_t ptr);
+      |          ^~~~~~~~
+kernel/syscall_simple.c:168:5: error: conflicting types for ‘sys_sleep’; have ‘int(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+  168 | int sys_sleep(uint32_t ticks, uint32_t arg2, uint32_t arg3, uint32_t arg4) {
+      |     ^~~~~~~~~
+kernel/../include/syscall.h:66:10: note: previous declaration of ‘sys_sleep’ with type ‘uint32_t(uint32_t)’ {aka ‘unsigned int(unsigned int)’}
+   66 | uint32_t sys_sleep(uint32_t ticks);
+      |          ^~~~~~~~~
+kernel/syscall_simple.c:179:5: error: conflicting types for ‘sys_get_time’; have ‘int(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+  179 | int sys_get_time(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4) {
+      |     ^~~~~~~~~~~~
+kernel/../include/syscall.h:67:10: note: previous declaration of ‘sys_get_time’ with type ‘uint32_t(void)’ {aka ‘unsigned int(void)’}
+   67 | uint32_t sys_get_time(void);
+      |          ^~~~~~~~~~~~
+syscall_simple.o failed
+program_loader.o OK
+context.o OK
+monitor.o OK
+kernel/power.c:306:10: error: conflicting types for ‘sys_power_state’; have ‘uint32_t(uint32_t)’ {aka ‘unsigned int(unsigned int)’}
+  306 | uint32_t sys_power_state(uint32_t state) {
+      |          ^~~~~~~~~~~~~~~
+In file included from kernel/power.c:2:
+kernel/../include/syscall.h:89:10: note: previous declaration of ‘sys_power_state’ with type ‘uint32_t(void)’ {aka ‘unsigned int(void)’}
+   89 | uint32_t sys_power_state(void);
+      |          ^~~~~~~~~~~~~~~
+power.o failed
+Compiling driver files...
+vga.o OK
+keyboard.o OK
+keyboard_intl.o OK
+serial.o OK
+timer.o OK
+mouse.o OK
+net_ne2k.o OK
+Compiling filesystem files...
+filesystem_enhanced.o OK
+fs/vfs.c:16:9: error: ‘MAX_FILENAME_LEN’ redefined [-Werror]
+   16 | #define MAX_FILENAME_LEN 64
+      |         ^~~~~~~~~~~~~~~~
+In file included from fs/vfs.c:1:
+fs/../include/filesystem.h:55:9: note: this is the location of the previous definition
+   55 | #define MAX_FILENAME_LEN 256
+      |         ^~~~~~~~~~~~~~~~
+fs/vfs.c:38:3: error: conflicting types for ‘filesystem_t’; have ‘struct <anonymous>’
+   38 | } filesystem_t;
+      |   ^~~~~~~~~~~~
+fs/../include/filesystem.h:95:3: note: previous declaration of ‘filesystem_t’ with type ‘filesystem_t’
+   95 | } filesystem_t;
+      |   ^~~~~~~~~~~~
+fs/vfs.c: In function ‘vfs_mount’:
+fs/vfs.c:96:22: error: ‘filesystem_t’ has no member named ‘fs_id’
+   96 |     filesystems[slot].fs_id = next_fs_id++;
+      |                      ^
+fs/vfs.c:107:29: error: ‘filesystem_t’ has no member named ‘fs_id’
+  107 |     return filesystems[slot].fs_id;
+      |                             ^
+fs/vfs.c: In function ‘vfs_open’:
+fs/vfs.c:180:36: error: ‘filesystem_t’ has no member named ‘fs_id’
+  180 |     file_descriptors[fd].fs_id = fs->fs_id;
+      |                                    ^~
+fs/vfs.c: In function ‘vfs_close’:
+fs/vfs.c:199:52: error: ‘filesystem_t’ has no member named ‘fs_id’
+  199 |         if (filesystems[i].in_use && filesystems[i].fs_id == file_descriptors[fd].fs_id) {
+      |                                                    ^
+fs/vfs.c: In function ‘vfs_read’:
+fs/vfs.c:230:52: error: ‘filesystem_t’ has no member named ‘fs_id’
+  230 |         if (filesystems[i].in_use && filesystems[i].fs_id == file_descriptors[fd].fs_id) {
+      |                                                    ^
+fs/vfs.c: In function ‘vfs_write’:
+fs/vfs.c:261:52: error: ‘filesystem_t’ has no member named ‘fs_id’
+  261 |         if (filesystems[i].in_use && filesystems[i].fs_id == file_descriptors[fd].fs_id) {
+      |                                                    ^
+fs/vfs.c: In function ‘vfs_list_dir’:
+fs/vfs.c:298:59: error: unused parameter ‘buffer_size’ [-Werror=unused-parameter]
+  298 | int vfs_list_dir(const char* path, char* buffer, uint32_t buffer_size) {
+      |                                                  ~~~~~~~~~^~~~~~~~~~~
+cc1: all warnings being treated as errors
+vfs.o failed
+ramfs.o OK
+Compiling assembly files...
+entry.o OK
+idt_asm.o OK
+context.o OK
+context_switch.o OK
+Linking kernel...
+ld: cannot find kernel/process_simple.o: No such file or directory
+ld: cannot find kernel/syscall_simple.o: No such file or directory
+ld: kernel/context_switch.o: in function `context_switch':
+(.text+0x0): multiple definition of `context_switch'; kernel/context.o:(.text+0x0): first defined here
+ld: kernel/context_switch.o: in function `context_init':
+(.text+0x31): multiple definition of `context_init'; kernel/context.o:(.text+0x37): first defined here
+ld: cannot find kernel/power.o: No such file or directory
+ld: cannot find fs/vfs.o: No such file or directory
+Linking failed

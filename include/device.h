@@ -43,11 +43,6 @@ int device_read(const char* name, void* buffer, uint32_t size);
 int device_write(const char* name, const void* buffer, uint32_t size);
 int device_ioctl(const char* name, uint32_t cmd, void* arg);
 
-// System call wrappers
-uint32_t sys_device_open(const char* name);
-uint32_t sys_device_close(const char* name);
-uint32_t sys_device_read(const char* name, void* buffer, uint32_t size);
-uint32_t sys_device_write(const char* name, const void* buffer, uint32_t size);
-uint32_t sys_device_ioctl(const char* name, uint32_t cmd, void* arg);
+// System call wrappers (declared in syscall.h)
 
 #endif

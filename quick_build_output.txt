@@ -1,0 +1,66 @@
+Quick build - compiling essential files...
+Compiling kernel files...
+kmain.o OK
+log.o OK
+string.o OK
+memory.o OK
+idt.o OK
+kernel/isr.c: In function ‘irq1’:
+kernel/isr.c:184:13: error: unused variable ‘scancode’ [-Werror=unused-variable]
+  184 |     uint8_t scancode = inb(0x60);
+      |             ^~~~~~~~
+cc1: all warnings being treated as errors
+isr.o failed
+Compiling driver files...
+vga.o OK
+keyboard.o OK
+serial.o OK
+timer.o OK
+Compiling assembly files...
+kernel/entry.s:1: error: label, instruction or prefix expected at start of line, found `/'
+kernel/entry.s:3: error: instruction expected, found `.set VGA_BUFFER'
+kernel/entry.s:4: error: instruction expected, found `.set VGA_WIDTH'
+kernel/entry.s:5: error: instruction expected, found `.set VGA_HEIGHT'
+kernel/entry.s:7: error: label, instruction or prefix expected at start of line, found `/'
+kernel/entry.s:8: error: instruction expected, found `.set MAGIC'
+kernel/entry.s:9: error: instruction expected, found `.set FLAGS'
+kernel/entry.s:10: error: instruction expected, found `.set CHECKSUM'
+kernel/entry.s:12: error: label, instruction or prefix expected at start of line, found `/'
+kernel/entry.s:13: error: instruction expected, found `.set STACK_SIZE'
+kernel/entry.s:15: error: instruction expected, found `.section .multiboot'
+kernel/entry.s:16: error: instruction expected, found `.align 4'
+kernel/entry.s:17: error: instruction expected, found `.long MAGIC'
+kernel/entry.s:18: error: instruction expected, found `.long FLAGS'
+kernel/entry.s:19: error: instruction expected, found `.long CHECKSUM'
+kernel/entry.s:21: error: instruction expected, found `.section .text.entry'
+kernel/entry.s:22: error: instruction expected, found `.global _start'
+kernel/entry.s:25: error: label, instruction or prefix expected at start of line, found `/'
+kernel/entry.s:26: error: comma, colon, decorator or end of line expected after operand
+kernel/entry.s:26: error: expression syntax error
+kernel/entry.s:27: warning: $ prefix for hexadecimal is deprecated [-w+number-deprecated-hex]
+kernel/entry.s:27: error: expression syntax error
+kernel/entry.s:28: error: expression syntax error
+kernel/entry.s:30: error: label, instruction or prefix expected at start of line, found `/'
+kernel/entry.s:31: error: comma, colon, decorator or end of line expected after operand
+kernel/entry.s:31: error: expression syntax error
+kernel/entry.s:32: warning: $ prefix for hexadecimal is deprecated [-w+number-deprecated-hex]
+kernel/entry.s:32: error: expression syntax error
+kernel/entry.s:33: error: expression syntax error
+kernel/entry.s:35: error: label, instruction or prefix expected at start of line, found `/'
+kernel/entry.s:36: warning: $ prefix for hexadecimal is deprecated [-w+number-deprecated-hex]
+kernel/entry.s:36: error: instruction expected, found `movl $0x90000'
+kernel/entry.s:38: error: label, instruction or prefix expected at start of line, found `/'
+kernel/entry.s:41: error: label, instruction or prefix expected at start of line, found `/'
+kernel/entry.s:47: error: instruction expected, found `.section .rodata'
+kernel/entry.s:49: error: instruction expected, found `.asciz Kernel loaded successfully!'
+kernel/entry.s:51: error: instruction expected, found `.asciz Protected mode active!'
+kernel/entry.s:53: error: instruction expected, found `.asciz CPU: '
+kernel/entry.s:55: error: instruction expected, found `.section .bss'
+kernel/entry.s:56: error: instruction expected, found `.align 16'
+kernel/entry.s:58: error: instruction expected, found `.space STACK_SIZE'
+entry.o failed
+idt_asm.o OK
+Linking kernel...
+ld: cannot find kernel/entry.o: No such file or directory
+ld: cannot find kernel/isr.o: No such file or directory
+Linking failed

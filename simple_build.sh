@@ -28,7 +28,11 @@ objcopy -O binary kernel.elf kernel.bin
 
 # Create disk image
 echo "Creating disk image..."
-dd if=boot/minimal_boot_new.bin of=os.img bs=512 count=1 conv=notrunc 2>/dev/null
+# First build the bootloader if needed
+if [ ! -f boot/debug_boot.bin ]; then
+    nasm -f bin boot/debug_boot.asm -o boot/debug_boot.bin
+fi
+dd if=boot/debug_boot.bin of=os.img bs=512 count=1 conv=notrunc 2>/dev/null
 dd if=kernel.bin of=os.img bs=512 seek=1 conv=notrunc 2>/dev/null
 
 echo "Build complete!"

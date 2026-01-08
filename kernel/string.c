@@ -22,6 +22,16 @@ uint16_t inw(uint16_t port) {
     return ret;
 }
 
+void outl(uint16_t port, uint32_t value) {
+    __asm__ volatile ("outl %0, %1" : : "a"(value), "Nd"(port));
+}
+
+uint32_t inl(uint16_t port) {
+    uint32_t ret;
+    __asm__ volatile ("inl %1, %0" : "=a"(ret) : "Nd"(port));
+    return ret;
+}
+
 // A simple implementation of memset
 void *memset(void *s, int c, size_t n) {
     unsigned char *p = s;

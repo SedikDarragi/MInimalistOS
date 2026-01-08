@@ -1,0 +1,30 @@
+=== Full Build Script ===
+Working directory: /home/slime/Documents/OS copy copy copy
+Checking tools...
+/usr/bin/gcc
+gcc: OK
+/usr/bin/nasm
+nasm: OK
+/usr/bin/ld
+ld: OK
+Cleaning...
+Compiling log.c...
+log.c compiled successfully
+-rw-r--r-- 1 slime slime 17372 Jan  8 18:57 kernel/log.o
+Compiling net_ne2k.c...
+drivers/net_ne2k.c: In function ‘ne2k_hw_init’:
+drivers/net_ne2k.c:46:9: error: too many arguments to function ‘log_warn’; expected 1, have 3
+   46 |         log_warn("NE2000 PCI device not found (vendor=0x%04x device=0x%04x)", NE2K_VENDOR_ID, NE2K_DEVICE_ID);
+      |         ^~~~~~~~                                                              ~~~~~~~~~~~~~~
+In file included from drivers/net_ne2k.c:2:
+drivers/../kernel/log.h:32:6: note: declared here
+   32 | void log_warn(const char* message);
+      |      ^~~~~~~~
+drivers/net_ne2k.c:50:5: error: too many arguments to function ‘log_info’; expected 1, have 6
+   50 |     log_info("NE2000 PCI: bus=%u slot=%u func=%u bar0=0x%08x irq=%u",
+      |     ^~~~~~~~
+   51 |              dev.bus, dev.slot, dev.function, dev.bar0, dev.irq_line);
+      |              ~~~~~~~
+drivers/../kernel/log.h:31:6: note: declared here
+   31 | void log_info(const char* message);
+      |      ^~~~~~~~

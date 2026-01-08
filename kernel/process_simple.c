@@ -135,7 +135,6 @@ void schedule(void) {
     
     if (next != current_process) {
         // Switch processes (simplified - just update current)
-        uint32_t old = current_process;
         current_process = next;
         
         log_debug("Process switch occurred");

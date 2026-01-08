@@ -2,6 +2,7 @@
 #define LOG_H
 
 #include <stdint.h>
+#include <stdarg.h>
 #include "../drivers/vga.h"
 
 // Log levels
@@ -26,11 +27,11 @@ static const vga_color_t LOG_COLORS[] = {
 void log_init(void);
 void log_set_level(log_level_t level);
 void log_printf(log_level_t level, const char* format, ...);
-void log_debug(const char* message);
-void log_info(const char* message);
-void log_warn(const char* message);
-void log_error(const char* message);
-void log_critical(const char* message);
+void log_debug(const char* format, ...);
+void log_info(const char* format, ...);
+void log_warn(const char* format, ...);
+void log_error(const char* format, ...);
+void log_critical(const char* format, ...);
 
 // Panic and assertion macros
 #define panic(msg) do { \

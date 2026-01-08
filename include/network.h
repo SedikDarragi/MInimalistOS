@@ -39,8 +39,6 @@ int network_receive_packet(network_packet_t* packet);
 int network_set_ip(uint32_t ip);
 int network_set_mac(const uint8_t* mac);
 
-// System call wrappers
-uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length);
-uint32_t sys_network_receive(void* packet);
+// System call wrappers (declared in syscall.h)
 
 #endif

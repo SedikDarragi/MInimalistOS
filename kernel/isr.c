@@ -182,6 +182,7 @@ void irq0() {
 void irq1() {
     // Keyboard
     uint8_t scancode = inb(0x60);
+    (void)scancode; // Suppress unused variable warning
     log_debug("Keyboard scancode received");
     // Send EOI to PIC
     outb(0x20, 0x20);

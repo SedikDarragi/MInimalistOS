@@ -1,0 +1,106 @@
+Quick build - compiling essential files...
+Compiling kernel files...
+kmain.o OK
+log.o OK
+string.o OK
+memory.o OK
+idt.o OK
+isr.o OK
+pci.o OK
+net_core.o OK
+process.o OK
+fs_test.o OK
+In file included from kernel/syscall.c:7:
+kernel/../include/device.h:48:10: error: conflicting types for ‘sys_device_close’; have ‘uint32_t(const char *)’ {aka ‘unsigned int(const char *)’}
+   48 | uint32_t sys_device_close(const char* name);
+      |          ^~~~~~~~~~~~~~~~
+In file included from kernel/syscall.c:1:
+./include/syscall.h:78:10: note: previous declaration of ‘sys_device_close’ with type ‘uint32_t(uint32_t)’ {aka ‘unsigned int(unsigned int)’}
+   78 | uint32_t sys_device_close(uint32_t fd);
+      |          ^~~~~~~~~~~~~~~~
+kernel/syscall.c: In function ‘sys_device_close_wrapper’:
+kernel/syscall.c:96:29: error: passing argument 1 of ‘sys_device_close’ makes pointer from integer without a cast [-Wint-conversion]
+   96 |     return sys_device_close(fd);
+      |                             ^~
+      |                             |
+      |                             uint32_t {aka unsigned int}
+kernel/../include/device.h:48:39: note: expected ‘const char *’ but argument is of type ‘uint32_t’ {aka ‘unsigned int’}
+   48 | uint32_t sys_device_close(const char* name);
+      |                           ~~~~~~~~~~~~^~~~
+kernel/syscall.c: At top level:
+kernel/syscall.c:306:10: error: conflicting types for ‘sys_close’; have ‘uint32_t(int)’ {aka ‘unsigned int(int)’}
+  306 | uint32_t sys_close(int fd) {
+      |          ^~~~~~~~~
+./include/syscall.h:61:10: note: previous declaration of ‘sys_close’ with type ‘uint32_t(uint32_t)’ {aka ‘unsigned int(unsigned int)’}
+   61 | uint32_t sys_close(uint32_t fd);
+      |          ^~~~~~~~~
+syscall.o failed
+kernel/program_loader.c: In function ‘program_load’:
+kernel/program_loader.c:158:37: error: comparison of integer expressions of different signedness: ‘int’ and ‘uint32_t’ {aka ‘unsigned int’} [-Werror=sign-compare]
+  158 |     if (fs_read(fd, phdrs, ph_size) != ph_size) {
+      |                                     ^~
+kernel/program_loader.c:199:72: error: comparison of integer expressions of different signedness: ‘int’ and ‘uint32_t’ {aka ‘unsigned int’} [-Werror=sign-compare]
+  199 |                 if (fs_read(fd, (uint8_t*)segment_ptr + vaddr, filesz) != filesz) {
+      |                                                                        ^~
+cc1: all warnings being treated as errors
+program_loader.o failed
+Compiling driver files...
+vga.o OK
+keyboard.o OK
+keyboard_intl.o OK
+serial.o OK
+timer.o OK
+mouse.o OK
+net_ne2k.o OK
+Compiling filesystem files...
+fs/vfs.c:16:9: error: ‘MAX_FILENAME_LEN’ redefined [-Werror]
+   16 | #define MAX_FILENAME_LEN 64
+      |         ^~~~~~~~~~~~~~~~
+In file included from fs/vfs.c:1:
+fs/../include/filesystem.h:55:9: note: this is the location of the previous definition
+   55 | #define MAX_FILENAME_LEN 256
+      |         ^~~~~~~~~~~~~~~~
+fs/vfs.c:38:3: error: conflicting types for ‘filesystem_t’; have ‘struct <anonymous>’
+   38 | } filesystem_t;
+      |   ^~~~~~~~~~~~
+fs/../include/filesystem.h:95:3: note: previous declaration of ‘filesystem_t’ with type ‘filesystem_t’
+   95 | } filesystem_t;
+      |   ^~~~~~~~~~~~
+fs/vfs.c: In function ‘vfs_mount’:
+fs/vfs.c:96:22: error: ‘filesystem_t’ has no member named ‘fs_id’
+   96 |     filesystems[slot].fs_id = next_fs_id++;
+      |                      ^
+fs/vfs.c:107:29: error: ‘filesystem_t’ has no member named ‘fs_id’
+  107 |     return filesystems[slot].fs_id;
+      |                             ^
+fs/vfs.c: In function ‘vfs_open’:
+fs/vfs.c:180:36: error: ‘filesystem_t’ has no member named ‘fs_id’
+  180 |     file_descriptors[fd].fs_id = fs->fs_id;
+      |                                    ^~
+fs/vfs.c: In function ‘vfs_close’:
+fs/vfs.c:199:52: error: ‘filesystem_t’ has no member named ‘fs_id’
+  199 |         if (filesystems[i].in_use && filesystems[i].fs_id == file_descriptors[fd].fs_id) {
+      |                                                    ^
+fs/vfs.c: In function ‘vfs_read’:
+fs/vfs.c:230:52: error: ‘filesystem_t’ has no member named ‘fs_id’
+  230 |         if (filesystems[i].in_use && filesystems[i].fs_id == file_descriptors[fd].fs_id) {
+      |                                                    ^
+fs/vfs.c: In function ‘vfs_write’:
+fs/vfs.c:261:52: error: ‘filesystem_t’ has no member named ‘fs_id’
+  261 |         if (filesystems[i].in_use && filesystems[i].fs_id == file_descriptors[fd].fs_id) {
+      |                                                    ^
+fs/vfs.c: In function ‘vfs_list_dir’:
+fs/vfs.c:298:59: error: unused parameter ‘buffer_size’ [-Werror=unused-parameter]
+  298 | int vfs_list_dir(const char* path, char* buffer, uint32_t buffer_size) {
+      |                                                  ~~~~~~~~~^~~~~~~~~~~
+cc1: all warnings being treated as errors
+vfs.o failed
+ramfs.o OK
+Compiling assembly files...
+entry.o OK
+idt_asm.o OK
+Linking kernel...
+ld: cannot find kernel/syscall.o: No such file or directory
+ld: cannot find kernel/program_loader.o: No such file or directory
+ld: cannot find fs/vfs.o: No such file or directory
+Linking failed

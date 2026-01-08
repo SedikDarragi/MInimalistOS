@@ -1,0 +1,131 @@
+Quick build - compiling essential files...
+Compiling kernel files...
+kmain.o OK
+log.o OK
+string.o OK
+memory.o OK
+idt.o OK
+isr.o OK
+pci.o OK
+net_core.o OK
+process.o OK
+fs_test.o OK
+kernel/syscall.c: In function ‘sys_network_receive_wrapper’:
+kernel/syscall.c:86:12: error: too few arguments to function ‘sys_network_receive’; expected 2, have 1
+   86 |     return sys_network_receive((void*)packet);
+      |            ^~~~~~~~~~~~~~~~~~~
+In file included from kernel/syscall.c:1:
+./include/syscall.h:74:10: note: declared here
+   74 | uint32_t sys_network_receive(void* buffer, uint32_t size);
+      |          ^~~~~~~~~~~~~~~~~~~
+kernel/syscall.c: In function ‘sys_power_state_wrapper’:
+kernel/syscall.c:161:12: error: too many arguments to function ‘sys_power_state’; expected 0, have 1
+  161 |     return sys_power_state(state);
+      |            ^~~~~~~~~~~~~~~ ~~~~~
+./include/syscall.h:85:10: note: declared here
+   85 | uint32_t sys_power_state(void);
+      |          ^~~~~~~~~~~~~~~
+kernel/syscall.c: At top level:
+kernel/syscall.c:189:6: error: ‘SYS_DEVICE_OPEN’ undeclared here (not in a function); did you mean ‘SYS_DEVICE_READ’?
+  189 |     [SYS_DEVICE_OPEN]   = sys_device_open_wrapper,
+      |      ^~~~~~~~~~~~~~~
+      |      SYS_DEVICE_READ
+kernel/syscall.c:189:6: error: array index in initializer not of integer type
+kernel/syscall.c:189:6: note: (near initialization for ‘syscall_table’)
+kernel/syscall.c:190:6: error: ‘SYS_DEVICE_CLOSE’ undeclared here (not in a function); did you mean ‘SYS_DEVICE_WRITE’?
+  190 |     [SYS_DEVICE_CLOSE]  = sys_device_close_wrapper,
+      |      ^~~~~~~~~~~~~~~~
+      |      SYS_DEVICE_WRITE
+kernel/syscall.c:190:6: error: array index in initializer not of integer type
+kernel/syscall.c:190:6: note: (near initialization for ‘syscall_table’)
+kernel/syscall.c:191:27: error: initialized field overwritten [-Werror=override-init]
+  191 |     [SYS_DEVICE_READ]   = sys_device_read_wrapper,
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+kernel/syscall.c:191:27: note: (near initialization for ‘syscall_table[21]’)
+kernel/syscall.c:192:27: error: initialized field overwritten [-Werror=override-init]
+  192 |     [SYS_DEVICE_WRITE]  = sys_device_write_wrapper,
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+kernel/syscall.c:192:27: note: (near initialization for ‘syscall_table[22]’)
+kernel/syscall.c:228:10: error: conflicting types for ‘syscall’; have ‘uint32_t(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘unsigned int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+  228 | uint32_t syscall(uint32_t num, uint32_t arg1, uint32_t arg2, uint32_t arg3) {
+      |          ^~~~~~~
+./include/syscall.h:52:5: note: previous declaration of ‘syscall’ with type ‘int(uint32_t,  uint32_t,  uint32_t,  uint32_t)’ {aka ‘int(unsigned int,  unsigned int,  unsigned int,  unsigned int)’}
+   52 | int syscall(uint32_t syscall_num, uint32_t arg1, uint32_t arg2, uint32_t arg3);
+      |     ^~~~~~~
+kernel/syscall.c:305:10: error: conflicting types for ‘sys_close’; have ‘uint32_t(int)’ {aka ‘unsigned int(int)’}
+  305 | uint32_t sys_close(int fd) {
+      |          ^~~~~~~~~
+./include/syscall.h:59:10: note: previous declaration of ‘sys_close’ with type ‘uint32_t(uint32_t)’ {aka ‘unsigned int(unsigned int)’}
+   59 | uint32_t sys_close(uint32_t fd);
+      |          ^~~~~~~~~
+cc1: all warnings being treated as errors
+syscall.o failed
+kernel/program_loader.c: In function ‘program_load’:
+kernel/program_loader.c:158:37: error: comparison of integer expressions of different signedness: ‘int’ and ‘uint32_t’ {aka ‘unsigned int’} [-Werror=sign-compare]
+  158 |     if (fs_read(fd, phdrs, ph_size) != ph_size) {
+      |                                     ^~
+kernel/program_loader.c:199:72: error: comparison of integer expressions of different signedness: ‘int’ and ‘uint32_t’ {aka ‘unsigned int’} [-Werror=sign-compare]
+  199 |                 if (fs_read(fd, (uint8_t*)segment_ptr + vaddr, filesz) != filesz) {
+      |                                                                        ^~
+cc1: all warnings being treated as errors
+program_loader.o failed
+Compiling driver files...
+vga.o OK
+keyboard.o OK
+keyboard_intl.o OK
+serial.o OK
+timer.o OK
+mouse.o OK
+net_ne2k.o OK
+Compiling filesystem files...
+fs/vfs.c:16:9: error: ‘MAX_FILENAME_LEN’ redefined [-Werror]
+   16 | #define MAX_FILENAME_LEN 64
+      |         ^~~~~~~~~~~~~~~~
+In file included from fs/vfs.c:1:
+fs/../include/filesystem.h:55:9: note: this is the location of the previous definition
+   55 | #define MAX_FILENAME_LEN 256
+      |         ^~~~~~~~~~~~~~~~
+fs/vfs.c:38:3: error: conflicting types for ‘filesystem_t’; have ‘struct <anonymous>’
+   38 | } filesystem_t;
+      |   ^~~~~~~~~~~~
+fs/../include/filesystem.h:95:3: note: previous declaration of ‘filesystem_t’ with type ‘filesystem_t’
+   95 | } filesystem_t;
+      |   ^~~~~~~~~~~~
+fs/vfs.c: In function ‘vfs_mount’:
+fs/vfs.c:96:22: error: ‘filesystem_t’ has no member named ‘fs_id’
+   96 |     filesystems[slot].fs_id = next_fs_id++;
+      |                      ^
+fs/vfs.c:107:29: error: ‘filesystem_t’ has no member named ‘fs_id’
+  107 |     return filesystems[slot].fs_id;
+      |                             ^
+fs/vfs.c: In function ‘vfs_open’:
+fs/vfs.c:180:36: error: ‘filesystem_t’ has no member named ‘fs_id’
+  180 |     file_descriptors[fd].fs_id = fs->fs_id;
+      |                                    ^~
+fs/vfs.c: In function ‘vfs_close’:
+fs/vfs.c:199:52: error: ‘filesystem_t’ has no member named ‘fs_id’
+  199 |         if (filesystems[i].in_use && filesystems[i].fs_id == file_descriptors[fd].fs_id) {
+      |                                                    ^
+fs/vfs.c: In function ‘vfs_read’:
+fs/vfs.c:230:52: error: ‘filesystem_t’ has no member named ‘fs_id’
+  230 |         if (filesystems[i].in_use && filesystems[i].fs_id == file_descriptors[fd].fs_id) {
+      |                                                    ^
+fs/vfs.c: In function ‘vfs_write’:
+fs/vfs.c:261:52: error: ‘filesystem_t’ has no member named ‘fs_id’
+  261 |         if (filesystems[i].in_use && filesystems[i].fs_id == file_descriptors[fd].fs_id) {
+      |                                                    ^
+fs/vfs.c: In function ‘vfs_list_dir’:
+fs/vfs.c:298:59: error: unused parameter ‘buffer_size’ [-Werror=unused-parameter]
+  298 | int vfs_list_dir(const char* path, char* buffer, uint32_t buffer_size) {
+      |                                                  ~~~~~~~~~^~~~~~~~~~~
+cc1: all warnings being treated as errors
+vfs.o failed
+ramfs.o OK
+Compiling assembly files...
+entry.o OK
+idt_asm.o OK
+Linking kernel...
+ld: cannot find kernel/syscall.o: No such file or directory
+ld: cannot find kernel/program_loader.o: No such file or directory
+ld: cannot find fs/vfs.o: No such file or directory
+Linking failed

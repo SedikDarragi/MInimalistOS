@@ -155,7 +155,7 @@ int program_load(const char* filename, program_info_t* prog_info) {
     }
     
     fs_seek(fd, header.e_phoff);
-    if (fs_read(fd, phdrs, ph_size) != ph_size) {
+    if ((uint32_t)fs_read(fd, phdrs, ph_size) != ph_size) {
         program_free_memory(phdrs, ph_size);
         fs_close(fd);
         log_info("Failed to read program headers");
@@ -196,7 +196,7 @@ int program_load(const char* filename, program_info_t* prog_info) {
             // Read segment data
             if (filesz > 0) {
                 fs_seek(fd, phdrs[i].p_offset);
-                if (fs_read(fd, (uint8_t*)segment_ptr + vaddr, filesz) != filesz) {
+                if ((uint32_t)fs_read(fd, (uint8_t*)segment_ptr + vaddr, filesz) != filesz) {
                     program_free_memory(phdrs, ph_size);
                     fs_close(fd);
                     log_info("Failed to read program segment");

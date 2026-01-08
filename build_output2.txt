@@ -1,0 +1,17 @@
+=== Full Build Script ===
+Working directory: /home/slime/Documents/OS copy copy copy
+Checking tools...
+/usr/bin/gcc
+gcc: OK
+/usr/bin/nasm
+nasm: OK
+/usr/bin/ld
+ld: OK
+Cleaning...
+Compiling log.c...
+log.c compiled successfully
+-rw-r--r-- 1 slime slime 17884 Jan  8 18:57 kernel/log.o
+Compiling net_ne2k.c...
+net_ne2k.c compiled successfully
+-rw-r--r-- 1 slime slime 15908 Jan  8 18:57 drivers/net_ne2k.o
+Build test completed successfully!

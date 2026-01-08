@@ -1,0 +1,73 @@
+Quick build - compiling essential files...
+Compiling kernel files...
+kmain.o OK
+log.o OK
+string.o OK
+memory.o OK
+idt.o OK
+isr.o OK
+pci.o OK
+net_core.o OK
+process.o OK
+fs_test.o OK
+syscall.o OK
+program_loader.o OK
+Compiling driver files...
+vga.o OK
+keyboard.o OK
+keyboard_intl.o OK
+serial.o OK
+timer.o OK
+mouse.o OK
+net_ne2k.o OK
+Compiling filesystem files...
+filesystem_enhanced.o OK
+Compiling assembly files...
+entry.o OK
+idt_asm.o OK
+Linking kernel...
+ld: kernel/kmain.o: in function `kmain':
+/home/slime/Documents/OS copy copy copy/kernel/kmain.c:51:(.text+0x103): undefined reference to `vfs_init'
+ld: /home/slime/Documents/OS copy copy copy/kernel/kmain.c:52:(.text+0x108): undefined reference to `ramfs_mount'
+ld: kernel/process.o: in function `process_init':
+/home/slime/Documents/OS copy copy copy/kernel/process.c:55:(.text+0xe8): undefined reference to `test_process_1'
+ld: /home/slime/Documents/OS copy copy copy/kernel/process.c:56:(.text+0xfd): undefined reference to `test_process_2'
+ld: /home/slime/Documents/OS copy copy copy/kernel/process.c:59:(.text+0x112): undefined reference to `user_process_1'
+ld: /home/slime/Documents/OS copy copy copy/kernel/process.c:60:(.text+0x127): undefined reference to `user_process_2'
+ld: /home/slime/Documents/OS copy copy copy/kernel/process.c:63:(.text+0x13c): undefined reference to `memory_test_process'
+ld: /home/slime/Documents/OS copy copy copy/kernel/process.c:66:(.text+0x151): undefined reference to `user_program_main'
+ld: /home/slime/Documents/OS copy copy copy/kernel/process.c:72:(.text+0x17b): undefined reference to `network_test_sender'
+ld: /home/slime/Documents/OS copy copy copy/kernel/process.c:73:(.text+0x190): undefined reference to `network_test_receiver'
+ld: /home/slime/Documents/OS copy copy copy/kernel/process.c:76:(.text+0x1a5): undefined reference to `device_test_process'
+ld: /home/slime/Documents/OS copy copy copy/kernel/process.c:79:(.text+0x1ba): undefined reference to `security_test_process'
+ld: /home/slime/Documents/OS copy copy copy/kernel/process.c:82:(.text+0x1cf): undefined reference to `monitor_test_process'
+ld: /home/slime/Documents/OS copy copy copy/kernel/process.c:85:(.text+0x1e4): undefined reference to `power_test_process'
+ld: kernel/process.o: in function `process_create':
+/home/slime/Documents/OS copy copy copy/kernel/process.c:110:(.text+0x2c0): undefined reference to `context_init'
+ld: kernel/process.o: in function `schedule':
+/home/slime/Documents/OS copy copy copy/kernel/process.c:207:(.text+0x695): undefined reference to `context_switch'
+ld: kernel/syscall.o: in function `sys_network_send_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall.c:81:(.text+0x125): undefined reference to `sys_network_send'
+ld: kernel/syscall.o: in function `sys_device_read_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall.c:101:(.text+0x18d): undefined reference to `sys_device_read'
+ld: kernel/syscall.o: in function `sys_device_write_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall.c:106:(.text+0x1ad): undefined reference to `sys_device_write'
+ld: kernel/syscall.o: in function `sys_device_ioctl_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall.c:111:(.text+0x1cd): undefined reference to `sys_device_ioctl'
+ld: kernel/syscall.o: in function `sys_setuid_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall.c:116:(.text+0x1e3): undefined reference to `sys_setuid'
+ld: kernel/syscall.o: in function `sys_setgid_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall.c:121:(.text+0x1f9): undefined reference to `sys_setgid'
+ld: kernel/syscall.o: in function `sys_getuid_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall.c:126:(.text+0x208): undefined reference to `sys_getuid'
+ld: kernel/syscall.o: in function `sys_getgid_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall.c:131:(.text+0x214): undefined reference to `sys_getgid'
+ld: kernel/syscall.o: in function `sys_chmod_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall.c:136:(.text+0x22c): undefined reference to `sys_chmod'
+ld: kernel/syscall.o: in function `sys_chown_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall.c:141:(.text+0x24b): undefined reference to `sys_chown'
+ld: kernel/syscall.o: in function `sys_log_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall.c:146:(.text+0x26a): undefined reference to `sys_log'
+ld: kernel/syscall.o: in function `sys_get_stats_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall.c:151:(.text+0x285): undefined reference to `sys_get_stats'
+Linking failed

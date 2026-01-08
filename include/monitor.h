@@ -68,9 +68,6 @@ void monitor_start_timer(const char* name);
 void monitor_end_timer(const char* name);
 uint32_t monitor_get_timer_value(const char* name);
 
-// System call wrappers
-uint32_t sys_log(uint8_t level, const char* message);
-uint32_t sys_get_stats(uint32_t stats_type, void* buffer);
-uint32_t sys_dump_logs(void);
+// System call wrappers (now declared in syscall.h)
 
 #endif

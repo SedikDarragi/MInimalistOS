@@ -1,0 +1,72 @@
+Quick build - compiling essential files...
+Compiling kernel files...
+kmain.o OK
+log.o OK
+string.o OK
+memory.o OK
+idt.o OK
+isr.o OK
+pci.o OK
+net_core.o OK
+process.o OK
+fs_test.o OK
+syscall.o OK
+program_loader.o OK
+Compiling driver files...
+vga.o OK
+keyboard.o OK
+keyboard_intl.o OK
+serial.o OK
+timer.o OK
+mouse.o OK
+net_ne2k.o OK
+Compiling filesystem files...
+fs/vfs.c:16:9: error: ‘MAX_FILENAME_LEN’ redefined [-Werror]
+   16 | #define MAX_FILENAME_LEN 64
+      |         ^~~~~~~~~~~~~~~~
+In file included from fs/vfs.c:1:
+fs/../include/filesystem.h:55:9: note: this is the location of the previous definition
+   55 | #define MAX_FILENAME_LEN 256
+      |         ^~~~~~~~~~~~~~~~
+fs/vfs.c:38:3: error: conflicting types for ‘filesystem_t’; have ‘struct <anonymous>’
+   38 | } filesystem_t;
+      |   ^~~~~~~~~~~~
+fs/../include/filesystem.h:95:3: note: previous declaration of ‘filesystem_t’ with type ‘filesystem_t’
+   95 | } filesystem_t;
+      |   ^~~~~~~~~~~~
+fs/vfs.c: In function ‘vfs_mount’:
+fs/vfs.c:96:22: error: ‘filesystem_t’ has no member named ‘fs_id’
+   96 |     filesystems[slot].fs_id = next_fs_id++;
+      |                      ^
+fs/vfs.c:107:29: error: ‘filesystem_t’ has no member named ‘fs_id’
+  107 |     return filesystems[slot].fs_id;
+      |                             ^
+fs/vfs.c: In function ‘vfs_open’:
+fs/vfs.c:180:36: error: ‘filesystem_t’ has no member named ‘fs_id’
+  180 |     file_descriptors[fd].fs_id = fs->fs_id;
+      |                                    ^~
+fs/vfs.c: In function ‘vfs_close’:
+fs/vfs.c:199:52: error: ‘filesystem_t’ has no member named ‘fs_id’
+  199 |         if (filesystems[i].in_use && filesystems[i].fs_id == file_descriptors[fd].fs_id) {
+      |                                                    ^
+fs/vfs.c: In function ‘vfs_read’:
+fs/vfs.c:230:52: error: ‘filesystem_t’ has no member named ‘fs_id’
+  230 |         if (filesystems[i].in_use && filesystems[i].fs_id == file_descriptors[fd].fs_id) {
+      |                                                    ^
+fs/vfs.c: In function ‘vfs_write’:
+fs/vfs.c:261:52: error: ‘filesystem_t’ has no member named ‘fs_id’
+  261 |         if (filesystems[i].in_use && filesystems[i].fs_id == file_descriptors[fd].fs_id) {
+      |                                                    ^
+fs/vfs.c: In function ‘vfs_list_dir’:
+fs/vfs.c:298:59: error: unused parameter ‘buffer_size’ [-Werror=unused-parameter]
+  298 | int vfs_list_dir(const char* path, char* buffer, uint32_t buffer_size) {
+      |                                                  ~~~~~~~~~^~~~~~~~~~~
+cc1: all warnings being treated as errors
+vfs.o failed
+ramfs.o OK
+Compiling assembly files...
+entry.o OK
+idt_asm.o OK
+Linking kernel...
+ld: cannot find fs/vfs.o: No such file or directory
+Linking failed
