@@ -1,0 +1,45 @@
+Quick build - compiling essential files...
+Working directory: /home/slime/Documents/OS copy copy copy
+Starting at: Fri Jan  9 07:02:19 PM CET 2026
+Compiling kernel files...
+kmain.o OK
+log.o OK
+string.o OK
+memory.o OK
+idt.o OK
+isr.o OK
+pci.o OK
+net_core.o OK
+process_simple.o OK
+fs_test.o OK
+syscall_simple.o OK
+program_loader.o OK
+context.o OK
+monitor.o OK
+power.o OK
+Compiling driver files...
+vga.o OK
+keyboard.o OK
+keyboard_intl.o OK
+serial.o OK
+timer.o OK
+mouse.o OK
+net_ne2k.o OK
+Compiling filesystem files...
+filesystem_enhanced.o OK
+Compiling assembly files...
+entry.o OK
+idt_asm.o OK
+context.o OK
+Linking kernel...
+ld: kernel/syscall_simple.o: in function `sys_device_open_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall_simple.c:98:(.text+0x159): undefined reference to `sys_device_open'
+ld: kernel/syscall_simple.o: in function `sys_device_close_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall_simple.c:103:(.text+0x170): undefined reference to `sys_device_close'
+ld: kernel/syscall_simple.o: in function `sys_device_read_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall_simple.c:108:(.text+0x190): undefined reference to `sys_device_read'
+ld: kernel/syscall_simple.o: in function `sys_device_write_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall_simple.c:113:(.text+0x1b0): undefined reference to `sys_device_write'
+ld: kernel/syscall_simple.o: in function `sys_device_ioctl_wrapper':
+/home/slime/Documents/OS copy copy copy/kernel/syscall_simple.c:118:(.text+0x1d0): undefined reference to `sys_device_ioctl'
+Linking failed

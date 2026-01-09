@@ -2,6 +2,8 @@
 cd "/home/slime/Documents/OS copy copy copy"
 
 echo "Quick build - compiling essential files..."
+echo "Working directory: $(pwd)"
+echo "Starting at: $(date)"
 
 # Common flags
 CFLAGS="-m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3"
@@ -24,6 +26,7 @@ gcc $CFLAGS $INCLUDES -c kernel/program_loader.c -o kernel/program_loader.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/context.c -o kernel/context.o 2>&1 && echo "context.o OK" || echo "context.o failed"
 gcc $CFLAGS $INCLUDES -c kernel/monitor.c -o kernel/monitor.o 2>&1 && echo "monitor.o OK" || echo "monitor.o failed"
 gcc $CFLAGS $INCLUDES -c kernel/power.c -o kernel/power.o 2>&1 && echo "power.o OK" || echo "power.o failed"
+gcc $CFLAGS $INCLUDES -c kernel/device.c -o kernel/device.o 2>&1 && echo "device.o OK" || echo "device.o failed"
 
 # Compile essential driver files
 echo "Compiling driver files..."
@@ -52,7 +55,7 @@ ld -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000 -o kernel.elf \
     kernel/entry.o kernel/kmain.o kernel/log.o kernel/string.o kernel/memory.o \
     kernel/idt.o kernel/idt_asm.o kernel/isr.o kernel/pci.o kernel/net_core.o \
     kernel/process_simple.o kernel/fs_test.o kernel/syscall_simple.o kernel/program_loader.o \
-    kernel/context.o kernel/monitor.o kernel/power.o \
+    kernel/context.o kernel/monitor.o kernel/power.o kernel/device.o \
     drivers/vga.o drivers/keyboard.o drivers/keyboard_intl.o drivers/serial.o \
     drivers/timer.o drivers/mouse.o drivers/net_ne2k.o \
     fs/filesystem_enhanced.o 2>&1

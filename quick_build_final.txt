@@ -1,0 +1,40 @@
+Quick build - compiling essential files...
+Working directory: /home/slime/Documents/OS copy copy copy
+Starting at: Fri Jan  9 07:07:06 PM CET 2026
+Compiling kernel files...
+kmain.o OK
+log.o OK
+string.o OK
+memory.o OK
+idt.o OK
+isr.o OK
+pci.o OK
+net_core.o OK
+process_simple.o OK
+fs_test.o OK
+syscall_simple.o OK
+program_loader.o OK
+context.o OK
+monitor.o OK
+power.o OK
+device.o OK
+Compiling driver files...
+vga.o OK
+keyboard.o OK
+keyboard_intl.o OK
+serial.o OK
+timer.o OK
+mouse.o OK
+net_ne2k.o OK
+Compiling filesystem files...
+filesystem_enhanced.o OK
+Compiling assembly files...
+entry.o OK
+idt_asm.o OK
+context.o OK
+Linking kernel...
+Kernel linked successfully!
+-rwxr-xr-x 1 slime slime 134044 Jan  9 19:07 kernel.elf
+Kernel binary created: 32456 bytes
+Disk image created: os.img
+-rw-r--r-- 1 slime slime 10485760 Jan  9 19:07 os.img
