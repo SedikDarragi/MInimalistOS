@@ -118,6 +118,15 @@ static uint32_t sys_device_ioctl_wrapper(uint32_t name, uint32_t cmd, uint32_t a
     return sys_device_ioctl((const char*)name, cmd, (void*)arg);
 }
 
+static uint32_t sys_network_send_wrapper(uint32_t dst_ip, uint32_t type, uint32_t data, uint32_t length) {
+    return sys_network_send(dst_ip, (uint8_t)type, (const void*)data, (uint16_t)length);
+}
+
+static uint32_t sys_network_receive_wrapper(uint32_t packet, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_network_receive((void*)packet);
+}
+
 // Initialize system call interface
 void syscall_init(void) {
     // Initialize all system call handlers to NULL
@@ -146,6 +155,8 @@ void syscall_init(void) {
     syscall_table[SYS_DEVICE_READ] = sys_device_read_wrapper;
     syscall_table[SYS_DEVICE_WRITE] = sys_device_write_wrapper;
     syscall_table[SYS_DEVICE_IOCTL] = sys_device_ioctl_wrapper;
+    syscall_table[SYS_NETWORK_SEND] = sys_network_send_wrapper;
+    syscall_table[SYS_NETWORK_RECEIVE] = sys_network_receive_wrapper;
     
     log_info("System call interface initialized");
     vga_print("Syscall interface: OK\n");

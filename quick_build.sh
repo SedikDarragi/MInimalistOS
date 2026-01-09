@@ -19,6 +19,7 @@ gcc $CFLAGS $INCLUDES -c kernel/idt.c -o kernel/idt.o 2>&1 && echo "idt.o OK" ||
 gcc $CFLAGS $INCLUDES -c kernel/isr.c -o kernel/isr.o 2>&1 && echo "isr.o OK" || echo "isr.o failed"
 gcc $CFLAGS $INCLUDES -c kernel/pci.c -o kernel/pci.o 2>&1 && echo "pci.o OK" || echo "pci.o failed"
 gcc $CFLAGS $INCLUDES -c kernel/net_core.c -o kernel/net_core.o 2>&1 && echo "net_core.o OK" || echo "net_core.o failed"
+gcc $CFLAGS $INCLUDES -c kernel/network.c -o kernel/network.o 2>&1 && echo "network.o OK" || echo "network.o failed"
 gcc $CFLAGS $INCLUDES -c kernel/process_simple.c -o kernel/process_simple.o 2>&1 && echo "process_simple.o OK" || echo "process_simple.o failed"
 gcc $CFLAGS $INCLUDES -c kernel/fs_test.c -o kernel/fs_test.o 2>&1 && echo "fs_test.o OK" || echo "fs_test.o failed"
 gcc $CFLAGS $INCLUDES -c kernel/syscall_simple.c -o kernel/syscall_simple.o 2>&1 && echo "syscall_simple.o OK" || echo "syscall_simple.o failed"
@@ -53,7 +54,7 @@ gcc -m32 -c kernel/context.s -o kernel/context.o 2>&1 && echo "context.o OK" || 
 echo "Linking kernel..."
 ld -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000 -o kernel.elf \
     kernel/entry.o kernel/kmain.o kernel/log.o kernel/string.o kernel/memory.o \
-    kernel/idt.o kernel/idt_asm.o kernel/isr.o kernel/pci.o kernel/net_core.o \
+    kernel/idt.o kernel/idt_asm.o kernel/isr.o kernel/pci.o kernel/net_core.o kernel/network.o \
     kernel/process_simple.o kernel/fs_test.o kernel/syscall_simple.o kernel/program_loader.o \
     kernel/context.o kernel/monitor.o kernel/power.o kernel/device.o \
     drivers/vga.o drivers/keyboard.o drivers/keyboard_intl.o drivers/serial.o \
