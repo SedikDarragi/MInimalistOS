@@ -93,6 +93,31 @@ static uint32_t sys_get_power_stats_wrapper(uint32_t buffer, uint32_t arg2, uint
     return sys_get_power_stats((void*)buffer);
 }
 
+static uint32_t sys_device_open_wrapper(uint32_t name, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_device_open((const char*)name);
+}
+
+static uint32_t sys_device_close_wrapper(uint32_t name, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_device_close((const char*)name);
+}
+
+static uint32_t sys_device_read_wrapper(uint32_t name, uint32_t buffer, uint32_t size, uint32_t unused4) {
+    (void)unused4;
+    return sys_device_read((const char*)name, (void*)buffer, size);
+}
+
+static uint32_t sys_device_write_wrapper(uint32_t name, uint32_t buffer, uint32_t size, uint32_t unused4) {
+    (void)unused4;
+    return sys_device_write((const char*)name, (const void*)buffer, size);
+}
+
+static uint32_t sys_device_ioctl_wrapper(uint32_t name, uint32_t cmd, uint32_t arg, uint32_t unused4) {
+    (void)unused4;
+    return sys_device_ioctl((const char*)name, cmd, (void*)arg);
+}
+
 // Initialize system call interface
 void syscall_init(void) {
     // Initialize all system call handlers to NULL
@@ -116,6 +141,11 @@ void syscall_init(void) {
     syscall_table[SYS_POWER_STATE] = sys_power_state_wrapper;
     syscall_table[SYS_GET_BATTERY_INFO] = sys_get_battery_info_wrapper;
     syscall_table[SYS_GET_POWER_STATS] = sys_get_power_stats_wrapper;
+    syscall_table[SYS_DEVICE_OPEN] = sys_device_open_wrapper;
+    syscall_table[SYS_DEVICE_CLOSE] = sys_device_close_wrapper;
+    syscall_table[SYS_DEVICE_READ] = sys_device_read_wrapper;
+    syscall_table[SYS_DEVICE_WRITE] = sys_device_write_wrapper;
+    syscall_table[SYS_DEVICE_IOCTL] = sys_device_ioctl_wrapper;
     
     log_info("System call interface initialized");
     vga_print("Syscall interface: OK\n");
