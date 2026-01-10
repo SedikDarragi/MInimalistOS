@@ -64,13 +64,20 @@ static uint32_t sys_free_wrapper(uint32_t ptr, uint32_t arg2, uint32_t arg3, uin
 }
 
 static uint32_t sys_log_wrapper(uint32_t level, uint32_t message, uint32_t arg3, uint32_t arg4) {
-    (void)arg3; (void)arg4;
-    return sys_log((uint8_t)level, (const char*)message);
+    (void)level; (void)arg3; (void)arg4;
+    // Stub implementation - just print to VGA
+    const char* msg = (const char*)message;
+    if (msg) {
+        vga_print("[SYSLOG] ");
+        vga_print(msg);
+        vga_print("\n");
+    }
+    return 0;
 }
 
 static uint32_t sys_get_stats_wrapper(uint32_t stats_type, uint32_t buffer, uint32_t arg3, uint32_t arg4) {
-    (void)arg3; (void)arg4;
-    return sys_get_stats(stats_type, (void*)buffer);
+    (void)stats_type; (void)buffer; (void)arg3; (void)arg4;
+    return 0;  // Stub
 }
 
 static uint32_t sys_dump_logs_wrapper(uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4) {
@@ -79,18 +86,18 @@ static uint32_t sys_dump_logs_wrapper(uint32_t arg1, uint32_t arg2, uint32_t arg
 }
 
 static uint32_t sys_power_state_wrapper(uint32_t state, uint32_t arg2, uint32_t arg3, uint32_t arg4) {
-    (void)arg2; (void)arg3; (void)arg4;
-    return sys_power_state(state);
+    (void)state; (void)arg2; (void)arg3; (void)arg4;
+    return 0;  // Stub
 }
 
 static uint32_t sys_get_battery_info_wrapper(uint32_t buffer, uint32_t arg2, uint32_t arg3, uint32_t arg4) {
-    (void)arg2; (void)arg3; (void)arg4;
-    return sys_get_battery_info((void*)buffer);
+    (void)buffer; (void)arg2; (void)arg3; (void)arg4;
+    return 0;  // Stub
 }
 
 static uint32_t sys_get_power_stats_wrapper(uint32_t buffer, uint32_t arg2, uint32_t arg3, uint32_t arg4) {
-    (void)arg2; (void)arg3; (void)arg4;
-    return sys_get_power_stats((void*)buffer);
+    (void)buffer; (void)arg2; (void)arg3; (void)arg4;
+    return 0;  // Stub
 }
 
 static uint32_t sys_device_open_wrapper(uint32_t name, uint32_t unused2, uint32_t unused3, uint32_t unused4) {

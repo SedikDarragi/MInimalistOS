@@ -1,0 +1,43 @@
+Quick build - compiling essential files...
+Working directory: /home/slime/Documents/OS copy copy copy
+Starting at: Sat Jan 10 04:06:21 AM CET 2026
+Compiling kernel files...
+kmain.o OK
+log.o OK
+string.o OK
+memory.o OK
+idt.o OK
+isr.o OK
+pci.o OK
+net_core.o OK
+network.o OK
+process_simple.o OK
+fs_test.o OK
+kernel/syscall_simple.c: In function ‘sys_log_wrapper’:
+kernel/syscall_simple.c:66:42: error: unused parameter ‘level’ [-Werror=unused-parameter]
+   66 | static uint32_t sys_log_wrapper(uint32_t level, uint32_t message, uint32_t arg3, uint32_t arg4) {
+      |                                 ~~~~~~~~~^~~~~
+cc1: all warnings being treated as errors
+syscall_simple.o failed
+program_loader.o OK
+context.o OK
+monitor.o OK
+power.o OK
+device.o OK
+Compiling driver files...
+vga.o OK
+keyboard.o OK
+keyboard_intl.o OK
+serial.o OK
+timer.o OK
+mouse.o OK
+net_ne2k.o OK
+Compiling filesystem files...
+filesystem_enhanced.o OK
+Compiling assembly files...
+entry.o OK
+idt_asm.o OK
+context.o OK
+Linking kernel...
+ld: cannot find kernel/syscall_simple.o: No such file or directory
+Linking failed
