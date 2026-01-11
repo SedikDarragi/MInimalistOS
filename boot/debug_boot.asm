@@ -16,6 +16,9 @@ main:
     mov ss, ax
     mov sp, 0x9000
     
+    ; Save boot drive (passed by BIOS in DL)
+    mov [boot_drive], dl
+    
     ; Write 'B' to VGA to show we're in main
     ; Use segment:offset addressing for VGA memory
     push es
@@ -30,7 +33,7 @@ main:
     mov es, ax
     mov bx, KERNEL_OFFSET
     mov dh, 48  ; Load 48 sectors = 24KB (enough for kernel)
-    mov dl, 0x80
+    mov dl, [boot_drive]  ; Use boot drive passed by BIOS
     call disk_load
     
     ; Write 'L' to VGA to show disk load completed
