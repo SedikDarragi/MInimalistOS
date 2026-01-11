@@ -14,8 +14,9 @@
 #include "../include/pci.h"
 
 void kmain(void) {
-    vga_clear();
-    vga_print("Minimalist OS Kernel - Main Entry Point\n");
+    /* Don't clear screen immediately - let debug chars stay visible */
+    /* vga_clear(); */
+    vga_print("\nMinimalist OS Kernel - Main Entry Point\n");
     
     log_info("Kernel main function started");
     

@@ -25,14 +25,11 @@ main:
     mov byte [es:0x0001], 0x0F
     pop es
     
-    ; Load kernel
-    mov bx, KERNEL_OFFSET
-    mov es, bx
-    xor bx, bx
+    ; Load kernel to 0x1000
     mov ax, 0x0000
     mov es, ax
     mov bx, KERNEL_OFFSET
-    mov dh, 16
+    mov dh, 48  ; Load 48 sectors = 24KB (enough for kernel)
     mov dl, 0x80
     call disk_load
     
@@ -54,7 +51,7 @@ disk_load:
     mov al, bl
     mov ch, 0x00
     mov dh, 0x00
-    mov cl, 0x02
+    mov cl, 0x01  ; Sector 1 (where kernel is placed)
     mov dl, 0x80
     int 0x13
     jc .error
@@ -84,7 +81,7 @@ gdt_end:
 
 gdt_descriptor:
     dw gdt_end - gdt_start - 1
-    dd gdt_start + 0x7C00
+    dd gdt_start
 
 switch_to_pm:
     cli
@@ -149,9 +146,8 @@ protected_mode_entry:
     mov byte [0xB8004], 'J'
     mov byte [0xB8005], 0x0F
     
-    ; Try using a different jump method
-    ; Load the address into a register and jump
-    mov eax, 0x102f
+    ; Jump to kernel entry point at 0x100C (after multiboot header)
+    mov eax, 0x100C
     jmp eax
 
 times 510 - ($-$$) db 0

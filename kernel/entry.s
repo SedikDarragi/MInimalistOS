@@ -32,6 +32,11 @@ _start:
     movb $0x0F, %ah
     movw %ax, (VGA_BUFFER + 6)
     
+    /* Write '!' to show we're about to call kmain */
+    movb $'!', %al
+    movb $0x0F, %ah
+    movw %ax, (VGA_BUFFER + 12)
+    
     /* Set up stack for C code */
     movl $0x90000, %esp
     
