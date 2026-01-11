@@ -107,10 +107,10 @@ switch_to_pm:
     mov byte [es:0x0007], 0x0F
     pop es
     
-    ; Enable protected mode - manual encoding for 16-bit mode
-    db 0x0F, 0x20, 0xC0  ; mov eax, cr0
-    or ax, 1  ; Set bit 0 (Protection Enable)
-    db 0x0F, 0x22, 0xC0  ; mov cr0, eax
+    ; Enable protected mode
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
     
     ; Write 'P' to VGA to show protected mode enabled
     push es
@@ -120,10 +120,8 @@ switch_to_pm:
     mov byte [es:0x0009], 0x0F
     pop es
     
-    ; Far jump to protected mode - use proper encoding
-    db 0xEA  ; jmp far opcode
-    dw protected_mode_entry  ; offset (relative to current segment)
-    dw CODE_SEG  ; segment selector
+    ; Far jump to protected mode
+    jmp dword CODE_SEG:protected_mode_entry
 
 [bits 32]
 protected_mode_entry:
