@@ -121,44 +121,8 @@ switch_to_pm:
     pop es
     
     ; Far jump to 32-bit code to complete the switch
-    ; Use direct encoding for reliability
-    db 0xEA
-    dw protected_mode_entry
-    dw CODE_SEG
-
-[bits 32]
-protected_mode_entry:
-    ; Set up data segment registers
-    mov ax, DATA_SEG
-    mov ds, ax
-    mov ss, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    
-    mov esp, 0x90000
-    
-    ; Write 'P' to VGA to show we're in protected mode
-    mov byte [0xB8000], 'P'
-    mov byte [0xB8001], 0x0F
-    
-    ; Write '3' to VGA to show we're about to jump to kernel
-    mov byte [0xB8002], '3'
-    mov byte [0xB8003], 0x0F
-    
-    ; Write 'J' to VGA to show we're jumping
-    mov byte [0xB8004], 'J'
-    mov byte [0xB8005], 0x0F
-    
-    ; Write 'X' to show we're in protected mode
-    mov byte [0xB8006], 'X'
-    mov byte [0xB8007], 0x0F
-    
-    ; Hang here instead of jumping to kernel
-    cli
-.hang:
-    hlt
-    jmp .hang
+    ; Jump to kernel directly at 0x100C
+    jmp CODE_SEG:0x100C
 
 ; Data
 boot_drive db 0
