@@ -66,20 +66,20 @@ disk_load:
 ; GDT
 gdt_start:
     dq 0x0
-    ; Code segment
-    dw 0xFFFF
-    dw 0x0
-    db 0x0
-    db 10011010b
-    db 11001111b
-    db 0x0
-    ; Data segment - with I/O access
-    dw 0xFFFF
-    dw 0x0
-    db 0x0
-    db 10010010b
-    db 11001111b
-    db 0x0
+    ; Code segment - base 0x7C00 to match bootloader
+    dw 0xFFFF       ; Limit low
+    dw 0x7C00       ; Base low
+    db 0x00         ; Base middle
+    db 10011010b    ; Access
+    db 11001111b    ; Flags + Limit high
+    db 0x00         ; Base high
+    ; Data segment - base 0x7C00 with I/O access
+    dw 0xFFFF       ; Limit low
+    dw 0x7C00       ; Base low
+    db 0x00         ; Base middle
+    db 10010010b    ; Access
+    db 11001111b    ; Flags + Limit high
+    db 0x00         ; Base high
 gdt_end:
 
 gdt_descriptor:
