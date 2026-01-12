@@ -109,7 +109,7 @@ switch_to_pm:
     
     ; Enable protected mode
     mov eax, cr0
-    or eax, 1
+    or eax, 1  ; Set PE bit (Protection Enable)
     mov cr0, eax
     
     ; Write 'P' to VGA to show protected mode enabled
@@ -120,8 +120,11 @@ switch_to_pm:
     mov byte [es:0x0009], 0x0F
     pop es
     
-    ; Far jump to protected mode
-    jmp dword CODE_SEG:protected_mode_entry
+    ; Far jump to 32-bit code to complete the switch
+    ; Use direct encoding for reliability
+    db 0xEA
+    dw protected_mode_entry
+    dw CODE_SEG
 
 [bits 32]
 protected_mode_entry:
@@ -147,9 +150,15 @@ protected_mode_entry:
     mov byte [0xB8004], 'J'
     mov byte [0xB8005], 0x0F
     
-    ; Jump to kernel entry point at 0x100C (after multiboot header)
-    mov eax, 0x100C
-    jmp eax
+    ; Write 'X' to show we're in protected mode
+    mov byte [0xB8006], 'X'
+    mov byte [0xB8007], 0x0F
+    
+    ; Hang here instead of jumping to kernel
+    cli
+.hang:
+    hlt
+    jmp .hang
 
 ; Data
 boot_drive db 0
