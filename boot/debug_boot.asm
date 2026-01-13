@@ -28,15 +28,10 @@ main:
     mov byte [es:0x0001], 0x0F
     pop es
     
-    ; Load kernel to 0x1000
-    mov ax, 0x0000
-    mov es, ax
-    mov bx, KERNEL_OFFSET
-    mov dh, 80  ; Load 80 sectors = 40KB (enough for 33KB kernel)
-    mov dl, [boot_drive]  ; Use boot drive passed by BIOS
-    call disk_load
+    ; Save boot drive (passed by BIOS in DL)
+    mov [boot_drive], dl
     
-    ; Write 'L' to VGA to show disk load completed
+    ; Write 'L' to VGA to show we're loading
     push es
     mov ax, 0xB800
     mov es, ax
@@ -44,23 +39,97 @@ main:
     mov byte [es:0x0003], 0x0F
     pop es
     
+    ; Load kernel to 0x1000
+    mov ax, 0x0000
+    mov es, ax
+    mov bx, KERNEL_OFFSET
+    mov dh, 1  ; Load 1 sector first to test
+    mov dl, [boot_drive]  ; Use boot drive passed by BIOS
+    call disk_load
+    
+    ; Write 'S' to VGA to show disk load completed
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0004], 'S'
+    mov byte [es:0x0005], 0x0F
+    pop es
+    
     ; Switch to protected mode
     call switch_to_pm
 
 disk_load:
     pusha
-    mov bl, dh
+    
+    ; Write '1' to show we're in disk_load
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0006], '1'
+    mov byte [es:0x0007], 0x0F
+    pop es
+    
+    ; Save sector count
+    mov [sector_count], dh
+    
+    ; Try reading 1 sector first to test
     mov ah, 0x02
-    mov al, bl
-    mov ch, 0x00
-    mov dh, 0x00
-    mov cl, 0x01  ; Sector 1 (where kernel is placed)
-    mov dl, 0x80
+    mov al, 1       ; Read 1 sector
+    mov ch, 0x00    ; Cylinder 0
+    mov dh, 0x00    ; Head 0
+    mov cl, 0x02    ; Sector 2 (sector 1 is bootloader)
+    ; DL is already set by caller
+    
+    ; Write '2' to show we're about to call INT 0x13
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0008], '2'
+    mov byte [es:0x0009], 0x0F
+    pop es
+    
     int 0x13
+    
+    ; Write '3' to show INT 0x13 completed
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x000A], '3'
+    mov byte [es:0x000B], 0x0F
+    pop es
+    
     jc .error
+    
+    ; Write '4' to show no error
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x000C], '4'
+    mov byte [es:0x000D], 0x0F
+    pop es
+    
     popa
     ret
+    
 .error:
+    ; Write 'E' for error
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x000E], 'E'
+    mov byte [es:0x000F], 0x0F
+    pop es
+    
+    ; Also write error code (AH contains error)
+    mov bl, ah
+    add bl, '0'
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0010], bl
+    mov byte [es:0x0011], 0x0F
+    pop es
+    
     jmp $
 
 ; GDT
@@ -142,6 +211,7 @@ switch_to_pm:
 
 ; Data
 boot_drive db 0
+sector_count db 0
 
 times 510 - ($-$$) db 0
 dw 0xAA55
