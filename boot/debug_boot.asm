@@ -32,7 +32,7 @@ main:
     mov ax, 0x0000
     mov es, ax
     mov bx, KERNEL_OFFSET
-    mov dh, 48  ; Load 48 sectors = 24KB (enough for kernel)
+    mov dh, 80  ; Load 80 sectors = 40KB (enough for 33KB kernel)
     mov dl, [boot_drive]  ; Use boot drive passed by BIOS
     call disk_load
     
@@ -107,17 +107,33 @@ switch_to_pm:
     mov byte [es:0x0007], 0x0F
     pop es
     
+    ; Write '1' to show we're about to read CR0
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x000A], '1'
+    mov byte [es:0x000B], 0x0F
+    pop es
+    
     ; Enable protected mode
     mov eax, cr0
     or eax, 1  ; Set PE bit (Protection Enable)
     mov cr0, eax
     
+    ; Write '2' to show we wrote CR0
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x000C], '2'
+    mov byte [es:0x000D], 0x0F
+    pop es
+    
     ; Write 'P' to VGA to show protected mode enabled
     push es
     mov ax, 0xB800
     mov es, ax
-    mov byte [es:0x0008], 'P'
-    mov byte [es:0x0009], 0x0F
+    mov byte [es:0x000E], 'P'
+    mov byte [es:0x000F], 0x0F
     pop es
     
     ; Far jump to 32-bit code to complete the switch
