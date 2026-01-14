@@ -69,18 +69,13 @@ disk_load:
     mov byte [es:0x0007], 0x0F
     pop es
     
-    ; Save sector count
-    mov [sector_count], dh
+    ; Reset disk system first
+    mov ah, 0x00
+    mov dl, [boot_drive]
+    int 0x13
+    jc .error
     
-    ; Try reading 1 sector first to test
-    mov ah, 0x02
-    mov al, 1       ; Read 1 sector
-    mov ch, 0x00    ; Cylinder 0
-    mov dh, 0x00    ; Head 0
-    mov cl, 0x02    ; Sector 2 (sector 1 is bootloader)
-    ; DL is already set by caller
-    
-    ; Write '2' to show we're about to call INT 0x13
+    ; Write '2' to show disk reset done
     push es
     mov ax, 0xB800
     mov es, ax
@@ -88,9 +83,18 @@ disk_load:
     mov byte [es:0x0009], 0x0F
     pop es
     
-    int 0x13
+    ; Read sectors
+    mov ah, 0x02
+    mov al, 18      ; Read 18 sectors (safe limit)
+    mov ch, 0x00    ; Cylinder 0
+    mov dh, 0x00    ; Head 0
+    mov cl, 0x01    ; Sector 1 (where kernel is placed)
+    mov dl, [boot_drive]
+    mov bx, 0x1000  ; ES:BX = 0x1000
+    mov es, bx
+    xor bx, bx
     
-    ; Write '3' to show INT 0x13 completed
+    ; Write '3' to show we're about to call INT 0x13
     push es
     mov ax, 0xB800
     mov es, ax
@@ -98,14 +102,24 @@ disk_load:
     mov byte [es:0x000B], 0x0F
     pop es
     
-    jc .error
+    int 0x13
     
-    ; Write '4' to show no error
+    ; Write '4' to show INT 0x13 completed
     push es
     mov ax, 0xB800
     mov es, ax
     mov byte [es:0x000C], '4'
     mov byte [es:0x000D], 0x0F
+    pop es
+    
+    jc .error
+    
+    ; Write '5' to show success
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x000E], '5'
+    mov byte [es:0x000F], 0x0F
     pop es
     
     popa
@@ -116,21 +130,43 @@ disk_load:
     push es
     mov ax, 0xB800
     mov es, ax
-    mov byte [es:0x000E], 'E'
-    mov byte [es:0x000F], 0x0F
-    pop es
-    
-    ; Also write error code (AH contains error)
-    mov bl, ah
-    add bl, '0'
-    push es
-    mov ax, 0xB800
-    mov es, ax
-    mov byte [es:0x0010], bl
+    mov byte [es:0x0010], 'E'
     mov byte [es:0x0011], 0x0F
     pop es
     
+    ; Write error code
+    mov al, ah
+    shr al, 4
+    call .hex_digit
+    mov bl, al
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0012], bl
+    mov byte [es:0x0013], 0x0F
+    pop es
+    
+    mov al, ah
+    and al, 0x0F
+    call .hex_digit
+    mov bl, al
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0014], bl
+    mov byte [es:0x0015], 0x0F
+    pop es
+    
     jmp $
+
+.hex_digit:
+    cmp al, 9
+    jle .hex_digit_num
+    add al, 'A' - 10
+    ret
+.hex_digit_num:
+    add al, '0'
+    ret
 
 ; GDT
 gdt_start:
