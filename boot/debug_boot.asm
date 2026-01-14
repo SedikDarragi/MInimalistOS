@@ -83,12 +83,12 @@ disk_load:
     mov byte [es:0x0009], 0x0F
     pop es
     
-    ; Read sectors
+    ; Read sectors from sector 2
     mov ah, 0x02
     mov al, 18      ; Read 18 sectors (safe limit)
     mov ch, 0x00    ; Cylinder 0
     mov dh, 0x00    ; Head 0
-    mov cl, 0x01    ; Sector 1 (where kernel is placed)
+    mov cl, 0x02    ; Sector 2
     mov dl, [boot_drive]
     mov bx, 0x1000  ; ES:BX = 0x1000
     mov es, bx
