@@ -31,13 +31,45 @@ main:
     ; Save boot drive (passed by BIOS in DL)
     mov [boot_drive], dl
     
+    ; Write boot drive number to VGA for debugging
+    mov al, dl
+    shr al, 4
+    call .hex_digit
+    mov bl, al
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0002], bl
+    mov byte [es:0x0003], 0x0F
+    pop es
+    
+    mov al, [boot_drive]
+    and al, 0x0F
+    call .hex_digit
+    mov bl, al
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x0004], bl
+    mov byte [es:0x0005], 0x0F
+    pop es
+    
     ; Write 'L' to VGA to show we're loading
     push es
     mov ax, 0xB800
     mov es, ax
-    mov byte [es:0x0002], 'L'
-    mov byte [es:0x0003], 0x0F
+    mov byte [es:0x0006], 'L'
+    mov byte [es:0x0007], 0x0F
     pop es
+    
+.hex_digit:
+    cmp al, 9
+    jle .hex_digit_num
+    add al, 'A' - 10
+    ret
+.hex_digit_num:
+    add al, '0'
+    ret
     
     ; Load kernel to 0x1000
     mov ax, 0x0000
@@ -83,14 +115,14 @@ disk_load:
     mov byte [es:0x0009], 0x0F
     pop es
     
-    ; Read sectors from sector 2
+    ; Try loading 1 sector from sector 1 to 0x2000
     mov ah, 0x02
-    mov al, 18      ; Read 18 sectors (safe limit)
+    mov al, 1       ; Read 1 sector
     mov ch, 0x00    ; Cylinder 0
     mov dh, 0x00    ; Head 0
-    mov cl, 0x02    ; Sector 2
+    mov cl, 0x01    ; Sector 1
     mov dl, [boot_drive]
-    mov bx, 0x1000  ; ES:BX = 0x1000
+    mov bx, 0x2000  ; ES:BX = 0x2000 (different address)
     mov es, bx
     xor bx, bx
     
