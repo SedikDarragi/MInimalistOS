@@ -73,7 +73,7 @@ if [ $? -eq 0 ]; then
     if [ -f boot/debug_boot.bin ]; then
         dd if=/dev/zero of=os.img bs=1M count=10 2>/dev/null
         dd if=boot/debug_boot.bin of=os.img conv=notrunc 2>/dev/null
-        dd if=kernel.bin of=os.img seek=2 conv=notrunc 2>/dev/null
+        dd if=kernel.bin of=os.img seek=1 conv=notrunc 2>/dev/null
         echo "Disk image created: os.img"
         ls -la os.img
     else
@@ -81,7 +81,7 @@ if [ $? -eq 0 ]; then
         nasm -f bin boot/debug_boot.asm -o boot/debug_boot.bin
         dd if=/dev/zero of=os.img bs=1M count=10 2>/dev/null
         dd if=boot/debug_boot.bin of=os.img conv=notrunc 2>/dev/null
-        dd if=kernel.bin of=os.img seek=2 conv=notrunc 2>/dev/null
+        dd if=kernel.bin of=os.img seek=1 conv=notrunc 2>/dev/null
         echo "Disk image created: os.img"
         ls -la os.img
     fi
