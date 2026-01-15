@@ -12,18 +12,13 @@ PHDRS
 
 SECTIONS
 {
-    /* The kernel will be loaded at 0x1000 (4KB) to match the bootloader */
-    . = 0x1000;
-
-    /* Multiboot header (must be at beginning) */
-    .multiboot : ALIGN(4) {
-        *(.multiboot)
-    } :text
+    /* The kernel will be loaded at 0x2000 (8KB) to match the bootloader */
+    . = 0x2000;
 
     /* Kernel code section */
     .text : {
-        *(.text.entry) /* Make sure entry code is first */
-        *(.text .text.*)
+        *(.text) /* Entry code is first */
+        *(.text.*)
     } :text
     
     /* Read-only data */

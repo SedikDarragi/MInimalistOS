@@ -4,21 +4,9 @@
 .set VGA_WIDTH, 80
 .set VGA_HEIGHT, 25
 
-/* Multiboot header constants */
-.set MAGIC, 0x1BADB002
-.set FLAGS, 0x0
-.set CHECKSUM, -(MAGIC + FLAGS)
-
 /* Stack configuration */
 .set STACK_SIZE, 0x4000  /* 16KB stack */
 
-.section .multiboot
-.align 4
-.long MAGIC
-.long FLAGS
-.long CHECKSUM
-
-.section .text.entry
 .global _start
 
 _start:
