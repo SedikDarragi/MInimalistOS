@@ -31,10 +31,10 @@ main:
     mov byte [es:0x0003], 0x0F
     pop es
     
-    ; Load kernel to 0x2000
-    mov ax, 0x0000
+    ; Load kernel to 0x10000 (64KB)
+    mov ax, 0x1000
     mov es, ax
-    mov bx, 0x2000
+    mov bx, 0x0000
     mov dh, 65  ; Load 65 sectors (33KB kernel)
     mov dl, [boot_drive]
     
@@ -43,12 +43,12 @@ main:
     int 0x13
     jc .disk_error
     
-    ; Read 65 sectors from sector 4
+    ; Read 65 sectors from sector 32
     mov ah, 0x02
     mov al, 65
     mov ch, 0x00
     mov dh, 0x00
-    mov cl, 0x04
+    mov cl, 0x20
     int 0x13
     jc .disk_error
     
@@ -151,7 +151,7 @@ main:
     pop es
     
     ; Far jump to kernel
-    jmp 8:0x2000
+    jmp 8:0x10000
 
 ; GDT
 gdt_start:
