@@ -31,8 +31,8 @@ main:
     mov byte [es:0x0003], 0x0F
     pop es
     
-    ; Load kernel to 0x8000 (32KB)
-    mov ax, 0x0800
+    ; Load kernel to 0x10000 (64KB)
+    mov ax, 0x1000
     mov es, ax
     mov bx, 0x0000
     mov dh, 65  ; Load 65 sectors (33KB kernel)
@@ -151,7 +151,7 @@ main:
     pop es
     
     ; Far jump to kernel
-    jmp 8:0x8000
+    jmp 8:0x10000
 
 ; GDT
 gdt_start:
