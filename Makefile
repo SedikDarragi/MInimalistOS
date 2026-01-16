@@ -153,8 +153,8 @@ os.img: boot/debug_boot.bin kernel.bin
 	dd if=/dev/zero of=os.img bs=1M count=10 2>/dev/null
 	# Write the bootloader to the first sector (MBR)
 	dd if=boot/debug_boot.bin of=os.img conv=notrunc 2>/dev/null
-	# Write the kernel starting at sector 32 (0x10000 = 32 sectors)
-	dd if=kernel.bin of=os.img seek=32 conv=notrunc 2>/dev/null
+	# Write the kernel starting at sector 16 (0x8000 = 16 sectors)
+	dd if=kernel.bin of=os.img seek=16 conv=notrunc 2>/dev/null
 	@echo "Disk image created successfully"
 	@ls -lh os.img
 
