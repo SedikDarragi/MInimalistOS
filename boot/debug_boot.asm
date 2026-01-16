@@ -43,12 +43,12 @@ main:
     int 0x13
     jc .disk_error
     
-    ; Read 65 sectors from sector 16
+    ; Read 65 sectors from sector 32
     mov ah, 0x02
     mov al, 65
     mov ch, 0x00
     mov dh, 0x00
-    mov cl, 0x10
+    mov cl, 0x20
     int 0x13
     jc .disk_error
     
