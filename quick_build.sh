@@ -86,5 +86,5 @@ if [ $? -eq 0 ]; then
         ls -la os.img
     fi
 else
-    echo "Linking failed"
+    echo "Linking faileds"
 fi
