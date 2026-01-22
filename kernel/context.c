@@ -2,7 +2,7 @@
 #include "process.h"
 #include "../include/idt.h"
 
-// External assembly functions
+// External assembly functionszeze
 extern void context_switch(cpu_context_t* old_context, cpu_context_t* new_context);
 extern void context_init(cpu_context_t* context, void (*entry_point)(), uint32_t stack_top);
 
