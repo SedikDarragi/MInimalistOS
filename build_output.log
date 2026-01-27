@@ -1,0 +1,123 @@
++ cd '/home/slime/Documents/OS copy copy copy'
++ echo 'Quick build - compiling essential files...'
+Quick build - compiling essential files...
+++ pwd
++ echo 'Working directory: /home/slime/Documents/OS copy copy copy'
+Working directory: /home/slime/Documents/OS copy copy copy
+++ date
++ echo 'Starting at: Tue Jan 27 01:48:12 AM CET 2026'
+Starting at: Tue Jan 27 01:48:12 AM CET 2026
++ CFLAGS='-m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3'
++ INCLUDES='-I./include -I./kernel -I. -I./drivers -I./fs'
++ echo 'Compiling kernel files...'
+Compiling kernel files...
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/kmain.c -o kernel/kmain.o
++ echo 'kmain.o OK'
+kmain.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/log.c -o kernel/log.o
++ echo 'log.o OK'
+log.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/string.c -o kernel/string.o
++ echo 'string.o OK'
+string.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/memory.c -o kernel/memory.o
++ echo 'memory.o OK'
+memory.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/idt.c -o kernel/idt.o
++ echo 'idt.o OK'
+idt.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/isr.c -o kernel/isr.o
++ echo 'isr.o OK'
+isr.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/pci.c -o kernel/pci.o
++ echo 'pci.o OK'
+pci.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/net_core.c -o kernel/net_core.o
++ echo 'net_core.o OK'
+net_core.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/network.c -o kernel/network.o
++ echo 'network.o OK'
+network.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/process_simple.c -o kernel/process_simple.o
++ echo 'process_simple.o OK'
+process_simple.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/fs_test.c -o kernel/fs_test.o
++ echo 'fs_test.o OK'
+fs_test.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/syscall_simple.c -o kernel/syscall_simple.o
++ echo 'syscall_simple.o OK'
+syscall_simple.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/program_loader.c -o kernel/program_loader.o
++ echo 'program_loader.o OK'
+program_loader.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/context.c -o kernel/context.o
++ echo 'context.o OK'
+context.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/monitor.c -o kernel/monitor.o
++ echo 'monitor.o OK'
+monitor.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/power.c -o kernel/power.o
++ echo 'power.o OK'
+power.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c kernel/device.c -o kernel/device.o
++ echo 'device.o OK'
+device.o OK
++ echo 'Compiling driver files...'
+Compiling driver files...
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c drivers/vga.c -o drivers/vga.o
++ echo 'vga.o OK'
+vga.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c drivers/keyboard.c -o drivers/keyboard.o
++ echo 'keyboard.o OK'
+keyboard.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c drivers/keyboard_intl.c -o drivers/keyboard_intl.o
++ echo 'keyboard_intl.o OK'
+keyboard_intl.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c drivers/serial.c -o drivers/serial.o
++ echo 'serial.o OK'
+serial.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c drivers/timer.c -o drivers/timer.o
++ echo 'timer.o OK'
+timer.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c drivers/mouse.c -o drivers/mouse.o
++ echo 'mouse.o OK'
+mouse.o OK
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c drivers/net_ne2k.c -o drivers/net_ne2k.o
++ echo 'net_ne2k.o OK'
+net_ne2k.o OK
++ echo 'Compiling filesystem files...'
+Compiling filesystem files...
++ gcc -m32 -Wall -Wextra -Werror -ffreestanding -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -g -D__is_kernel -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fno-omit-frame-pointer -fno-pic -fno-common -fno-strict-aliasing -fomit-frame-pointer -O0 -g3 -I./include -I./kernel -I. -I./drivers -I./fs -c fs/filesystem_enhanced.c -o fs/filesystem_enhanced.o
++ echo 'filesystem_enhanced.o OK'
+filesystem_enhanced.o OK
++ echo 'Compiling assembly files...'
+Compiling assembly files...
++ gcc -m32 -c kernel/entry.s -o kernel/entry.o
++ echo 'entry.o OK'
+entry.o OK
++ nasm -f elf32 kernel/idt_asm.asm -o kernel/idt_asm.o
++ echo 'idt_asm.o OK'
+idt_asm.o OK
++ gcc -m32 -c kernel/context.s -o kernel/context.o
++ echo 'context.o OK'
+context.o OK
++ echo 'Linking kernel...'
+Linking kernel...
++ ld -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000 -o kernel.elf kernel/entry.o kernel/kmain.o kernel/log.o kernel/string.o kernel/memory.o kernel/idt.o kernel/idt_asm.o kernel/isr.o kernel/pci.o kernel/net_core.o kernel/network.o kernel/process_simple.o kernel/fs_test.o kernel/syscall_simple.o kernel/program_loader.o kernel/context.o kernel/monitor.o kernel/power.o kernel/device.o drivers/vga.o drivers/keyboard.o drivers/keyboard_intl.o drivers/serial.o drivers/timer.o drivers/mouse.o drivers/net_ne2k.o fs/filesystem_enhanced.o
++ '[' 0 -eq 0 ']'
++ echo 'Kernel linked successfully!'
+Kernel linked successfully!
++ ls -la kernel.elf
+-rwxr-xr-x 1 slime slime 137700 Jan 27 01:48 kernel.elf
++ objcopy -O binary kernel.elf kernel.bin --pad-to 0x5000
+++ stat -c%s kernel.bin
++ echo 'Kernel binary created: 33224 bytes'
+Kernel binary created: 33224 bytes
++ '[' -f boot/debug_boot.bin ']'
++ dd if=/dev/zero of=os.img bs=1M count=10
++ dd if=boot/debug_boot.bin of=os.img conv=notrunc
++ dd if=kernel.bin of=os.img seek=1 conv=notrunc
++ echo 'Disk image created: os.img'
+Disk image created: os.img
++ ls -la os.img
+-rw-r--r-- 1 slime slime 10485760 Jan 27 01:48 os.img

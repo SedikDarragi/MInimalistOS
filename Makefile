@@ -208,7 +208,7 @@ $(BUILD_DIR):
 	$(Q)nasm -f elf32 $< -o $@
 
 
-# Size information
+# Size informationdzz
 size: kernel.elf
 	@echo "\n=== Kernel Size Information ==="
 	@$(SIZE) kernel.elf || true
