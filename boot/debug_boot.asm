@@ -159,7 +159,7 @@ main:
     pop es
     
     ; Far jump to kernel
-    jmp 8:0x8000
+    jmp 0x8000
 
 ; GDT
 gdt_start:

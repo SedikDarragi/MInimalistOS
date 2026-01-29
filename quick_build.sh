@@ -11,7 +11,7 @@ INCLUDES="-I./include -I./kernel -I. -I./drivers -I./fs"
 
 # Compile essential kernel files
 echo "Compiling kernel files..."
-gcc $CFLAGS $INCLUDES -c kernel/kmain.c -o kernel/kmain.o 2>&1 && echo "kmain.o OK" || echo "kmain.o failed"
+    gcc $CFLAGS $INCLUDES -c kernel/minimal_kmain.c -o kernel/kmain.o 2>&1 && echo "kmain.o OK" || echo "kmain.o failed"
 gcc $CFLAGS $INCLUDES -c kernel/log.c -o kernel/log.o 2>&1 && echo "log.o OK" || echo "log.o failed"
 gcc $CFLAGS $INCLUDES -c kernel/string.c -o kernel/string.o 2>&1 && echo "string.o OK" || echo "string.o failed"
 gcc $CFLAGS $INCLUDES -c kernel/memory.c -o kernel/memory.o 2>&1 && echo "memory.o OK" || echo "memory.o failed"
@@ -86,5 +86,5 @@ if [ $? -eq 0 ]; then
         ls -la os.img
     fi
 else
-    echo "Linking faileds"
+    echo "Linking failed"
 fi
