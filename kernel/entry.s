@@ -25,6 +25,9 @@ _start:
     movb $0x0F, %ah
     movw %ax, (VGA_BUFFER + 12)
     
+    /* Jump to the correct kernel entry point */
+    jmp 0x8000
+    
     /* Set up stack for C code */
     movl $0x90000, %esp
     
