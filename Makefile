@@ -78,12 +78,14 @@ TEST_ALL_SRCS := $(KERNEL_SRCS) $(TEST_SRCS) $(KERNEL_TEST_SRCS) $(DRIVER_SRCS) 
 # Generate dependencies
 DEPS := $(ALL_SRCS:.c=.d) $(patsubst %.s,%.d,$(filter %.s,$(KERNEL_ASM_SRCS)))
 
-# Object files
-KERNEL_OBJS = $(ALL_SRCS:.c=.o) \
-              $(patsubst %.s,%.o,$(filter %.s,$(KERNEL_ASM_SRCS)))
+# Object files - entry.o MUST be first!
+KERNEL_ENTRY_OBJ := kernel/entry.o
+OTHER_OBJS = $(ALL_SRCS:.c=.o) \
+             $(patsubst %.s,%.o,$(filter %.s,$(KERNEL_ASM_SRCS)))
+OTHER_OBJS := $(filter-out $(KERNEL_ENTRY_OBJ),$(OTHER_OBJS))
 
-# Remove duplicates and sort
-KERNEL_OBJS := $(sort $(KERNEL_OBJS))
+# Entry point first, then other objects
+KERNEL_OBJS := $(KERNEL_ENTRY_OBJ) $(sort $(OTHER_OBJS))
 
 # Include generated dependencies
 -include $(DEPS)
