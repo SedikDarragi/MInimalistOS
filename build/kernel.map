@@ -33,10 +33,6 @@ Updated property 0xc0010001 (0x9) to merge drivers/block_device.o (0x9) and kern
 Updated property 0xc0010002 (0x1) to merge drivers/block_device.o (0x1) and kernel/log.o (0x0)
 Updated property 0xc0010001 (0x9) to merge drivers/block_device.o (0x9) and kernel/memory.o (0x1)
 Updated property 0xc0010002 (0x1) to merge drivers/block_device.o (0x1) and kernel/memory.o (0x0)
-Updated property 0xc0010001 (0x9) to merge drivers/block_device.o (0x9) and kernel/minimal_entry.o (0x1)
-Updated property 0xc0010002 (0x1) to merge drivers/block_device.o (0x1) and kernel/minimal_entry.o (0x0)
-Updated property 0xc0010001 (0x9) to merge drivers/block_device.o (0x9) and kernel/minimal_kmain.o (0x1)
-Updated property 0xc0010002 (0x1) to merge drivers/block_device.o (0x1) and kernel/minimal_kmain.o (0x0)
 Updated property 0xc0010001 (0x9) to merge drivers/block_device.o (0x9) and kernel/net_core.o (0x1)
 Updated property 0xc0010002 (0x1) to merge drivers/block_device.o (0x1) and kernel/net_core.o (0x0)
 Updated property 0xc0010001 (0x9) to merge drivers/block_device.o (0x9) and kernel/network.o (0x1)
@@ -634,43 +630,6 @@ Discarded input sections
  .note.gnu.property
                 0x00000000       0x28 kernel/memory.o
  .eh_frame      0x00000000      0x260 kernel/memory.o
- .text          0x00000000       0x22 kernel/minimal_entry.o
- .data          0x00000000        0x0 kernel/minimal_entry.o
- .bss           0x00000000        0x0 kernel/minimal_entry.o
- .note.gnu.property
-                0x00000000       0x28 kernel/minimal_entry.o
- .group         0x00000000        0x8 kernel/minimal_kmain.o
- .group         0x00000000        0xc kernel/minimal_kmain.o
- .group         0x00000000        0xc kernel/minimal_kmain.o
- .group         0x00000000        0xc kernel/minimal_kmain.o
- .group         0x00000000        0xc kernel/minimal_kmain.o
- .group         0x00000000        0xc kernel/minimal_kmain.o
- .text          0x00000000       0x38 kernel/minimal_kmain.o
- .data          0x00000000        0x0 kernel/minimal_kmain.o
- .bss           0x00000000        0x0 kernel/minimal_kmain.o
- .rodata        0x00000000       0x38 kernel/minimal_kmain.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/minimal_kmain.o
- .debug_info    0x00000000       0x9e kernel/minimal_kmain.o
- .debug_abbrev  0x00000000       0x77 kernel/minimal_kmain.o
- .debug_aranges
-                0x00000000       0x20 kernel/minimal_kmain.o
- .debug_macro   0x00000000       0x3b kernel/minimal_kmain.o
- .debug_macro   0x00000000      0x97c kernel/minimal_kmain.o
- .debug_macro   0x00000000       0x28 kernel/minimal_kmain.o
- .debug_macro   0x00000000       0x10 kernel/minimal_kmain.o
- .debug_macro   0x00000000       0x16 kernel/minimal_kmain.o
- .debug_macro   0x00000000       0x10 kernel/minimal_kmain.o
- .debug_line    0x00000000       0x73 kernel/minimal_kmain.o
- .debug_str     0x00000000     0x3088 kernel/minimal_kmain.o
- .debug_line_str
-                0x00000000       0xdd kernel/minimal_kmain.o
- .comment       0x00000000       0x1c kernel/minimal_kmain.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/minimal_kmain.o
- .note.gnu.property
-                0x00000000       0x28 kernel/minimal_kmain.o
- .eh_frame      0x00000000       0x48 kernel/minimal_kmain.o
  .group         0x00000000        0x8 kernel/net_core.o
  .group         0x00000000        0x8 kernel/net_core.o
  .group         0x00000000        0xc kernel/net_core.o
@@ -1384,8 +1343,6 @@ LOAD kernel/isr.o
 LOAD kernel/kmain.o
 LOAD kernel/log.o
 LOAD kernel/memory.o
-LOAD kernel/minimal_entry.o
-LOAD kernel/minimal_kmain.o
 LOAD kernel/net_core.o
 LOAD kernel/network.o
 LOAD kernel/pci.o
