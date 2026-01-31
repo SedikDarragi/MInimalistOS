@@ -142,9 +142,25 @@ main:
     or eax, 1
     mov cr0, eax
     
+    ; Write '1' to show we're about to jump to kernel
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x000C], '1'
+    mov byte [es:0x000D], 0x0F
+    pop es
+    
     ; Far jump to kernel with code segment selector
     ; This will load CS and transition to protected mode
     jmp 0x08:0x8000
+    
+    ; Write '2' to show we're after the jump (should not reach here)
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x000E], '2'
+    mov byte [es:0x000F], 0x0F
+    pop es
 
 ; GDT
 gdt_start:
