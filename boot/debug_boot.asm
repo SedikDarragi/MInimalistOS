@@ -142,11 +142,11 @@ main:
     or eax, 1
     mov cr0, eax
     
-    ; Write '1' to show we're about to jump to kernel
+    ; Write 'J' to show we're jumping
     push es
     mov ax, 0xB800
     mov es, ax
-    mov byte [es:0x000C], '1'
+    mov byte [es:0x000C], 'J'
     mov byte [es:0x000D], 0x0F
     pop es
     
@@ -154,13 +154,17 @@ main:
     ; This will load CS and transition to protected mode
     jmp 0x08:0x8000
     
-    ; Write '2' to show we're after the jump (should not reach here)
+    ; If we return here, something went wrong
+    ; Write 'E' for error
     push es
     mov ax, 0xB800
     mov es, ax
-    mov byte [es:0x000E], '2'
+    mov byte [es:0x000E], 'E'
     mov byte [es:0x000F], 0x0F
     pop es
+    
+    ; Infinite loop if we return
+    jmp $
 
 ; GDT
 gdt_start:
