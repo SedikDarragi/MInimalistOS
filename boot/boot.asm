@@ -149,7 +149,7 @@ gdt_descriptor:
 
 loading_msg db 'Loading...', 0
 dot_msg db '.', 0
-error_msg db 0x0D, 0x0A, 'Boot error!', 0
+error_msg db 'Boot error!', 0
 boot_drive db 0
 
 times 510-($-$$) db 0
