@@ -73,7 +73,31 @@ print_string:
     lodsb
     or al, al
     jz .done
+    cmp al, 0x0D
+    je .cr
+    cmp al, 0x0A
+    je .lf
     mov ah, 0x0E
+    int 0x10
+    jmp print_string
+.cr:
+    ; Handle carriage return - move cursor to beginning of line
+    mov ah, 0x03    ; Get cursor position
+    mov bh, 0       ; Page number
+    int 0x10
+    mov ah, 0x02    ; Set cursor position
+    mov bh, 0       ; Page number
+    xor dl, dl      ; Column 0
+    int 0x10
+    jmp print_string
+.lf:
+    ; Handle line feed - move cursor down one line
+    mov ah, 0x03    ; Get cursor position
+    mov bh, 0       ; Page number
+    int 0x10
+    inc dh          ; Increment row
+    mov ah, 0x02    ; Set cursor position
+    mov bh, 0       ; Page number
     int 0x10
     jmp print_string
 .done:

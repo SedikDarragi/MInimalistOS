@@ -189,6 +189,18 @@ main:
     
     ; Infinite loop if we return
     jmp $
+    
+    ; If we return here, something went wrong
+    ; Write 'E' for error
+    push es
+    mov ax, 0xB800
+    mov es, ax
+    mov byte [es:0x000E], 'E'
+    mov byte [es:0x000F], 0x0F
+    pop es
+    
+    ; Infinite loop if we return
+    jmp $
 
 ; GDT
 gdt_start:
