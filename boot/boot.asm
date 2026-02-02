@@ -117,7 +117,7 @@ print_char:
     ret
 
 ; Protected mode data
-pmode_msg db 0x0A, 0x0D, 'Protected mode!', 0x0A, 0x0D, 0
+pmode_msg db 'Protected mode!', 0
 
 ; GDT
 gdt_start:

@@ -183,7 +183,7 @@ main:
 
 ; Data
 msg_loading db 'Loading kernel... ', 0
-msg_loaded  db 'OK', 0x0D, 0x0A, 0
+msg_loaded  db 'OK', 0x0A, 0
 msg_pm      db 'Entered protected mode!', 0
 disk_error_msg db 'Disk read error!', 0
 boot_drive  db 0
