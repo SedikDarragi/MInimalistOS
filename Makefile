@@ -229,7 +229,7 @@ QEMU_OPTS = -m 32M -monitor stdio -no-reboot -no-shutdown $(QEMU_NET)
 QEMU_DISK = -drive file=os.img,format=raw,if=ide
 QEMU_DEBUG = -d int,cpu_reset -D qemu.log
 
-# Run the OS in QEMU with basic settingszeze
+# Run the OS in QEMU with basic settings
 run: os.img
 	$(E) "  QEMU    $<"
 	@$(QEMU) $(QEMU_OPTS) $(QEMU_DISK) -vga std -display sdl
