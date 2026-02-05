@@ -1,1 +1,1 @@
-make: 'kernel/user_process.o' is up to date.
+  CC      kernel/user_process.o

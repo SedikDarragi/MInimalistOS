@@ -222,7 +222,7 @@ size: kernel.elf
 # QEMU configurationhuhu
 QEMU = qemu-system-i386
 
-# Attach a NE2000 PCI NIC so the skeleton NE2K driver has matching hardware
+# Attach a NE2000 PCI NIC so the skeleton NE2K drivsdsdser has matching hardware
 QEMU_NET = -netdev user,id=n0 -device ne2k_pci,netdev=n0
 
 QEMU_OPTS = -m 32M -monitor stdio -no-reboot -no-shutdown $(QEMU_NET)
