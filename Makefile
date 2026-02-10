@@ -219,7 +219,7 @@ size: kernel.elf
 	@echo "\nTotal size: $$(stat -c%s kernel.bin) bytes"
 	@echo "Available: $$((65536 - $$(stat -c%s kernel.bin))) bytes left (64KB total)"
 
-# QEMU configuration
+# QEMU configuration in the game
 QEMU = qemu-system-i386
 
 # Attach a NE2000 PCI NIC so the skeleton NE2K driver hassdsd matching hardware
