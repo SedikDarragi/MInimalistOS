@@ -5,6 +5,13 @@ cd "/home/slime/Documents/OS copy copy copy"
 echo "=== Full Build Script ==="
 echo "Working directory: $(pwd)"
 
+if [ "$1" == "clean" ]; then
+    echo "Cleaning..."
+    rm -f *.o kernel/*.o drivers/*.o fs/*.o kernel.elf kernel.bin os.img 2>/dev/null || true
+    echo "Clean complete"
+    exit 0
+fi
+
 # Check tools
 echo "Checking tools..."
 which gcc && echo "gcc: OK" || echo "gcc: MISSING"
