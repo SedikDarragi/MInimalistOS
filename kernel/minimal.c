@@ -65,6 +65,9 @@ void kmain(void) {
     vga_puts(0, 5, "Green text", 0x02);
     vga_puts(0, 6, "Blue text", 0x01);
     
+    while(1) __asm__ volatile("hlt");
+
+    /*
     // Wait a bit to see the message
     delay(10000000);
     
@@ -157,4 +160,5 @@ void kmain(void) {
     while (1) {
         __asm__ volatile ("hlt");
     }
+    */
 }
