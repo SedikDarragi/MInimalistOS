@@ -142,14 +142,6 @@ main:
     or eax, 1
     mov cr0, eax
     
-    ; Write 'J' to show we're jumping
-    push es
-    mov ax, 0xB800
-    mov es, ax
-    mov byte [es:0x000C], 'J'
-    mov byte [es:0x000D], 0x0F
-    pop es
-    
     ; Far jump to kernel with code segment selector
     ; This will load CS and transition to protected mode
     jmp 0x08:0x8000
