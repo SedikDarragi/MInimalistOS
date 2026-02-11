@@ -31,48 +31,48 @@ Linker script and memory map
 
                 0x00008000                        . = 0x8000
 
-.text           0x00008000      0x193
+.text           0x00008000      0x1a1
  *(.text)
- .text          0x00008000       0x2c kernel/entry.o
+ .text          0x00008000       0x3a kernel/entry.o
                 0x00008000                _start
- .text          0x0000802c      0x15f kernel/minimal.o
-                0x00008110                kmain
+ .text          0x0000803a      0x15f kernel/minimal.o
+                0x0000811e                kmain
  *(.text.*)
  .text.__x86.get_pc_thunk.ax
-                0x0000818b        0x4 kernel/minimal.o
-                0x0000818b                __x86.get_pc_thunk.ax
+                0x00008199        0x4 kernel/minimal.o
+                0x00008199                __x86.get_pc_thunk.ax
  .text.__x86.get_pc_thunk.bx
-                0x0000818f        0x4 kernel/minimal.o
-                0x0000818f                __x86.get_pc_thunk.bx
+                0x0000819d        0x4 kernel/minimal.o
+                0x0000819d                __x86.get_pc_thunk.bx
 
-.iplt           0x00008193        0x0
- .iplt          0x00008193        0x0 kernel/entry.o
+.iplt           0x000081a1        0x0
+ .iplt          0x000081a1        0x0 kernel/entry.o
 
-.rodata         0x00008193       0x43
+.rodata         0x000081a1       0x43
  *(.rodata .rodata.*)
- .rodata        0x00008193       0x43 kernel/minimal.o
+ .rodata        0x000081a1       0x43 kernel/minimal.o
 
-.rel.dyn        0x000081d8        0x0
- .rel.got       0x000081d8        0x0 kernel/entry.o
- .rel.iplt      0x000081d8        0x0 kernel/entry.o
+.rel.dyn        0x000081e4        0x0
+ .rel.got       0x000081e4        0x0 kernel/entry.o
+ .rel.iplt      0x000081e4        0x0 kernel/entry.o
 
 .data
  *(.data .data.*)
 
-.got            0x000081d8        0x0
- .got           0x000081d8        0x0 kernel/entry.o
+.got            0x000081e4        0x0
+ .got           0x000081e4        0x0 kernel/entry.o
 
-.got.plt        0x000081d8        0xc
- .got.plt       0x000081d8        0xc kernel/entry.o
-                0x000081d8                _GLOBAL_OFFSET_TABLE_
+.got.plt        0x000081e4        0xc
+ .got.plt       0x000081e4        0xc kernel/entry.o
+                0x000081e4                _GLOBAL_OFFSET_TABLE_
 
-.igot.plt       0x000081e4        0x0
- .igot.plt      0x000081e4        0x0 kernel/entry.o
+.igot.plt       0x000081f0        0x0
+ .igot.plt      0x000081f0        0x0 kernel/entry.o
 
 .bss
  *(COMMON)
  *(.bss .bss.*)
-                0x000081e4                        _end = .
+                0x000081f0                        _end = .
 
 /DISCARD/
  *(.comment)

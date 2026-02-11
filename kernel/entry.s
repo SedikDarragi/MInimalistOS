@@ -25,6 +25,14 @@ _start:
     movb $0x0F, %ah
     movw %ax, (VGA_BUFFER + 12)
     
+    /* Initialize segment registers for Protected Mode (0x10 is Data Segment) */
+    movw $0x10, %ax
+    movw %ax, %ds
+    movw %ax, %es
+    movw %ax, %fs
+    movw %ax, %gs
+    movw %ax, %ss
+    
     /* Set up stack for C code */
     movl $0x90000, %esp
     
