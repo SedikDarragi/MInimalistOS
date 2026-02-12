@@ -61,7 +61,7 @@ LDFLAGS = -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
 ASFLAGS = -f elf32
 
 # Source file organization
-KERNEL_SRCS := kernel/minimal.c
+KERNEL_SRCS := kernel/minimal.c kernel/shell_new.c
 KERNEL_TEST_SRCS := $(shell find kernel/ -name '*_test.c')
 TEST_SRCS := kernel/tests.c
 DRIVER_SRCS := 

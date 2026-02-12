@@ -65,9 +65,6 @@ void kmain(void) {
     vga_puts(0, 5, "Green text", 0x02);
     vga_puts(0, 6, "Blue text", 0x01);
     
-    while(1) __asm__ volatile("hlt");
-
-    /*
     // Wait a bit to see the message
     delay(10000000);
     
@@ -75,6 +72,7 @@ void kmain(void) {
     for (int i = 0; i < 80*25; i++) {
         VGA_BUFFER[i] = 0x1F00;  // Blue background, space character
     }
+    /*
     
     // Print a message after clearing
     vga_puts(0, 0, "INITIALIZING INTERRUPTS...", 0x1F);
@@ -151,6 +149,7 @@ void kmain(void) {
     vga_puts(0, 23, "INITIALIZING KEYBOARD...", 0x1F);
     keyboard_init();
     vga_puts(0, 24, "KEYBOARD READY", 0x1F);
+    */
 
     // Initialize and run the shell
     shell_init();
@@ -160,5 +159,4 @@ void kmain(void) {
     while (1) {
         __asm__ volatile ("hlt");
     }
-    */
 }

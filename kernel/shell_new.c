@@ -27,6 +27,17 @@ enum vga_color {
     VGA_COLOR_WHITE = 15,
 };
 
+// I/O port helpers
+static inline uint8_t inb(uint16_t port) {
+    uint8_t ret;
+    asm volatile ("inb %1, %0" : "=a"(ret) : "Nd"(port));
+    return ret;
+}
+
+static inline void outb(uint16_t port, uint8_t val) {
+    asm volatile ("outb %0, %1" : : "a"(val), "Nd"(port));
+}
+
 static size_t terminal_row = 0;
 static size_t terminal_column = 0;
 static uint8_t terminal_color = VGA_COLOR_LIGHT_GREY | (VGA_COLOR_BLACK << 4);
@@ -114,6 +125,9 @@ static void cmd_help(int argc, char** argv) {
     vga_print("  help    - Show this help message\n");
     vga_print("  echo    - Print arguments\n");
     vga_print("  clear   - Clear the screen\n");
+    vga_print("  reboot  - Reboot the system\n");
+    vga_print("  halt    - Halt the system\n");
+    vga_print("  color   - Change text color (0-15)\n");
 }
 
 static void cmd_echo(int argc, char** argv) {
@@ -132,26 +146,91 @@ static void cmd_clear(int argc, char** argv) {
     vga_clear();
 }
 
+static void cmd_reboot(int argc, char** argv) {
+    (void)argc; (void)argv;
+    vga_print("Rebooting...\n");
+    
+    // 8042 keyboard controller pulse to reset CPU
+    uint8_t good = 0x02;
+    while (good & 0x02)
+        good = inb(0x64);
+    outb(0x64, 0xFE);
+    
+    // Fallback
+    asm volatile ("hlt");
+}
+
+static void cmd_halt(int argc, char** argv) {
+    (void)argc; (void)argv;
+    vga_print("System Halted.\n");
+    while (1) {
+        asm volatile ("hlt");
+    }
+}
+
+static void cmd_color(int argc, char** argv) {
+    if (argc < 2) {
+        vga_print("Usage: color <0-15>\n");
+        return;
+    }
+    
+    // Simple atoi
+    int color = 0;
+    const char* s = argv[1];
+    while (*s >= '0' && *s <= '9') {
+        color = color * 10 + (*s - '0');
+        s++;
+    }
+    
+    if (color >= 0 && color <= 15) {
+        terminal_color = (uint8_t)color | (VGA_COLOR_BLACK << 4);
+        vga_print("Color changed.\n");
+    } else {
+        vga_print("Invalid color. Use 0-15.\n");
+    }
+}
+
 // Command table
 static const command_t commands[] = {
     {"help", cmd_help, "Show this help message"},
     {"echo", cmd_echo, "Print arguments"},
     {"clear", cmd_clear, "Clear the screen"},
+    {"reboot", cmd_reboot, "Reboot the system"},
+    {"halt", cmd_halt, "Halt the system"},
+    {"color", cmd_color, "Change text color"},
     {NULL, NULL, NULL} // Sentinel
 };
 
-// Simple keyboard input (simulated for now)
+// I/O port helper
+static inline uint8_t inb(uint16_t port) {
+    uint8_t ret;
+    asm volatile ("inb %1, %0" : "=a"(ret) : "Nd"(port));
+    return ret;
+}
+
+// Basic US QWERTY scancode table (Set 1)
+static const char scancode_map[] = {
+    0,  0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
+    '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
+    0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', 0,
+    '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, '*', 0, ' '
+};
+
+// Polling keyboard input
 static char keyboard_getchar(void) {
-    // In a real implementation, this would read from the keyboard controller
-    // For now, we'll simulate a simple command sequence
-    static const char* test_input = "help\necho Hello, World!\nclear\n";
-    static size_t pos = 0;
-    
-    // Return the next character from our test input
-    if (test_input[pos] == '\0') {
-        pos = 0; // Loop the test input
+    while (1) {
+        // Check if keyboard status register (0x64) has data (bit 0 set)
+        if (inb(0x64) & 1) {
+            uint8_t scancode = inb(0x60);
+            // Ignore key release (bit 7 set)
+            if (scancode & 0x80) continue;
+            
+            if (scancode < sizeof(scancode_map)) {
+                char c = scancode_map[scancode];
+                if (c) return c;
+            }
+        }
     }
-    return test_input[pos++];
 }
 
 // Find a command by name

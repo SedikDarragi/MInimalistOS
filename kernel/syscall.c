@@ -1,4 +1,4 @@
-#include "syscall.h"
+#include "../include/syscall.h"
 #include "process.h"
 #include "../include/idt.h"
 #include "../include/vga.h"
@@ -156,10 +156,9 @@ static uint32_t sys_dump_logs_wrapper(uint32_t unused1, uint32_t unused2, uint32
     return sys_dump_logs();
 }
 
-static uint32_t sys_power_state_wrapper(uint32_t unused1, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
-    (void)unused1; (void)unused2; (void)unused3; (void)unused4;
-    // Stub implementation
-    return 0;
+static uint32_t sys_power_state_wrapper(uint32_t state, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_power_state(state);
 }
 
 static uint32_t sys_get_battery_info_wrapper(uint32_t buffer, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
@@ -247,18 +246,7 @@ uint32_t sys_exit(uint32_t status) {
 
 uint32_t sys_write(uint32_t fd, const char* buf, uint32_t count) {
     if (fd == 1) {  // stdout
-        volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
-        static int pos = 80 * 15; // Start at line 15
-        
-        for (uint32_t i = 0; i < count && buf[i]; i++) {
-            if (buf[i] == '\n') {
-                pos = ((pos / 80) + 1) * 80;
-                if (pos >= 80 * 25) pos = 80 * 15;
-            } else {
-                vga[pos++] = 0x0F00 | buf[i];
-                if (pos >= 80 * 25) pos = 80 * 15;
-            }
-        }
+        vga_print(buf);
         return count;
     }
     return SYS_ERROR;
@@ -343,51 +331,5 @@ uint32_t sys_vm_free(uint32_t addr) {
 
 uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags) {
     (void)virt_addr; (void)phys_addr; (void)flags;
-    return 0;
-}
-
-uint32_t sys_network_receive(void* buffer, uint32_t size) {
-    (void)buffer; (void)size;
-    // Stub implementation
-    return 0;
-}
-
-uint32_t sys_power_state(void) {
-    // Stub implementation
-    return 0;
-}
-
-uint32_t sys_get_battery_info(void* buffer) {
-    (void)buffer;
-    // Stub implementation
-    return 0;
-}
-
-uint32_t sys_get_power_stats(void* buffer) {
-    (void)buffer;
-    // Stub implementation
-    return 0;
-}
-
-uint32_t sys_dump_logs(void) {
-    // Stub implementation
-    return 0;
-}
-
-uint32_t sys_device_open(const char* name) {
-    (void)name;
-    // Stub implementation
-    return 0;
-}
-
-uint32_t sys_device_close(uint32_t fd) {
-    (void)fd;
-    // Stub implementation
-    return 0;
-}
-
-uint32_t sys_network_send(uint32_t dst_ip, uint32_t type, const void* data, uint32_t length) {
-    (void)dst_ip; (void)type; (void)data; (void)length;
-    // Stub implementation
     return 0;
 }

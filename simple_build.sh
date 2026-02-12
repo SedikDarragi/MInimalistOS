@@ -23,9 +23,9 @@ gcc $CFLAGS $INCLUDES -c kernel/isr.c -o kernel/isr.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/pci.c -o kernel/pci.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/net_core.c -o kernel/net_core.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/network.c -o kernel/network.o 2>&1
-gcc $CFLAGS $INCLUDES -c kernel/process_simple.c -o kernel/process_simple.o 2>&1
+gcc $CFLAGS $INCLUDES -c kernel/process.c -o kernel/process.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/fs_test.c -o kernel/fs_test.o 2>&1
-gcc $CFLAGS $INCLUDES -c kernel/syscall_simple.c -o kernel/syscall_simple.o 2>&1
+gcc $CFLAGS $INCLUDES -c kernel/syscall.c -o kernel/syscall.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/program_loader.c -o kernel/program_loader.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/context.c -o kernel/context.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/monitor.c -o kernel/monitor.o 2>&1
@@ -57,7 +57,7 @@ echo "Linking kernel..."
 ld -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000 -o kernel.elf \
     kernel/entry.o kernel/kmain.o kernel/log.o kernel/string.o kernel/memory.o \
     kernel/idt.o kernel/idt_asm.o kernel/isr.o kernel/pci.o kernel/net_core.o kernel/network.o \
-    kernel/process_simple.o kernel/fs_test.o kernel/syscall_simple.o kernel/program_loader.o \
+    kernel/process.o kernel/fs_test.o kernel/syscall.o kernel/program_loader.o \
     kernel/context.o kernel/monitor.o kernel/power.o kernel/device.o \
     drivers/vga.o drivers/keyboard.o drivers/keyboard_intl.o drivers/serial.o \
     drivers/timer.o drivers/mouse.o drivers/net_ne2k.o \
