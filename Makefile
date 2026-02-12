@@ -61,14 +61,19 @@ LDFLAGS = -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
 ASFLAGS = -f elf32
 
 # Source file organization
-KERNEL_SRCS := kernel/minimal.c kernel/shell_new.c
+KERNEL_SRCS := kernel/kmain.c kernel/log.c kernel/string.c kernel/memory.c \
+               kernel/idt.c kernel/isr.c kernel/pci.c kernel/net_core.c \
+               kernel/network.c kernel/process.c kernel/syscall.c \
+               kernel/program_loader.c kernel/monitor.c \
+               kernel/power.c kernel/device.c kernel/fs_test.c
 KERNEL_TEST_SRCS := $(shell find kernel/ -name '*_test.c')
 TEST_SRCS := kernel/tests.c
-DRIVER_SRCS := 
-FS_SRCS := 
+DRIVER_SRCS := drivers/vga.c drivers/keyboard.c drivers/keyboard_intl.c \
+               drivers/serial.c drivers/timer.c drivers/mouse.c drivers/net_ne2k.c
+FS_SRCS := fs/filesystem_enhanced.c
 
 # Assembly sources (both .s and .asm) 
-KERNEL_ASM_SRCS := $(shell find kernel/ -name 'entry.asm' -o -name 'entry.s')
+KERNEL_ASM_SRCS := kernel/entry.s kernel/idt_asm.asm kernel/context.s
 
 # Combine all source files
 # Main kernel should NOT include test sources; keep tests only in TEST_ALL_SRCS

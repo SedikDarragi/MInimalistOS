@@ -27,7 +27,6 @@ gcc $CFLAGS $INCLUDES -c kernel/process.c -o kernel/process.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/fs_test.c -o kernel/fs_test.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/syscall.c -o kernel/syscall.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/program_loader.c -o kernel/program_loader.o 2>&1
-gcc $CFLAGS $INCLUDES -c kernel/context.c -o kernel/context.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/monitor.c -o kernel/monitor.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/power.c -o kernel/power.o 2>&1
 gcc $CFLAGS $INCLUDES -c kernel/device.c -o kernel/device.o 2>&1
@@ -93,3 +92,8 @@ else
 fi
 
 echo "Build complete!"
+
+if [ "$1" == "run" ]; then
+    echo "Running OS in QEMU..."
+    qemu-system-i386 -m 32M -drive file=os.img,format=raw,if=ide -vga std -serial stdio
+fi
