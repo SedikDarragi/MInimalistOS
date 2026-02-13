@@ -74,8 +74,7 @@ int network_send_packet(uint32_t dst_ip, uint8_t type, const void* data, uint16_
 }
 
 // Receive a network packet
-int network_receive_packet(network_packet_t* packet, uint32_t size) {
-    (void)size; // In real impl, check size
+int network_receive_packet(network_packet_t* packet) {
     if (packet_count == 0 || !packet) {
         return -1;  // No packets available
     }
@@ -112,7 +111,7 @@ uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint1
     return (result >= 0) ? 0 : -1;
 }
 
-uint32_t sys_network_receive(void* packet, uint32_t size) {
-    int result = network_receive_packet((network_packet_t*)packet, size);
+uint32_t sys_network_receive(void* packet) {
+    int result = network_receive_packet((network_packet_t*)packet);
     return (result >= 0) ? 0 : -1;
 }

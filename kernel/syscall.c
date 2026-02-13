@@ -82,8 +82,8 @@ static uint32_t sys_network_send_wrapper(uint32_t dst_ip, uint32_t type, uint32_
 }
 
 static uint32_t sys_network_receive_wrapper(uint32_t packet, uint32_t size, uint32_t unused3, uint32_t unused4) {
-    (void)unused3; (void)unused4;
-    return sys_network_receive((void*)packet, size);
+    (void)size; (void)unused3; (void)unused4;
+    return sys_network_receive((void*)packet);
 }
 
 static uint32_t sys_device_open_wrapper(uint32_t name, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
@@ -91,9 +91,9 @@ static uint32_t sys_device_open_wrapper(uint32_t name, uint32_t unused2, uint32_
     return sys_device_open((const char*)name);
 }
 
-static uint32_t sys_device_close_wrapper(uint32_t fd, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
+static uint32_t sys_device_close_wrapper(uint32_t name, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
     (void)unused2; (void)unused3; (void)unused4;
-    return sys_device_close(fd);
+    return sys_device_close((const char*)name);
 }
 
 static uint32_t sys_device_read_wrapper(uint32_t name, uint32_t buffer, uint32_t size, uint32_t unused4) {

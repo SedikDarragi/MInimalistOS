@@ -1,168 +1,48 @@
 
+Merging object attributes
+
+
 Merging program properties
 
-
-Discarded input sections
-
- .data          0x00000000        0x0 kernel/entry.o
- .bss           0x00000000     0x4000 kernel/entry.o
- .rodata        0x00000000       0x39 kernel/entry.o
- .note.gnu.property
-                0x00000000       0x28 kernel/entry.o
- .group         0x00000000        0x8 kernel/minimal.o
- .group         0x00000000        0x8 kernel/minimal.o
- .group         0x00000000        0xc kernel/minimal.o
- .group         0x00000000        0xc kernel/minimal.o
- .group         0x00000000        0xc kernel/minimal.o
- .group         0x00000000        0xc kernel/minimal.o
- .data          0x00000000        0x0 kernel/minimal.o
- .bss           0x00000000        0x0 kernel/minimal.o
- .comment       0x00000000       0x1c kernel/minimal.o
- .note.gnu.property
-                0x00000000       0x28 kernel/minimal.o
- .eh_frame      0x00000000       0xc0 kernel/minimal.o
- .group         0x00000000        0x8 kernel/shell_new.o
- .group         0x00000000        0x8 kernel/shell_new.o
- .group         0x00000000        0xc kernel/shell_new.o
- .group         0x00000000        0xc kernel/shell_new.o
- .group         0x00000000        0xc kernel/shell_new.o
- .group         0x00000000        0xc kernel/shell_new.o
- .group         0x00000000        0xc kernel/shell_new.o
- .text.__x86.get_pc_thunk.ax
-                0x00000000        0x4 kernel/shell_new.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/shell_new.o
- .debug_macro   0x00000000      0x97c kernel/shell_new.o
- .debug_macro   0x00000000       0x28 kernel/shell_new.o
- .debug_macro   0x00000000       0x10 kernel/shell_new.o
- .debug_macro   0x00000000       0x16 kernel/shell_new.o
- .comment       0x00000000       0x1c kernel/shell_new.o
- .note.gnu.property
-                0x00000000       0x28 kernel/shell_new.o
- .eh_frame      0x00000000      0x240 kernel/shell_new.o
-
-Memory Configuration
-
-Name             Origin             Length             Attributes
-*default*        0x00000000         0xffffffff
-
-Linker script and memory map
-
-                0x00008000                        . = 0x8000
-
-.text           0x00008000      0x9d0
- *(.text)
- .text          0x00008000       0x3a kernel/entry.o
-                0x00008000                _start
- .text          0x0000803a      0x19e kernel/minimal.o
-                0x0000811e                kmain
- .text          0x000081d8      0x7f0 kernel/shell_new.o
-                0x000086c8                shell_init
-                0x0000872c                shell_run
- *(.text.*)
- .text.__x86.get_pc_thunk.ax
-                0x000089c8        0x4 kernel/minimal.o
-                0x000089c8                __x86.get_pc_thunk.ax
- .text.__x86.get_pc_thunk.bx
-                0x000089cc        0x4 kernel/minimal.o
-                0x000089cc                __x86.get_pc_thunk.bx
-
-.iplt           0x000089d0        0x0
- .iplt          0x000089d0        0x0 kernel/entry.o
-
-.rodata         0x000089e0      0x1d3
- *(.rodata .rodata.*)
- .rodata        0x000089e0       0x43 kernel/minimal.o
- *fill*         0x00008a23       0x1d 
- .rodata        0x00008a40      0x173 kernel/shell_new.o
-
-.rel.dyn        0x00008bb4        0x0
- .rel.got       0x00008bb4        0x0 kernel/entry.o
- .rel.iplt      0x00008bb4        0x0 kernel/entry.o
-
-.data           0x00008bc0       0x50
- *(.data .data.*)
- .data          0x00008bc0        0x1 kernel/shell_new.o
- *fill*         0x00008bc1       0x1f 
- .data.rel.ro.local
-                0x00008be0       0x30 kernel/shell_new.o
-
-.got            0x00008c10        0x0
- .got           0x00008c10        0x0 kernel/entry.o
-
-.got.plt        0x00008c10        0xc
- .got.plt       0x00008c10        0xc kernel/entry.o
-                0x00008c10                _GLOBAL_OFFSET_TABLE_
-
-.igot.plt       0x00008c1c        0x0
- .igot.plt      0x00008c1c        0x0 kernel/entry.o
-
-.bss            0x00008c20      0x160
- *(COMMON)
- *(.bss .bss.*)
- .bss           0x00008c20      0x160 kernel/shell_new.o
-                0x00008d80                        _end = .
-
-/DISCARD/
- *(.comment)
- *(.eh_frame)
- *(.note.gnu.build-id)
- *(.note.gnu.property)
-LOAD kernel/entry.o
-LOAD kernel/minimal.o
-LOAD kernel/shell_new.o
-OUTPUT(kernel.elf elf32-i386)
-
-.debug_info     0x00000000      0x80b
- .debug_info    0x00000000      0x199 kernel/minimal.o
- .debug_info    0x00000199      0x672 kernel/shell_new.o
-
-.debug_abbrev   0x00000000      0x31b
- .debug_abbrev  0x00000000      0x111 kernel/minimal.o
- .debug_abbrev  0x00000111      0x20a kernel/shell_new.o
-
-.debug_aranges  0x00000000       0x40
- .debug_aranges
-                0x00000000       0x20 kernel/minimal.o
- .debug_aranges
-                0x00000020       0x20 kernel/shell_new.o
-
-.debug_macro    0x00000000      0xa59
- .debug_macro   0x00000000       0x32 kernel/minimal.o
- .debug_macro   0x00000032      0x97c kernel/minimal.o
- .debug_macro   0x000009ae       0x28 kernel/minimal.o
- .debug_macro   0x000009d6       0x10 kernel/minimal.o
- .debug_macro   0x000009e6       0x16 kernel/minimal.o
- .debug_macro   0x000009fc       0x41 kernel/shell_new.o
- .debug_macro   0x00000a3d       0x1c kernel/shell_new.o
-
-.debug_line     0x00000000      0x51d
- .debug_line    0x00000000       0xfb kernel/minimal.o
- .debug_line    0x000000fb      0x422 kernel/shell_new.o
-
-.debug_str      0x00000000     0x32fe
- .debug_str     0x00000000     0x32fe kernel/minimal.o
-                               0x30cf (size before relaxing)
- .debug_str     0x000032fe        0x0 kernel/shell_new.o
-                               0x3340 (size before relaxing)
-
-.debug_line_str
-                0x00000000       0x94
- .debug_line_str
-                0x00000000       0x94 kernel/minimal.o
-                                 0xb3 (size before relaxing)
- .debug_line_str
-                0x00000094        0x0 kernel/shell_new.o
-                                 0xc3 (size before relaxing)
-
-.note.GNU-stack
-                0x00000000        0x0
- .note.GNU-stack
-                0x00000000        0x0 kernel/minimal.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/shell_new.o
-
-.debug_rnglists
-                0x00000000       0x2d
- .debug_rnglists
-                0x00000000       0x2d kernel/shell_new.o
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x1) and drivers/serial.o (0x9)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x0) and drivers/serial.o (0x1)
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x9) and drivers/timer.o (0x1)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x1) and drivers/timer.o (0x0)
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x9) and drivers/vga.o (0x1)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x1) and drivers/vga.o (0x0)
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x9) and fs/filesystem_enhanced.o (0x1)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x1) and fs/filesystem_enhanced.o (0x0)
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x9) and kernel/context.o (0x1)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x1) and kernel/context.o (0x0)
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x9) and kernel/device.o (0x1)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x1) and kernel/device.o (0x0)
+Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x9) and kernel/idt.o (0x1)
+Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x1) and kernel/idt.o (0x0)
+Removed property 0xc0010001 to merge kernel/entry.o (0x9) and kernel/idt_asm.o (not found)
+Removed property 0xc0010002 to merge kernel/entry.o (0x1) and kernel/idt_asm.o (not found)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/isr.o (0x1)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/isr.o (0x0)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/kmain.o (0x1)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/kmain.o (0x0)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/log.o (0x1)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/log.o (0x0)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/memory.o (0x1)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/memory.o (0x0)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/monitor.o (0x9)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/monitor.o (0x1)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/net_core.o (0x1)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/net_core.o (0x0)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/network.o (0x1)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/network.o (0x0)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/pci.o (0x1)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/pci.o (0x0)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/power.o (0x1)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/power.o (0x1)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/process.o (0x1)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/process.o (0x0)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/program_loader.o (0x1)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/program_loader.o (0x0)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/string.o (0x1)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/string.o (0x0)
+Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/syscall.o (0x1)
+Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/syscall.o (0x1)

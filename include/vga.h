@@ -34,4 +34,8 @@ static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
     return (uint16_t) uc | (uint16_t) color << 8;
 }
 
+// VGA text mode functions
+void vga_print(const char* str);
+void vga_set_color(uint8_t fg, uint8_t bg);
+
 #endif // VGA_H
