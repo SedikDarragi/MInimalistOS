@@ -12,6 +12,8 @@
 
 // External current security context
 extern security_context_t current_context;
+// Current process security context
+security_context_t current_context;
 
 // System call handler table
 typedef uint32_t (*syscall_func_t)(uint32_t, uint32_t, uint32_t, uint32_t);
@@ -331,5 +333,34 @@ uint32_t sys_vm_free(uint32_t addr) {
 
 uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags) {
     (void)virt_addr; (void)phys_addr; (void)flags;
+    return 0;
+}
+
+// Security syscall stubs
+uint32_t sys_setuid(uint32_t uid) {
+    current_context.uid = uid;
+    return 0;
+}
+
+uint32_t sys_setgid(uint32_t gid) {
+    current_context.gid = gid;
+    return 0;
+}
+
+uint32_t sys_getuid(void) {
+    return current_context.uid;
+}
+
+uint32_t sys_getgid(void) {
+    return current_context.gid;
+}
+
+uint32_t sys_chmod(const char* path, uint32_t mode) {
+    (void)path; (void)mode;
+    return 0;
+}
+
+uint32_t sys_chown(const char* path, uint32_t uid, uint32_t gid) {
+    (void)path; (void)uid; (void)gid;
     return 0;
 }
