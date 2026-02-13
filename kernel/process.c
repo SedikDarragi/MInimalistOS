@@ -31,19 +31,33 @@ static int scheduler_ticks = 0;
 static process_t* current_process_ptr = NULL;
 
 // External test process functions
-extern void test_process_1(void);
-extern void test_process_2(void);
-extern void user_process_1(void);
-extern void user_process_2(void);
-extern void memory_test_process(void);
-extern void user_program_main(void);
-extern void fs_test_process(void);
-extern void network_test_sender(void);
-extern void network_test_receiver(void);
-extern void device_test_process(void);
-extern void security_test_process(void);
-extern void monitor_test_process(void);
-extern void power_test_process(void);
+void test_process_1(void) { while(1); }
+void test_process_2(void) { while(1); }
+void user_process_1(void) { while(1); }
+void user_process_2(void) { while(1); }
+void memory_test_process(void) { while(1); }
+void user_program_main(void) { while(1); }
+void fs_test_process(void) { while(1); }
+void network_test_sender(void) { while(1); }
+void network_test_receiver(void) { while(1); }
+void device_test_process(void) { while(1); }
+void security_test_process(void) { while(1); }
+void monitor_test_process(void) { while(1); }
+void power_test_process(void) { while(1); }
+
+// Stack protection stub
+void __stack_chk_fail_local(void) {
+    while(1);
+}
+
+// Context stubs
+void context_init(cpu_context_t* ctx, void (*entry)(), uint32_t stack) {
+    (void)ctx; (void)entry; (void)stack;
+}
+
+void context_switch(cpu_context_t* old_ctx, cpu_context_t* new_ctx) {
+    (void)old_ctx; (void)new_ctx;
+}
 
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
