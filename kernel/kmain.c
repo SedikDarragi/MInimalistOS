@@ -13,6 +13,9 @@
 #include "../drivers/net_ne2k.h"
 #include "../include/pci.h"
 
+extern void shell_init(void);
+extern void shell_run(void);
+
 void kmain(void) {
     /* Don't clear screen immediately - let debug chars stay visible */
     /* vga_clear(); */
@@ -86,12 +89,16 @@ void kmain(void) {
     vga_print("Core systems initialized successfully\n");
     
     // Create a test process
-    process_create(NULL, "test_process");
+    // process_create("test_process", NULL);
     
     vga_print("Process management: OK\n");
     vga_print("Timer: OK\n");
     vga_print("System ready!\n");
     
+    // Initialize and run the shell
+    shell_init();
+    shell_run();
+
     // Simple kernel loop
     while (1) {
         // Kernel idle loop
