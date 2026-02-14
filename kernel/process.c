@@ -37,7 +37,7 @@ void user_process_1(void) { while(1); }
 void user_process_2(void) { while(1); }
 void memory_test_process(void) { while(1); }
 void user_program_main(void) { while(1); }
-void fs_test_process(void) { while(1); }
+extern void fs_test_process(void);
 void network_test_sender(void) { while(1); }
 void network_test_receiver(void) { while(1); }
 void device_test_process(void) { while(1); }
