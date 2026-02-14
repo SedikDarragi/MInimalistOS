@@ -258,3 +258,27 @@ uint32_t monitor_get_timer_value(const char* name) {
     
     return 0;
 }
+
+// System call wrappers
+uint32_t sys_log(uint8_t level, const char* message) {
+    monitor_log(level, LOG_SOURCE_PROCESS, message);
+    return 0;
+}
+
+uint32_t sys_get_stats(uint32_t stats_type, void* buffer) {
+    if (!buffer) return -1;
+    
+    switch (stats_type) {
+        case 0: // System stats
+            return monitor_get_system_stats((system_stats_t*)buffer);
+        case 1: // Performance metrics
+            return monitor_get_performance_metrics((performance_metrics_t*)buffer);
+        default:
+            return -1;
+    }
+}
+
+uint32_t sys_dump_logs(void) {
+    monitor_dump_logs();
+    return 0;
+}

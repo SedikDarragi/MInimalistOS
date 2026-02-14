@@ -51,13 +51,13 @@ void __stack_chk_fail_local(void) {
 }
 
 // Context stubs
-// void context_init(cpu_context_t* ctx, void (*entry)(), uint32_t stack) {
-//     (void)ctx; (void)entry; (void)stack;
-// }
+void context_init(cpu_context_t* ctx, void (*entry)(), uint32_t stack) {
+    (void)ctx; (void)entry; (void)stack;
+}
 
-// void context_switch(cpu_context_t* old_ctx, cpu_context_t* new_ctx) {
-//     (void)old_ctx; (void)new_ctx;
-// }
+void context_switch(cpu_context_t* old_ctx, cpu_context_t* new_ctx) {
+    (void)old_ctx; (void)new_ctx;
+}
 
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
@@ -234,9 +234,4 @@ void schedule(void) {
 // Get current process
 process_t* process_get_current(void) {
     return current_process_ptr;
-}
-
-// Dummy syscall to satisfy linker if fs_test.o is included
-int syscall(int num, ...) {
-    return -1;
 }

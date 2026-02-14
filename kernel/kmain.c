@@ -105,3 +105,11 @@ void kmain(void) {
         __asm__ volatile("hlt");
     }
 }
+
+// Stubs for shell if not linked
+void shell_init(void) {
+    vga_print("Shell not available (linking error)\n");
+}
+void shell_run(void) {
+    while(1) __asm__ volatile("hlt");
+}

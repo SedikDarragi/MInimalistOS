@@ -301,3 +301,16 @@ int power_set_fan_speed(uint32_t speed_rpm) {
 uint32_t power_get_fan_speed(void) {
     return fan_speed;
 }
+
+// System call wrappers
+uint32_t sys_power_state(uint32_t state) {
+    return power_set_state(state);
+}
+
+uint32_t sys_get_battery_info(void* buffer) {
+    return power_get_battery_status((battery_status_t*)buffer);
+}
+
+uint32_t sys_get_power_stats(void* buffer) {
+    return power_get_statistics((power_stats_t*)buffer);
+}
