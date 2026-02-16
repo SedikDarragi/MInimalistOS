@@ -43,7 +43,7 @@ static void vga_puts(int x, int y, const char *str, uint8_t color) {
 }
 
 // Kernel entry point
-void kmain(void) {
+void minimal_kmain(void) {
     // Debug: Write to serial port - DISABLED (causes triple fault)
     // volatile char *serial = (volatile char*)0x3F8;
     // *serial = 'C';  // C for C code

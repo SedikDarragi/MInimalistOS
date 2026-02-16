@@ -12,11 +12,22 @@
 #include "../include/net.h"
 #include "../drivers/net_ne2k.h"
 #include "../include/pci.h"
+#include "../include/idt.h"
+#include "../include/memory.h"
 
 extern void shell_init(void);
 extern void shell_run(void);
 
 void kmain(void) {
+    /* Debug: Write 'K' to top-left of screen to confirm kernel entry */
+    *((volatile uint16_t*)0xB8000) = (0x0F << 8) | 'K';
+
+    /* Initialize critical low-level systems first */
+    idt_init();      /* Interrupt Descriptor Table */
+    memory_init();   /* Physical Memory Manager */
+    paging_init();   /* Virtual Memory Manager */
+    log_init();      /* Logging System */
+
     /* Don't clear screen immediately - let debug chars stay visible */
     /* vga_clear(); */
     vga_print("\nMinimalist OS Kernel - Main Entry Point\n");
@@ -104,12 +115,4 @@ void kmain(void) {
         // Kernel idle loop
         __asm__ volatile("hlt");
     }
-}
-
-// Stubs for shell if not linked
-void shell_init(void) {
-    vga_print("Shell not available (linking error)\n");
-}
-void shell_run(void) {
-    while(1) __asm__ volatile("hlt");
 }
