@@ -20,7 +20,13 @@ extern void shell_run(void);
 
 void kmain(void) {
     /* Debug: Write 'K' to top-left of screen to confirm kernel entry */
-    *((volatile uint16_t*)0xB8000) = (0x0F << 8) | 'K';
+    volatile uint16_t* vga_debug = (volatile uint16_t*)0xB8000;
+    vga_debug[0] = (0x0F << 8) | 'K';
+    vga_debug[1] = (0x0F << 8) | 'E';
+    vga_debug[2] = (0x0F << 8) | 'R';
+    vga_debug[3] = (0x0F << 8) | 'N';
+    vga_debug[4] = (0x0F << 8) | 'E';
+    vga_debug[5] = (0x0F << 8) | 'L';
 
     /* Initialize critical low-level systems first */
     idt_init();      /* Interrupt Descriptor Table */

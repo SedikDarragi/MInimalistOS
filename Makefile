@@ -90,7 +90,7 @@ KERNEL_OBJS_TEMP = $(ALL_SRCS:.c=.o) \
 
 # Remove duplicates and sort, but ensure entry.o is first
 KERNEL_OBJS_SORTED := $(sort $(KERNEL_OBJS_TEMP))
-KERNEL_OBJS := kernel/entry.o $(filter-out kernel/entry.o,$(KERNEL_OBJS_SORTED))
+KERNEL_OBJS := kernel/entry.o kernel/kmain.o drivers/vga.o $(filter-out kernel/entry.o kernel/kmain.o drivers/vga.o,$(KERNEL_OBJS_SORTED))
 
 # Include generated dependencies
 -include $(DEPS)
@@ -160,8 +160,8 @@ os.img: boot/debug_boot.bin kernel.bin
 	dd if=/dev/zero of=os.img bs=1M count=10 2>/dev/null
 	# Write the bootloader to the first sector (MBR)
 	dd if=boot/debug_boot.bin of=os.img conv=notrunc 2>/dev/null
-	# Write the kernel starting at sector 16 (0x8000 = 16 sectors)
-	dd if=kernel.bin of=os.img seek=16 conv=notrunc 2>/dev/null
+	# Write the kernel starting at sector 1 (immediately after MBR)
+	dd if=kernel.bin of=os.img seek=1 conv=notrunc 2>/dev/null
 	@echo "Disk image created successfully"
 	@ls -lh os.img
 
