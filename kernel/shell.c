@@ -12,9 +12,12 @@ void shell_init(void) {
     memset(&history, 0, sizeof(command_history_t));
     
     // Set default values
-    strcpy(shell_state.username, "root");
-    strcpy(shell_state.hostname, "minos");
-    strcpy(shell_state.cwd, "/");
+    strncpy(shell_state.username, "root", sizeof(shell_state.username) - 1);
+    shell_state.username[sizeof(shell_state.username) - 1] = '\0';
+    strncpy(shell_state.hostname, "minos", sizeof(shell_state.hostname) - 1);
+    shell_state.hostname[sizeof(shell_state.hostname) - 1] = '\0';
+    strncpy(shell_state.cwd, "/", sizeof(shell_state.cwd) - 1);
+    shell_state.cwd[sizeof(shell_state.cwd) - 1] = '\0';
     
     // Print welcome message
     vga_print("\n");
