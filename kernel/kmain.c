@@ -35,7 +35,7 @@ void kmain(void) {
     log_init();      /* Logging System */
 
     /* Don't clear screen immediately - let debug chars stay visible */
-    /* vga_clear(); */
+    vga_clear();
     vga_print("\nMinimalist OS Kernel - Main Entry Point\n");
     
     log_info("Kernel main function started");

@@ -6,6 +6,9 @@
 shell_state_t shell_state;
 command_history_t history;
 
+// External dependency for keyboard input (assuming standard driver naming)
+extern char keyboard_getchar(void);
+
 void shell_init(void) {
     // Initialize shell state
     memset(&shell_state, 0, sizeof(shell_state_t));
@@ -25,19 +28,58 @@ void shell_init(void) {
     vga_print("Type 'help' for a list of commands.\n");
 }
 
+void shell_execute_command(const char* command) {
+    if (strcmp(command, "help") == 0) {
+        vga_print("Minimalist OS Shell Commands:\n");
+        vga_print("  help     - Show this help message\n");
+        vga_print("  clear    - Clear the screen\n");
+    } else if (strcmp(command, "clear") == 0) {
+        vga_clear();
+    } else if (strlen(command) > 0) {
+        vga_print("Unknown command: ");
+        vga_print(command);
+        vga_print("\n");
+    }
+}
+
 void shell_run(void) {
-    // Print prompt
-    vga_print("\n");
-    vga_print(shell_state.username);
-    vga_print("@");
-    vga_print(shell_state.hostname);
-    vga_print(":");
-    vga_print(shell_state.cwd);
-    vga_print("$ ");
+    char input_buffer[SHELL_BUFFER_SIZE];
+    int buffer_pos = 0;
+    char c;
     
-    // Note: Input loop would go here.
-    // Since we don't have the keyboard driver details, we halt.
     while (1) {
-        __asm__ volatile("hlt");
+        // Print prompt
+        vga_print(shell_state.username);
+        vga_print("@");
+        vga_print(shell_state.hostname);
+        vga_print(":");
+        vga_print(shell_state.cwd);
+        vga_print("$ ");
+        
+        buffer_pos = 0;
+        memset(input_buffer, 0, SHELL_BUFFER_SIZE);
+        
+        // Input loop
+        while (1) {
+            c = keyboard_getchar();
+            
+            if (c == 0) continue; // No key pressed
+            
+            if (c == '\n') {
+                vga_print("\n");
+                shell_execute_command(input_buffer);
+                break; // Break input loop to reprint prompt
+            } else if (c == '\b') {
+                if (buffer_pos > 0) {
+                    buffer_pos--;
+                    input_buffer[buffer_pos] = '\0';
+                    vga_print("\b \b"); // Visual backspace
+                }
+            } else if (buffer_pos < SHELL_BUFFER_SIZE - 1) {
+                input_buffer[buffer_pos++] = c;
+                char temp[2] = {c, '\0'};
+                vga_print(temp);
+            }
+        }
     }
 }
