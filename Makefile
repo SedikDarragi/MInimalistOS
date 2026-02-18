@@ -228,8 +228,9 @@ size: kernel.elf
 # QEMU configuration
 QEMU = qemu-system-i386
 
-# Attach a NE2000 PCI NIC so the skeleton NE2K driver hassdsd matching hardware
-QEMU_NET = -netdev user,id=n0 -device ne2k_pci,netdev=n0
+# Attach a NE2000 PCI NIC so the skeleton NE2K driver has matching hardware
+# Temporarily disabled to isolate a potential crash during boot.
+QEMU_NET =
 
 QEMU_OPTS = -m 32M -monitor stdio -no-reboot -no-shutdown $(QEMU_NET)
 QEMU_DISK = -drive file=os.img,format=raw,if=ide
@@ -370,7 +371,7 @@ run-vnc: os.img
 	@echo "Serial output is available in this terminal"
 	@echo "Press Ctrl+C to stop QEMU"
 	@echo "===================================================="
-	qemu-system-i386 -fda os.img -vnc :1 -serial stdio -monitor telnet:127.0.0.1:55555,server,nowait -d int -D qemu.log
+	$(QEMU) $(QEMU_OPTS) $(QEMU_DISK) -vnc :1 -serial stdio -monitor telnet:127.0.0.1:55555,server,nowait -d int -D qemu.log
 
 run-debug: os.img
 	@echo "Starting QEMU with serial debug output..."
@@ -378,9 +379,9 @@ run-debug: os.img
 	@echo "Debug output will appear in this terminal"
 	@echo "Press Ctrl+A then X to exit QEMU"
 	@echo "===================================================="
-	qemu-system-i386 -fda os.img -nographic -serial stdio -monitor none -d int -no-reboot
+	$(QEMU) $(QEMU_OPTS) $(QEMU_DISK) -nographic -serial stdio
 
 run-monitor: os.img
-	qemu-system-i386 -fda os.img -snapshot -monitor stdio
+	$(QEMU) $(QEMU_OPTS) $(QEMU_DISK) -snapshot
 
 .PHONY: all clean run run-enhanced debug bochs test size run-vnc run-debug run-monitor

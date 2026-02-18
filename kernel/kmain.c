@@ -49,18 +49,20 @@ void kmain(void) {
         vga_print("Serial port: FAILED\n");
     }
 
-    // Temporary: dump PCI bus 0 so we can see NIC vendor/device IDs
-    pci_dump_bus0();
-    
-    vga_print("Initializing network core...\n");
-    net_init();
-    
-    vga_print("Initializing NE2000 NIC (skeleton)...\n");
-    if (net_ne2k_init() == 0) {
-        vga_print("NE2000: registered as eth0 (skeleton)\n");
-    } else {
-        vga_print("NE2000: FAILED to register\n");
-    }
+    /* --- Temporarily disable networking to isolate potential crash --- */
+    vga_print("Networking: SKIPPED\n");
+    // // Temporary: dump PCI bus 0 so we can see NIC vendor/device IDs
+    // pci_dump_bus0();
+    // 
+    // vga_print("Initializing network core...\n");
+    // net_init();
+    // 
+    // vga_print("Initializing NE2000 NIC (skeleton)...\n");
+    // if (net_ne2k_init() == 0) {
+    //     vga_print("NE2000: registered as eth0 (skeleton)\n");
+    // } else {
+    //     vga_print("NE2000: FAILED to register\n");
+    // }
     
     vga_print("Initializing process management...\n");
     process_init();
