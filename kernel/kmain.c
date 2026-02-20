@@ -114,6 +114,9 @@ void kmain(void) {
     vga_print("Timer: OK\n");
     vga_print("System ready!\n");
     
+    // Enable interrupts to allow keyboard input
+    __asm__ volatile("sti");
+    
     // Initialize and run the shell
     shell_init();
     shell_run();

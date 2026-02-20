@@ -50,15 +50,6 @@ void __stack_chk_fail_local(void) {
     while(1);
 }
 
-// Context stubs
-void context_init(cpu_context_t* ctx, void (*entry)(), uint32_t stack) {
-    (void)ctx; (void)entry; (void)stack;
-}
-
-void context_switch(cpu_context_t* old_ctx, cpu_context_t* new_ctx) {
-    (void)old_ctx; (void)new_ctx;
-}
-
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
     
