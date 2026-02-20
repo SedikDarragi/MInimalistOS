@@ -364,3 +364,17 @@ uint32_t sys_chown(const char* path, uint32_t uid, uint32_t gid) {
     (void)path; (void)uid; (void)gid;
     return 0;
 }
+
+uint32_t sys_log(uint8_t level, const char* message) {
+    (void)level; (void)message;
+    return 0;
+}
+
+uint32_t sys_get_stats(uint32_t stats_type, void* buffer) {
+    (void)stats_type; (void)buffer;
+    return 0;
+}
+
+uint32_t sys_dump_logs(void) {
+    return 0;
+}

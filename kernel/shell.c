@@ -63,7 +63,10 @@ void shell_run(void) {
         while (1) {
             c = keyboard_getchar();
             
-            if (c == 0) continue; // No key pressed
+            if (c == 0) {
+                __asm__ volatile("hlt"); // Wait for interrupt to save CPU
+                continue;
+            }
             
             if (c == '\n') {
                 vga_print("\n");

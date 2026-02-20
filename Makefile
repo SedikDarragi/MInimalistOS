@@ -65,7 +65,8 @@ KERNEL_SRCS := kernel/kmain.c kernel/log.c kernel/string.c kernel/memory.c \
                kernel/idt.c kernel/isr.c kernel/pci.c kernel/net_core.c \
                kernel/network.c kernel/process.c kernel/syscall.c \
                kernel/program_loader.c kernel/monitor.c \
-               kernel/power.c kernel/device.c kernel/fs_test.c kernel/shell.c
+               kernel/power.c kernel/device.c kernel/fs_test.c kernel/shell.c \
+               kernel/security.c
 KERNEL_TEST_SRCS := $(shell find kernel/ -name '*_test.c')
 TEST_SRCS := kernel/tests.c
 DRIVER_SRCS := drivers/vga.c drivers/keyboard.c drivers/keyboard_intl.c \
