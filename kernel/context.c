@@ -11,6 +11,8 @@ __asm__(
     ".global context_switch\n"
     "context_switch:\n"
     "    mov 4(%esp), %eax\n"      // Get old_context pointer
+    "    test %eax, %eax\n"        // Check if NULL
+    "    jz 2f\n"                  // If NULL, skip saving
     "    mov %eax, 0(%eax)\n"      // Save EAX
     "    mov %ebx, 4(%eax)\n"      // Save EBX
     "    mov %ecx, 8(%eax)\n"      // Save ECX
@@ -27,13 +29,14 @@ __asm__(
     "    mov %cr3, %edx\n"
     "    mov %edx, 40(%eax)\n"     // Save CR3
     
+    "2:\n"
     "    mov 8(%esp), %eax\n"      // Get new_context pointer
     "    mov 40(%eax), %edx\n"     // Get new CR3
     "    mov %cr3, %ecx\n"
     "    cmp %ecx, %edx\n"
-    "    je 1f\n"
+    "    je 3f\n"
     "    mov %edx, %cr3\n"         // Load CR3
-    "1:\n"
+    "3:\n"
     "    mov 36(%eax), %edx\n"     // Get new EFLAGS
     "    push %edx\n"
     "    popfl\n"                  // Load EFLAGS

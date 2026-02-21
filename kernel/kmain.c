@@ -127,3 +127,35 @@ void kmain(void) {
         __asm__ volatile("hlt");
     }
 }
+
+/* --- Stubs to fix linker errors --- */
+// These satisfy references from process.c and syscall.c if drivers are missing
+
+__attribute__((weak)) void vfs_init(void) {}
+__attribute__((weak)) int ramfs_mount(void) { return -1; }
+
+__attribute__((weak)) void test_process_1(void) {}
+__attribute__((weak)) void test_process_2(void) {}
+__attribute__((weak)) void user_process_1(void) {}
+__attribute__((weak)) void user_process_2(void) {}
+__attribute__((weak)) void memory_test_process(void) {}
+__attribute__((weak)) void user_program_main(void) {}
+__attribute__((weak)) void network_test_sender(void) {}
+__attribute__((weak)) void network_test_receiver(void) {}
+__attribute__((weak)) void device_test_process(void) {}
+__attribute__((weak)) void security_test_process(void) {}
+__attribute__((weak)) void monitor_test_process(void) {}
+__attribute__((weak)) void power_test_process(void) {}
+
+__attribute__((weak)) uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length) { return -1; }
+__attribute__((weak)) uint32_t sys_device_read(const char* name, void* buffer, uint32_t size) { return -1; }
+__attribute__((weak)) uint32_t sys_device_write(const char* name, const void* buffer, uint32_t size) { return -1; }
+__attribute__((weak)) uint32_t sys_device_ioctl(const char* name, uint32_t cmd, void* arg) { return -1; }
+__attribute__((weak)) uint32_t sys_setuid(uint32_t uid) { return -1; }
+__attribute__((weak)) uint32_t sys_setgid(uint32_t gid) { return -1; }
+__attribute__((weak)) uint32_t sys_getuid(void) { return 0; }
+__attribute__((weak)) uint32_t sys_getgid(void) { return 0; }
+__attribute__((weak)) uint32_t sys_chmod(const char* path, uint32_t mode) { return -1; }
+__attribute__((weak)) uint32_t sys_chown(const char* path, uint32_t uid, uint32_t gid) { return -1; }
+__attribute__((weak)) uint32_t sys_log(uint8_t level, const char* message) { return 0; }
+__attribute__((weak)) uint32_t sys_get_stats(uint32_t stats_type, void* buffer) { return -1; }
