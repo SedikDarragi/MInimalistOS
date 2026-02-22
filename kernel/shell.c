@@ -54,11 +54,14 @@ void shell_execute_command(const char* command) {
         shell_print("Minimalist OS Shell Commands:\n");
         shell_print("  help     - Show this help message\n");
         shell_print("  clear    - Clear the screen\n");
+        shell_print("  testcmd  - test command\n");
     } else if (strcmp(command, "clear") == 0) {
         vga_clear();
+    } else if (strcmp(command, "testcmd") == 0) {
+        shell_print("Test command executed!\n");
     } else if (strlen(command) > 0) {
         shell_print("Unknown command: ");
-        shell_print(command);
+        shell_print(command); 
         shell_print("\n");
     }
 }
