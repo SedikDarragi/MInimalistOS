@@ -133,34 +133,3 @@ void kmain(void) {
 
 void vfs_init(void) {}
 int ramfs_mount(void) { return -1; }
-
-void test_process_1(void) {}
-void test_process_2(void) {}
-void user_process_1(void) {}
-void user_process_2(void) {}
-void memory_test_process(void) {}
-void user_program_main(void) {}
-void network_test_sender(void) {}
-void network_test_receiver(void) {}
-void device_test_process(void) {}
-void security_test_process(void) {}
-void monitor_test_process(void) {}
-void power_test_process(void) {}
-
-uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length) { return -1; }
-uint32_t sys_network_receive(void* packet) { return -1; }
-uint32_t sys_device_read(const char* name, void* buffer, uint32_t size) { return -1; }
-uint32_t sys_device_write(const char* name, const void* buffer, uint32_t size) { return -1; }
-uint32_t sys_device_ioctl(const char* name, uint32_t cmd, void* arg) { return -1; }
-uint32_t sys_setuid(uint32_t uid) { return -1; }
-uint32_t sys_setgid(uint32_t gid) { return -1; }
-uint32_t sys_getuid(void) { return 0; }
-uint32_t sys_getgid(void) { return 0; }
-uint32_t sys_chmod(const char* path, uint32_t mode) { return -1; }
-uint32_t sys_chown(const char* path, uint32_t uid, uint32_t gid) { return -1; }
-uint32_t sys_log(uint8_t level, const char* message) { return 0; }
-uint32_t sys_get_stats(uint32_t stats_type, void* buffer) { return -1; }
-uint32_t sys_dump_logs(void) { return 0; }
-uint32_t sys_power_state(uint32_t state) { return -1; }
-uint32_t sys_get_battery_info(void* buffer) { return -1; }
-uint32_t sys_get_power_stats(void* buffer) { return -1; }
