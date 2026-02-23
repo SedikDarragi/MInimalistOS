@@ -1,7 +1,7 @@
 #include "../drivers/vga.h"
 #include "../include/string.h"
 #include "../kernel/log.h"
-#include "../include/process_simple.h"
+#include "../kernel/process.h"
 #include "../drivers/timer.h"
 #include "../drivers/serial.h"
 #include "../include/filesystem.h"

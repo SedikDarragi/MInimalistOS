@@ -1,6 +1,6 @@
 #include "process.h"
 #include "../include/vga.h"
-#include "utils.h"
+#include "../include/string.h"
 #include "../include/idt.h"
 #include "context.h"
 
