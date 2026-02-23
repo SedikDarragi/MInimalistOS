@@ -25,7 +25,7 @@ static void proc_vga_print(const char* str) {
 #define UNUSED(x) (void)(x)
 
 static process_t processes[MAX_PROCESSES];
-static int next_pid = 1;
+static int next_pid = 0;
 static int current_process = 0;
 static int scheduler_ticks = 0;
 static process_t* current_process_ptr = NULL;
@@ -53,45 +53,13 @@ void __stack_chk_fail_local(void) {
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
     
-    // Create initial kernel process
-    process_create("kernel", NULL);
-    
-    // Create test processes
-    process_create("test1", test_process_1);
-    process_create("test2", test_process_2);
-    
-    // Create user processes that use system calls
-    process_create("user1", user_process_1);
-    process_create("user2", user_process_2);
-    
-    // Create memory test process
-    process_create("memtest", memory_test_process);
-    
-    // Create user mode process
-    process_create("userprog", user_program_main);
-    
-    // Create file system test process
-    // process_create("fstest", fs_test_process);
-    
-    // Create network test processes
-    process_create("netsend", network_test_sender);
-    process_create("netrecv", network_test_receiver);
-    
-    // Create device driver test process
-    process_create("devtest", device_test_process);
-    
-    // Create security test process
-    process_create("sectest", security_test_process);
-    
-    // Create monitoring test process
-    process_create("montest", monitor_test_process);
-    
-    // Create power management test process
-    process_create("powertest", power_test_process);
+    // Create the main kernel process (PID 0). This represents the kmain() thread
+    // which will become the shell. Its context is already active.
+    process_create("kernel_main", NULL);
     
     // Set current process to kernel process
     current_process = 0;
-    current_process_ptr = &processes[0];
+    current_process_ptr = &processes[current_process];
     current_process_ptr->state = PROCESS_RUNNING;
 }
 
@@ -100,8 +68,9 @@ int process_create(const char* name, void (*entry_point)()) {
         return -1; // No more process slots
     }
     
-    process_t* p = &processes[next_pid];
-    p->pid = next_pid;
+    int pid_to_assign = next_pid++;
+    process_t* p = &processes[pid_to_assign];
+    p->pid = pid_to_assign;
     strncpy(p->name, name, MAX_PROCESS_NAME - 1);
     p->name[MAX_PROCESS_NAME - 1] = '\0';
     p->state = PROCESS_READY;
@@ -115,15 +84,18 @@ int process_create(const char* name, void (*entry_point)()) {
         context_init(&p->context, entry_point, stack_top);
     }
     
-    return next_pid++;
+    return pid_to_assign;
 }
 
 void process_exit(int status) {
     UNUSED(status);  // Will be used when process cleanup is implemented
     // TODO: Clean up process resources
     // For now, just mark as zombie
-    process_t* current = &processes[0]; // Get current process
-    current->state = PROCESS_ZOMBIE;
+    if (current_process_ptr) {
+        current_process_ptr->state = PROCESS_ZOMBIE;
+    }
+    // A process that exits should not return, it should yield.
+    schedule();
 }
 
 process_t* process_get(int pid) {
@@ -138,7 +110,7 @@ void process_print_list(void) {
     proc_vga_print("  ---  --------  -------  --------  ----\n");
     
     for (int i = 0; i < next_pid; i++) {
-        if (processes[i].pid == 0) continue;
+        if (processes[i].pid == 0 && i > 0) continue; // Skip unused slots, but show PID 0
         
         // Print PID
         char pid_str[8];
@@ -180,10 +152,16 @@ void process_print_list(void) {
 void schedule(void) {
     scheduler_ticks++;
     
+    // Do not switch if only the kernel process exists
+    if (next_pid <= 1) {
+        return;
+    }
+
     // Update current process runtime
-    if (current_process_ptr && current_process_ptr->pid != 0) {
+    if (current_process_ptr) {
         current_process_ptr->runtime++;
-        current_process_ptr->state = PROCESS_READY;
+        if (current_process_ptr->state == PROCESS_RUNNING)
+            current_process_ptr->state = PROCESS_READY;
     }
     
     // Find next ready process
@@ -195,7 +173,7 @@ void schedule(void) {
         attempts++;
         
         // Skip empty slots and zombie processes
-        if (processes[next].pid != 0 && processes[next].state == PROCESS_READY) {
+        if (processes[next].state == PROCESS_READY) {
             process_t* old_process = current_process_ptr;
             current_process = next;
             current_process_ptr = &processes[current_process];
@@ -214,10 +192,10 @@ void schedule(void) {
             
             return;
         }
-    } while (attempts < next_pid);
+    } while (attempts < MAX_PROCESSES);
     
     // No ready processes found, stay with current
-    if (current_process_ptr && current_process_ptr->pid != 0) {
+    if (current_process_ptr && current_process_ptr->state == PROCESS_READY) {
         current_process_ptr->state = PROCESS_RUNNING;
     }
 }
