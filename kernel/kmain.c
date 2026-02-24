@@ -137,13 +137,8 @@ int ramfs_mount(void) { return -1; }
 // User-level system call interface wrapper to resolve linker error from fs_test.o
 // This should ideally be in syscall.c, but is placed here as a workaround
 // for the current build configuration.
-uint32_t syscall(uint32_t num, uint32_t arg1, uint32_t arg2, uint32_t arg3) {
-    uint32_t result;
-    asm volatile (
-        "int $0x80"
-        : "=a" (result)
-        : "a" (num), "b" (arg1), "c" (arg2), "d" (arg3)
-        : "memory"
-    );
-    return result;
-}
+
+// Power management stubs to resolve linker errors
+uint32_t sys_power_state(uint32_t state) { (void)state; return 0; }
+uint32_t sys_get_battery_info(void* info) { (void)info; return 0; }
+uint32_t sys_get_power_stats(void* stats) { (void)stats; return 0; }
