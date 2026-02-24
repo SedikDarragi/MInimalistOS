@@ -126,5 +126,4 @@ void idt_init() {
 
     // Load the IDT
     asm volatile ("lidt %0" : : "m"(idtp));
-    asm volatile ("sti"); // Enable interrupts
 }

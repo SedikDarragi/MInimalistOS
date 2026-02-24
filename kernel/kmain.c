@@ -14,6 +14,7 @@
 #include "../include/pci.h"
 #include "../include/idt.h"
 #include "../include/memory.h"
+#include "../include/power.h"
 
 extern void shell_init(void);
 extern void shell_run(void);
@@ -66,6 +67,7 @@ void kmain(void) {
     
     vga_print("Initializing process management...\n");
     process_init();
+    serial_info("Process management initialized");
     
     vga_print("Initializing timer...\n");
     timer_init();
@@ -82,6 +84,7 @@ void kmain(void) {
     
     vga_print("Initializing system call interface...\n");
     syscall_init();
+    serial_info("Syscalls initialized");
     
     vga_print("Initializing keyboard (intl)...\n");
     if (keyboard_intl_init() == 0) {
@@ -96,6 +99,10 @@ void kmain(void) {
     
     vga_print("Initializing mouse...\n");
     mouse_init();
+    
+    vga_print("Initializing power management...\n");
+    power_init();
+    serial_info("Power management initialized");
     
     vga_print("Initializing program loader...\n");
     if (program_loader_init() == 0) {
@@ -118,6 +125,7 @@ void kmain(void) {
     __asm__ volatile("sti");
     
     // Initialize and run the shell
+    serial_info("Entering shell...");
     shell_init();
     shell_run();
 
