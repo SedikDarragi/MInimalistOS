@@ -9,6 +9,7 @@
 #include "../include/monitor.h"
 #include "../include/power.h"
 #include "string.h"
+#include "io.h"
 
 // System call handler table
 typedef uint32_t (*syscall_func_t)(uint32_t, uint32_t, uint32_t, uint32_t);
@@ -244,14 +245,25 @@ uint32_t sys_exit(uint32_t status) {
 uint32_t sys_write(uint32_t fd, const char* buf, uint32_t count) {
     if (fd == 1) {  // stdout
         vga_print(buf);
+        // Mirror to serial port (COM1) for debugging/console
+        for (uint32_t i = 0; i < count; i++) {
+            while ((inb(0x3F8 + 5) & 0x20) == 0); // Wait for transmit empty
+            outb(0x3F8, buf[i]);
+        }
         return count;
     }
     return SYS_ERROR;
 }
 
 uint32_t sys_read(uint32_t fd, char* buf, uint32_t count) {
-    (void)fd; (void)buf; (void)count; // Suppress unused parameter warnings
-    // For now, just return error
+    if (fd == 0) { // stdin
+        // Simple blocking read from serial for now
+        for (uint32_t i = 0; i < count; i++) {
+            while ((inb(0x3F8 + 5) & 1) == 0); // Wait for data
+            buf[i] = inb(0x3F8);
+        }
+        return count;
+    }
     return SYS_ERROR;
 }
 
@@ -344,3 +356,21 @@ uint32_t sys_get_power_stats(void* buffer) {
     if (!buffer) return SYS_ERROR;
     return (power_get_statistics((power_stats_t*)buffer) == 0) ? SYS_SUCCESS : SYS_ERROR;
 }
+
+// Stubs for missing system calls to fix linker errors
+uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length) { (void)dst_ip; (void)type; (void)data; (void)length; return SYS_ERROR; }
+uint32_t sys_network_receive(void* packet) { (void)packet; return SYS_ERROR; }
+uint32_t sys_device_open(const char* name) { (void)name; return SYS_ERROR; }
+uint32_t sys_device_close(const char* name) { (void)name; return SYS_ERROR; }
+uint32_t sys_device_read(const char* name, void* buffer, uint32_t size) { (void)name; (void)buffer; (void)size; return SYS_ERROR; }
+uint32_t sys_device_write(const char* name, const void* buffer, uint32_t size) { (void)name; (void)buffer; (void)size; return SYS_ERROR; }
+uint32_t sys_device_ioctl(const char* name, uint32_t cmd, void* arg) { (void)name; (void)cmd; (void)arg; return SYS_ERROR; }
+uint32_t sys_setuid(uint32_t uid) { (void)uid; return SYS_ERROR; }
+uint32_t sys_setgid(uint32_t gid) { (void)gid; return SYS_ERROR; }
+uint32_t sys_getuid(void) { return 0; }
+uint32_t sys_getgid(void) { return 0; }
+uint32_t sys_chmod(const char* path, uint32_t mode) { (void)path; (void)mode; return SYS_ERROR; }
+uint32_t sys_chown(const char* path, uint32_t uid, uint32_t gid) { (void)path; (void)uid; (void)gid; return SYS_ERROR; }
+uint32_t sys_log(uint8_t level, const char* message) { (void)level; (void)message; return SYS_SUCCESS; }
+uint32_t sys_get_stats(uint32_t type, void* buffer) { (void)type; (void)buffer; return SYS_ERROR; }
+uint32_t sys_dump_logs(void) { return SYS_SUCCESS; }
