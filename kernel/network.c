@@ -104,14 +104,3 @@ int network_set_mac(const uint8_t* mac) {
     }
     return -1;
 }
-
-// System call wrappers
-uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length) {
-    int result = network_send_packet(dst_ip, type, data, length);
-    return (result >= 0) ? 0 : -1;
-}
-
-uint32_t sys_network_receive(void* packet) {
-    int result = network_receive_packet((network_packet_t*)packet);
-    return (result >= 0) ? 0 : -1;
-}

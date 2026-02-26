@@ -253,28 +253,3 @@ int security_authenticate_user(const char* username, const char* password) {
     
     return -1;
 }
-
-// System call wrappers
-uint32_t sys_setuid(uint32_t uid) {
-    return security_set_context(uid, current_context.gid);
-}
-
-uint32_t sys_setgid(uint32_t gid) {
-    return security_set_context(current_context.uid, gid);
-}
-
-uint32_t sys_getuid(void) {
-    return current_context.uid;
-}
-
-uint32_t sys_getgid(void) {
-    return current_context.gid;
-}
-
-uint32_t sys_chmod(const char* path, uint32_t mode) {
-    return security_set_permission(path, current_context.uid, current_context.gid, mode);
-}
-
-uint32_t sys_chown(const char* path, uint32_t uid, uint32_t gid) {
-    return security_set_permission(path, uid, gid, PERM_READ | PERM_WRITE | PERM_EXECUTE);
-}

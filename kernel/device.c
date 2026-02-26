@@ -125,24 +125,3 @@ int device_ioctl(const char* name, uint32_t cmd, void* arg) {
     
     return dev->ops->ioctl(cmd, arg);
 }
-
-// System call wrappers
-uint32_t sys_device_open(const char* name) {
-    return device_open(name);
-}
-
-uint32_t sys_device_close(const char* name) {
-    return device_close(name);
-}
-
-uint32_t sys_device_read(const char* name, void* buffer, uint32_t size) {
-    return device_read(name, buffer, size);
-}
-
-uint32_t sys_device_write(const char* name, const void* buffer, uint32_t size) {
-    return device_write(name, buffer, size);
-}
-
-uint32_t sys_device_ioctl(const char* name, uint32_t cmd, void* arg) {
-    return device_ioctl(name, cmd, arg);
-}
