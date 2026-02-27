@@ -2,6 +2,7 @@
 #include "process.h"
 #include "../include/idt.h"
 #include <stddef.h>
+#include "string.h"
 
 // External assembly functions
 void context_switch(cpu_context_t* old_context, cpu_context_t* new_context);
