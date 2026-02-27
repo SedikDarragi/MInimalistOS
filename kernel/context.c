@@ -8,44 +8,6 @@
 void context_switch(cpu_context_t* old_context, cpu_context_t* new_context);
 void context_init(cpu_context_t* context, void (*entry_point)(), uint32_t stack_top);
 
-__asm__(
-    ".global context_switch\n"
-    "context_switch:\n"
-    "    mov 4(%esp), %eax      # old_context\n"
-    "    mov 8(%esp), %edx      # new_context\n"
-    "\n"
-    "    # Save registers to old_context\n"
-    "    mov %ebx, 4(%eax)\n"
-    "    mov %ecx, 8(%eax)\n"
-    "    mov %esi, 16(%eax)\n"
-    "    mov %edi, 20(%eax)\n"
-    "    mov %ebp, 24(%eax)\n"
-    "    mov %esp, 28(%eax)\n"
-    "    pushf\n"
-    "    popl 36(%eax)\n"
-    "    movl (%esp), %ecx\n"
-    "    movl %ecx, 32(%eax)\n"
-    "\n"
-    "    # Load registers from new_context\n"
-    "    mov 28(%edx), %esp\n"
-    "    mov 4(%edx), %ebx\n"
-    "    mov 8(%edx), %ecx\n"
-    "    mov 16(%edx), %esi\n"
-    "    mov 20(%edx), %edi\n"
-    "    mov 24(%edx), %ebp\n"
-    "    pushl 36(%edx)\n"
-    "    popf\n"
-    "    pushl 32(%edx)\n"
-    "    # eax and edx are caller-saved and not restored from context\n"
-    "    ret\n"
-);
-
-void context_init(cpu_context_t* context, void (*entry_point)(), uint32_t stack_top) {
-    memset(context, 0, sizeof(cpu_context_t));
-    context->eip = (uint32_t)entry_point;
-    context->esp = stack_top;
-    context->eflags = 0x202; // Interrupts enabled
-}
 // Current running context
 static cpu_context_t* current_context = NULL;
 

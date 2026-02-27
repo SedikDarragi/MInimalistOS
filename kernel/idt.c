@@ -113,10 +113,23 @@ void idt_init() {
 
     pic_remap();
 
-    // Set up ISRs (CPU exceptions 0-31)
+    // Set up all ISRs (CPU exceptions 0-15) to a generic handler
     idt_set_gate(0, (uint32_t)isr0, 0x08, 0x8E);
-    // ... (set up all 32 ISRs here)
-    idt_set_gate(31, (uint32_t)isr0, 0x08, 0x8E); // Placeholder
+    idt_set_gate(1, (uint32_t)isr1, 0x08, 0x8E);
+    idt_set_gate(2, (uint32_t)isr2, 0x08, 0x8E);
+    idt_set_gate(3, (uint32_t)isr3, 0x08, 0x8E);
+    idt_set_gate(4, (uint32_t)isr4, 0x08, 0x8E);
+    idt_set_gate(5, (uint32_t)isr5, 0x08, 0x8E);
+    idt_set_gate(6, (uint32_t)isr6, 0x08, 0x8E);
+    idt_set_gate(7, (uint32_t)isr7, 0x08, 0x8E);
+    idt_set_gate(8, (uint32_t)isr8, 0x08, 0x8E);
+    idt_set_gate(9, (uint32_t)isr9, 0x08, 0x8E);
+    idt_set_gate(10, (uint32_t)isr10, 0x08, 0x8E);
+    idt_set_gate(11, (uint32_t)isr11, 0x08, 0x8E);
+    idt_set_gate(12, (uint32_t)isr12, 0x08, 0x8E);
+    idt_set_gate(13, (uint32_t)isr13, 0x08, 0x8E);
+    idt_set_gate(14, (uint32_t)isr14, 0x08, 0x8E);
+    idt_set_gate(15, (uint32_t)isr15, 0x08, 0x8E);
 
     // Set up IRQs (hardware interrupts 32-47)
     idt_set_gate(32, (uint32_t)irq0, 0x08, 0x8E);
