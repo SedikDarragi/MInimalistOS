@@ -347,6 +347,16 @@ uint32_t sys_power_state(uint32_t state) {
     return (power_set_state(state) == 0) ? SYS_SUCCESS : SYS_ERROR;
 }
 
+uint32_t sys_get_battery_info(void* buffer) {
+    if (!buffer) return SYS_ERROR;
+    return (power_get_battery_status((battery_status_t*)buffer) == 0) ? SYS_SUCCESS : SYS_ERROR;
+}
+
+uint32_t sys_get_power_stats(void* buffer) {
+    if (!buffer) return SYS_ERROR;
+    return (power_get_statistics((power_stats_t*)buffer) == 0) ? SYS_SUCCESS : SYS_ERROR;
+}
+
 uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length) {
     return network_send_packet(dst_ip, type, data, length);
 }
@@ -401,4 +411,20 @@ uint32_t sys_chown(const char* path, uint32_t uid, uint32_t gid) {
     // Preserve permissions by reading them first, or use a default.
     // For now, using a default set of permissions.
     return security_set_permission(path, uid, gid, PERM_READ | PERM_WRITE | PERM_EXECUTE);
+}
+
+uint32_t sys_log(uint8_t level, const char* message) {
+    monitor_log(level, LOG_SOURCE_PROCESS, message);
+    return SYS_SUCCESS;
+}
+
+uint32_t sys_get_stats(uint32_t type, void* buffer) {
+    if (type == 0) return monitor_get_system_stats((system_stats_t*)buffer);
+    if (type == 1) return monitor_get_performance_metrics((performance_metrics_t*)buffer);
+    return SYS_ERROR;
+}
+
+uint32_t sys_dump_logs(void) {
+    monitor_dump_logs();
+    return SYS_SUCCESS;
 }

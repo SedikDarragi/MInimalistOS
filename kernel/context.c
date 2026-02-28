@@ -8,6 +8,50 @@
 void context_switch(cpu_context_t* old_context, cpu_context_t* new_context);
 void context_init(cpu_context_t* context, void (*entry_point)(), uint32_t stack_top);
 
+__asm__(
+    ".global context_switch\n"
+    "context_switch:\n"
+    "    mov 4(%esp), %eax\n"      // Get old_context pointer
+    "    test %eax, %eax\n"        // Check if NULL
+    "    jz 2f\n"                  // If NULL, skip saving
+    "    mov %eax, 0(%eax)\n"      // Save EAX
+    "    mov %ebx, 4(%eax)\n"      // Save EBX
+    "    mov %ecx, 8(%eax)\n"      // Save ECX
+    "    mov %edx, 12(%eax)\n"     // Save EDX
+    "    mov %esi, 16(%eax)\n"     // Save ESI
+    "    mov %edi, 20(%eax)\n"     // Save EDI
+    "    mov %ebp, 24(%eax)\n"     // Save EBP
+    "    mov %esp, 28(%eax)\n"     // Save ESP
+    "    mov (%esp), %edx\n"       // Get return address
+    "    mov %edx, 32(%eax)\n"     // Save EIP
+    "    pushfl\n"
+    "    pop %edx\n"
+    "    mov %edx, 36(%eax)\n"     // Save EFLAGS
+    "    2:\n"
+    "    mov 8(%esp), %eax\n"      // Get new_context pointer
+    "    mov 36(%eax), %edx\n"     // Get new EFLAGS
+    "    push %edx\n"
+    "    popfl\n"                  // Load EFLAGS
+    "    mov 28(%eax), %esp\n"     // Load ESP
+    "    mov 32(%eax), %edx\n"     // Get new EIP
+    "    mov %edx, (%esp)\n"       // Setup return address
+    "    mov 24(%eax), %ebp\n"     // Load EBP
+    "    mov 20(%eax), %edi\n"     // Load EDI
+    "    mov 16(%eax), %esi\n"     // Load ESI
+    "    mov 12(%eax), %edx\n"     // Load EDX
+    "    mov 8(%eax), %ecx\n"      // Load ECX
+    "    mov 4(%eax), %ebx\n"      // Load EBX
+    "    mov 0(%eax), %eax\n"      // Load EAX
+    "    ret\n"
+);
+
+void context_init(cpu_context_t* context, void (*entry_point)(), uint32_t stack_top) {
+    memset(context, 0, sizeof(cpu_context_t));
+    context->eip = (uint32_t)entry_point;
+    context->esp = stack_top;
+    context->eflags = 0x202; // Interrupts enabled
+}
+
 // Current running context
 static cpu_context_t* current_context = NULL;
 
