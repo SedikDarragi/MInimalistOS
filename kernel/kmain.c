@@ -20,14 +20,9 @@ extern void shell_init(void);
 extern void shell_run(void);
 
 void kmain(void) {
-    /* Debug: Write 'K' to top-left of screen to confirm kernel entry */
-    volatile uint16_t* vga_debug = (volatile uint16_t*)0xB8000;
-    vga_debug[0] = (0x0F << 8) | 'K';
-    vga_debug[1] = (0x0F << 8) | 'E';
-    vga_debug[2] = (0x0F << 8) | 'R';
-    vga_debug[3] = (0x0F << 8) | 'N';
-    vga_debug[4] = (0x0F << 8) | 'E';
-    vga_debug[5] = (0x0F << 8) | 'L';
+    /* Clear screen immediately to remove BIOS text and garbage */
+    vga_clear();
+    vga_print("Minimalist OS Kernel Started\n");
 
     /* Initialize critical low-level systems first */
     idt_init();      /* Interrupt Descriptor Table */
@@ -35,9 +30,6 @@ void kmain(void) {
     paging_init();   /* Virtual Memory Manager */
     log_init();      /* Logging System */
 
-    /* Don't clear screen immediately - let debug chars stay visible */
-    vga_clear();
-    vga_print("\nMinimalist OS Kernel - Main Entry Point\n");
     
     log_info("Kernel main function started");
     
