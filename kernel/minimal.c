@@ -42,92 +42,19 @@ static void vga_puts(int x, int y, const char *str, uint8_t color) {
     }
 }
 
-// Kernel entry point
+/*
+ * NOTE: This file appears to be a legacy or test kernel entry point.
+ * The main, correct entry point is `kmain` in `kernel/kmain.c`.
+ * The symptoms you are seeing (crash with "XLSKGP!") suggest that your
+ * assembly code is still calling this `minimal_kmain` function instead of `kmain`.
+ *
+ * By commenting this function out, the build will fail with a linker error,
+ * which will tell you exactly which file is trying to call it. You can then
+ * edit that file (likely kernel/entry.s) to call `kmain` instead.
+ */
+/*
 void minimal_kmain(void) {
-    // Clear the screen to blue background
-    for (int i = 0; i < 80*25; i++) {
-        VGA_BUFFER[i] = 0x1F00;  // Blue background, space character
-    }
-    
-    // Initialize critical systems first to prevent triple faults from interrupts
-    // before an IDT is ready.
-    vga_puts(0, 0, "INITIALIZING INTERRUPTS...", 0x1F);
-    idt_init();
-    vga_puts(0, 2, "INTERRUPTS INITIALIZED", 0x1F);
-    
-    // Initialize memory management
-    vga_puts(0, 3, "INITIALIZING MEMORY...", 0x1F);
-    memory_init();
-    vga_puts(0, 4, "MEMORY MANAGER READY", 0x1F);
-    
-    // Initialize paging
-    vga_puts(0, 5, "INITIALIZING PAGING...", 0x1F);
-    paging_init();
-    vga_puts(0, 6, "PAGING ENABLED", 0x1F);
-    
-    // Initialize system calls
-    vga_puts(0, 7, "INITIALIZING SYSCALLS...", 0x1F);
-    syscall_init();
-    vga_puts(0, 8, "SYSCALLS READY", 0x1F);
-    
-    // Initialize user mode
-    vga_puts(0, 9, "[OK] User mode initialized", 0x0A);
-    usermode_init();
-    
-    // Initialize IPC
-    vga_puts(0, 10, "[OK] IPC initialized", 0x0A);
-    // ipc_init(); // Commented out for now
-    
-    // Initialize Network
-    vga_puts(0, 11, "[OK] Network initialized", 0x0A);
-    network_init();
-    
-    // Initialize Virtual Memory
-    vga_puts(0, 12, "[OK] Virtual Memory initialized", 0x0A);
-    // vm_init(); // Commented out for now
-    
-    // Initialize Device Drivers
-    vga_puts(0, 13, "[OK] Device Drivers initialized", 0x0A);
-    device_init();
-    
-    // Initialize Security System
-    vga_puts(0, 14, "[OK] Security System initialized", 0x0A);
-    security_init();
-    
-    // Initialize Monitoring System
-    vga_puts(0, 15, "[OK] Monitoring System initialized", 0x0A);
-    monitor_init();
-    
-    // Initialize Power Management
-    vga_puts(0, 16, "[OK] Power Management initialized", 0x0A);
-    power_init();
-    
-    // Initialize filesystem
-    vga_puts(0, 17, "INITIALIZING FILESYSTEM...", 0x1F);
-    fs_init();
-    vga_puts(0, 18, "FILESYSTEM READY", 0x1F);
-    
-    // Initialize process system
-    vga_puts(0, 19, "INITIALIZING PROCESSES...", 0x1F);
-    process_init();
-    vga_puts(0, 20, "PROCESS SYSTEM READY", 0x1F);
-    
-    // Initialize timer
-    vga_puts(0, 21, "INITIALIZING TIMER...", 0x1F);
-    timer_init();
-    vga_puts(0, 22, "TIMER READY", 0x1F);
-    
-    // Initialize keyboard
-    vga_puts(0, 23, "INITIALIZING KEYBOARD...", 0x1F);
-    keyboard_init();
-    vga_puts(0, 24, "KEYBOARD READY", 0x1F);
-
-    // Initialize and run the shell
-    shell_init();
-    shell_run();
-    
-    // Halt the CPU if shell returns (shouldn't happen)
-    while (1) {
-        __asm__ volatile ("hlt");
-    }
+    // This function is intentionally disabled to help find the build configuration error.
+    // See the note above.
 }
+*/
