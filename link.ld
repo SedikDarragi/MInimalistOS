@@ -12,8 +12,10 @@ PHDRS
 
 SECTIONS
 {
-    /* The kernel will be loaded at 0x8000 (32KB) to match the bootloader */
-    . = 0x8000;
+    /* The kernel will be loaded at 0x1000 (4KB) by the bootloader.
+     * The linker must be told this address so it can correctly resolve
+     * absolute and relative addresses for function calls and data. */
+    . = 0x1000;
 
     /* Kernel code section */
     .text : {
