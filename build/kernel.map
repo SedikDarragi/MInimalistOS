@@ -293,33 +293,19 @@ Discarded input sections
  .group         0x00000000        0xc kernel/context.o
  .group         0x00000000        0xc kernel/context.o
  .group         0x00000000        0xc kernel/context.o
- .text          0x00000000       0xae kernel/context.o
  .data          0x00000000        0x0 kernel/context.o
- .bss           0x00000000        0x4 kernel/context.o
  .text.__x86.get_pc_thunk.ax
                 0x00000000        0x4 kernel/context.o
  .text.__x86.get_pc_thunk.bx
                 0x00000000        0x4 kernel/context.o
- .debug_info    0x00000000      0x2b3 kernel/context.o
- .debug_abbrev  0x00000000      0x150 kernel/context.o
- .debug_aranges
-                0x00000000       0x20 kernel/context.o
- .debug_macro   0x00000000       0x53 kernel/context.o
  .debug_macro   0x00000000      0x97c kernel/context.o
  .debug_macro   0x00000000       0x28 kernel/context.o
  .debug_macro   0x00000000       0x10 kernel/context.o
- .debug_macro   0x00000000       0x1c kernel/context.o
  .debug_macro   0x00000000       0x16 kernel/context.o
- .debug_line    0x00000000       0xb1 kernel/context.o
- .debug_str     0x00000000     0x31e4 kernel/context.o
- .debug_line_str
-                0x00000000       0xe8 kernel/context.o
  .comment       0x00000000       0x1c kernel/context.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/context.o
  .note.gnu.property
                 0x00000000       0x28 kernel/context.o
- .eh_frame      0x00000000       0x88 kernel/context.o
+ .eh_frame      0x00000000       0xa8 kernel/context.o
  .group         0x00000000        0x8 kernel/device.o
  .group         0x00000000        0x8 kernel/device.o
  .group         0x00000000        0xc kernel/device.o
@@ -478,35 +464,20 @@ Discarded input sections
  .group         0x00000000        0xc kernel/monitor.o
  .group         0x00000000        0xc kernel/monitor.o
  .group         0x00000000        0xc kernel/monitor.o
- .text          0x00000000      0x9db kernel/monitor.o
  .data          0x00000000        0x0 kernel/monitor.o
- .bss           0x00000000    0x10b28 kernel/monitor.o
- .rodata        0x00000000      0x160 kernel/monitor.o
  .text.__x86.get_pc_thunk.ax
                 0x00000000        0x4 kernel/monitor.o
  .text.__x86.get_pc_thunk.cx
                 0x00000000        0x4 kernel/monitor.o
  .text.__x86.get_pc_thunk.bx
                 0x00000000        0x4 kernel/monitor.o
- .debug_info    0x00000000      0x789 kernel/monitor.o
- .debug_abbrev  0x00000000      0x1a4 kernel/monitor.o
- .debug_aranges
-                0x00000000       0x20 kernel/monitor.o
- .debug_macro   0x00000000       0x6d kernel/monitor.o
  .debug_macro   0x00000000      0x97c kernel/monitor.o
  .debug_macro   0x00000000       0x28 kernel/monitor.o
  .debug_macro   0x00000000       0x10 kernel/monitor.o
- .debug_macro   0x00000000       0x4c kernel/monitor.o
  .debug_macro   0x00000000       0xe8 kernel/monitor.o
  .debug_macro   0x00000000       0x16 kernel/monitor.o
  .debug_macro   0x00000000       0x64 kernel/monitor.o
- .debug_line    0x00000000      0x3c6 kernel/monitor.o
- .debug_str     0x00000000     0x3867 kernel/monitor.o
- .debug_line_str
-                0x00000000       0xf1 kernel/monitor.o
  .comment       0x00000000       0x1c kernel/monitor.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/monitor.o
  .note.gnu.property
                 0x00000000       0x28 kernel/monitor.o
  .eh_frame      0x00000000      0x228 kernel/monitor.o
@@ -787,7 +758,7 @@ Discarded input sections
  .comment       0x00000000       0x1c kernel/syscall.o
  .note.gnu.property
                 0x00000000       0x28 kernel/syscall.o
- .eh_frame      0x00000000      0x920 kernel/syscall.o
+ .eh_frame      0x00000000      0x9c0 kernel/syscall.o
 
 Memory Configuration
 
@@ -798,7 +769,7 @@ Linker script and memory map
 
                 0x00008000                        . = 0x8000
 
-.text           0x00008000     0x77c2
+.text           0x00008000     0x83e8
  *(.text)
  .text          0x00008000       0x3a kernel/entry.o
                 0x00008000                _start
@@ -871,332 +842,359 @@ Linker script and memory map
                 0x0000a2ee                fs_seek
                 0x0000a344                fs_list
                 0x0000a38d                get_file_size
- .text          0x0000a3c6      0x391 kernel/device.o
-                0x0000a3c6                device_init
-                0x0000a3e0                device_register
-                0x0000a46f                device_unregister
-                0x0000a4fe                device_find
-                0x0000a54f                device_find_by_number
-                0x0000a59b                device_open
-                0x0000a5eb                device_close
-                0x0000a63d                device_read
-                0x0000a69b                device_write
-                0x0000a6f9                device_ioctl
- .text          0x0000a757      0x485 kernel/idt.o
-                0x0000a7a7                idt_set_gate
-                0x0000a81f                pic_remap
-                0x0000a8b6                fault_handler
-                0x0000a8c8                irq_handler
-                0x0000a92f                register_interrupt_handler
-                0x0000a956                enable_irq
-                0x0000a9c2                idt_init
- .text          0x0000abdc      0x8df kernel/isr.o
-                0x0000ac2c                isr0
-                0x0000ac7c                isr1
-                0x0000aca7                isr2
-                0x0000ace3                isr3
-                0x0000ad0e                isr4
-                0x0000ad39                isr5
-                0x0000ad64                isr6
-                0x0000ad8f                isr7
-                0x0000adba                isr8
-                0x0000ae0a                isr9
-                0x0000ae35                isr10
-                0x0000ae60                isr11
-                0x0000ae8b                isr12
-                0x0000aeb6                isr13
-                0x0000aee1                isr14
-                0x0000af0c                isr15
-                0x0000af37                isr16
-                0x0000af62                isr17
-                0x0000af8d                isr18
-                0x0000afdd                isr19
-                0x0000b008                isr20
-                0x0000b033                isr21
-                0x0000b05e                isr22
-                0x0000b089                isr23
-                0x0000b0b4                isr24
-                0x0000b0df                isr25
-                0x0000b10a                isr26
-                0x0000b135                isr27
-                0x0000b160                isr28
-                0x0000b18b                isr29
-                0x0000b1b6                isr30
-                0x0000b1e1                isr31
-                0x0000b20c                irq0
-                0x0000b275                irq1
-                0x0000b2bb                irq2
-                0x0000b2d7                irq3
-                0x0000b2f3                irq4
-                0x0000b30f                irq5
-                0x0000b32b                irq6
-                0x0000b347                irq7
-                0x0000b363                irq8
-                0x0000b38e                irq9
-                0x0000b3b9                irq10
-                0x0000b3e4                irq11
-                0x0000b40f                irq12
-                0x0000b43a                irq13
-                0x0000b465                irq14
-                0x0000b490                irq15
- .text          0x0000b4bb      0x86f kernel/log.o
-                0x0000b4bb                log_init
-                0x0000b4ef                log_set_level
-                0x0000ba24                log_printf
-                0x0000bacd                log_debug
-                0x0000bb46                log_info
-                0x0000bbbf                log_warn
-                0x0000bc38                log_error
-                0x0000bcb1                log_critical
- .text          0x0000bd2a      0x4ff kernel/memory.o
-                0x0000bd2a                memory_init
-                0x0000bda8                paging_init
-                0x0000be40                enable_paging
-                0x0000be6f                alloc_page
-                0x0000bf03                free_page
-                0x0000bf67                map_page
-                0x0000bfba                unmap_page
-                0x0000c009                get_phys_addr
-                0x0000c06a                flush_tlb
-                0x0000c080                heap_init
-                0x0000c09a                kmalloc
-                0x0000c0f3                kfree
-                0x0000c103                memory_stats
-                0x0000c14e                heap_stats
-                0x0000c17e                kmalloc_aligned
-                0x0000c1de                kcalloc
- .text          0x0000c229      0x293 kernel/network.o
-                0x0000c229                network_init
-                0x0000c2dd                network_send_packet
-                0x0000c3d9                network_receive_packet
-                0x0000c468                network_set_ip
-                0x0000c485                network_set_mac
- .text          0x0000c4bc      0x748 kernel/power.o
-                0x0000c4bc                power_init
-                0x0000c55e                power_set_state
-                0x0000c61f                power_get_state
-                0x0000c634                power_request_sleep
-                0x0000c6b7                power_request_wake
-                0x0000c6ed                power_handle_event
-                0x0000c760                power_get_battery_status
-                0x0000c860                power_get_battery_percentage
-                0x0000c8a0                power_is_battery_charging
-                0x0000c8e0                power_estimate_remaining_time
-                0x0000c920                power_get_statistics
-                0x0000c965                power_update_statistics
-                0x0000cab0                power_reset_statistics
-                0x0000cb02                power_set_cpu_frequency
-                0x0000cb41                power_get_cpu_frequency
-                0x0000cb56                power_throttle_cpu
-                0x0000cb98                power_get_thermal_state
-                0x0000cbad                power_set_fan_speed
-                0x0000cbef                power_get_fan_speed
- .text          0x0000cc04      0x76c kernel/process.o
-                0x0000ccca                test_process_1
-                0x0000ccd9                test_process_2
-                0x0000cce8                user_process_1
-                0x0000ccf7                user_process_2
-                0x0000cd06                memory_test_process
-                0x0000cd15                user_program_main
-                0x0000cd24                network_test_sender
-                0x0000cd33                network_test_receiver
-                0x0000cd42                device_test_process
-                0x0000cd51                security_test_process
-                0x0000cd60                monitor_test_process
-                0x0000cd6f                power_test_process
-                0x0000cd7e                __stack_chk_fail_local
-                0x0000cd8d                process_init
-                0x0000ce03                process_create
-                0x0000ceca                process_exit
-                0x0000cef9                process_get
-                0x0000cf2c                process_print_list
-                0x0000d19d                schedule
-                0x0000d35b                process_get_current
- .text          0x0000d370      0x766 kernel/program_loader.o
-                0x0000d370                program_loader_init
-                0x0000d3a9                program_validate_elf
-                0x0000d493                program_alloc_memory
-                0x0000d50b                program_free_memory
-                0x0000d549                program_load
-                0x0000d956                program_execute
-                0x0000d9cb                program_execute_from_info
-                0x0000daab                program_cleanup
- .text          0x0000dad6      0x881 kernel/security.o
-                0x0000dad6                security_init
-                0x0000dbc4                security_set_context
-                0x0000dc29                security_get_context
-                0x0000dc6a                security_check_permission
-                0x0000dc93                security_check_file_access
-                0x0000dd82                security_check_device_access
-                0x0000ddba                security_set_permission
-                0x0000df21                security_get_permission
-                0x0000dfdb                security_create_user
-                0x0000e114                security_delete_user
-                0x0000e197                security_set_user_password
-                0x0000e269                security_authenticate_user
- .text          0x0000e357      0x4e1 kernel/shell.o
-                0x0000e491                shell_init
-                0x0000e57a                shell_execute_command
-                0x0000e681                shell_run
- .text          0x0000e838      0x475 kernel/string.o
-                0x0000e838                outb
-                0x0000e861                inb
-                0x0000e888                outw
-                0x0000e8b3                inw
-                0x0000e8dc                outl
-                0x0000e8fe                inl
-                0x0000e924                memset
-                0x0000e95c                strcpy
-                0x0000e996                strcmp
-                0x0000e9df                strcat
-                0x0000ea29                memcpy
-                0x0000ea70                strncpy
-                0x0000eab7                strncmp
-                0x0000eb1a                strlen
-                0x0000eb4b                itoa
-                0x0000ec17                memcmp
-                0x0000ec8b                enable_interrupts
-                0x0000ec9c                disable_interrupts
- .text          0x0000ecad      0xb05 kernel/syscall.o
-                0x0000f120                syscall_interrupt_handler
-                0x0000f19b                syscall_init
-                0x0000f1cb                syscall
-                0x0000f1f5                sys_exit
-                0x0000f221                sys_write
-                0x0000f2a6                sys_read
-                0x0000f310                sys_fork
-                0x0000f327                sys_wait
-                0x0000f33b                sys_exec
-                0x0000f34f                sys_getpid
-                0x0000f381                sys_yield
-                0x0000f3a3                sys_open
-                0x0000f3dc                sys_close
-                0x0000f418                sys_seek
-                0x0000f451                sys_stat
-                0x0000f47d                sys_ipc_send
-                0x0000f4a1                sys_ipc_receive
-                0x0000f4b5                sys_vm_alloc
-                0x0000f4c9                sys_vm_free
-                0x0000f4dd                sys_vm_map
-                0x0000f4f1                sys_power_state
-                0x0000f527                sys_network_send
-                0x0000f564                sys_network_receive
-                0x0000f58a                sys_device_open
-                0x0000f5b0                sys_device_close
-                0x0000f5d6                sys_device_read
-                0x0000f602                sys_device_write
-                0x0000f62e                sys_device_ioctl
-                0x0000f65a                sys_getuid
-                0x0000f6ac                sys_getgid
-                0x0000f6fe                sys_setuid
-                0x0000f729                sys_setgid
-                0x0000f754                sys_chmod
-                0x0000f787                sys_chown
+ .text          0x0000a3c6      0x13e kernel/context.o
+                0x0000a3c6                context_switch
+                0x0000a417                context_init
+                0x0000a45e                switch_to_process
+                0x0000a4c9                setup_process_context
+ .text          0x0000a504      0x391 kernel/device.o
+                0x0000a504                device_init
+                0x0000a51e                device_register
+                0x0000a5ad                device_unregister
+                0x0000a63c                device_find
+                0x0000a68d                device_find_by_number
+                0x0000a6d9                device_open
+                0x0000a729                device_close
+                0x0000a77b                device_read
+                0x0000a7d9                device_write
+                0x0000a837                device_ioctl
+ .text          0x0000a895      0x485 kernel/idt.o
+                0x0000a8e5                idt_set_gate
+                0x0000a95d                pic_remap
+                0x0000a9f4                fault_handler
+                0x0000aa06                irq_handler
+                0x0000aa6d                register_interrupt_handler
+                0x0000aa94                enable_irq
+                0x0000ab00                idt_init
+ .text          0x0000ad1a      0x8df kernel/isr.o
+                0x0000ad6a                isr0
+                0x0000adba                isr1
+                0x0000ade5                isr2
+                0x0000ae21                isr3
+                0x0000ae4c                isr4
+                0x0000ae77                isr5
+                0x0000aea2                isr6
+                0x0000aecd                isr7
+                0x0000aef8                isr8
+                0x0000af48                isr9
+                0x0000af73                isr10
+                0x0000af9e                isr11
+                0x0000afc9                isr12
+                0x0000aff4                isr13
+                0x0000b01f                isr14
+                0x0000b04a                isr15
+                0x0000b075                isr16
+                0x0000b0a0                isr17
+                0x0000b0cb                isr18
+                0x0000b11b                isr19
+                0x0000b146                isr20
+                0x0000b171                isr21
+                0x0000b19c                isr22
+                0x0000b1c7                isr23
+                0x0000b1f2                isr24
+                0x0000b21d                isr25
+                0x0000b248                isr26
+                0x0000b273                isr27
+                0x0000b29e                isr28
+                0x0000b2c9                isr29
+                0x0000b2f4                isr30
+                0x0000b31f                isr31
+                0x0000b34a                irq0
+                0x0000b3b3                irq1
+                0x0000b3f9                irq2
+                0x0000b415                irq3
+                0x0000b431                irq4
+                0x0000b44d                irq5
+                0x0000b469                irq6
+                0x0000b485                irq7
+                0x0000b4a1                irq8
+                0x0000b4cc                irq9
+                0x0000b4f7                irq10
+                0x0000b522                irq11
+                0x0000b54d                irq12
+                0x0000b578                irq13
+                0x0000b5a3                irq14
+                0x0000b5ce                irq15
+ .text          0x0000b5f9      0x86f kernel/log.o
+                0x0000b5f9                log_init
+                0x0000b62d                log_set_level
+                0x0000bb62                log_printf
+                0x0000bc0b                log_debug
+                0x0000bc84                log_info
+                0x0000bcfd                log_warn
+                0x0000bd76                log_error
+                0x0000bdef                log_critical
+ .text          0x0000be68      0x4ff kernel/memory.o
+                0x0000be68                memory_init
+                0x0000bee6                paging_init
+                0x0000bf7e                enable_paging
+                0x0000bfad                alloc_page
+                0x0000c041                free_page
+                0x0000c0a5                map_page
+                0x0000c0f8                unmap_page
+                0x0000c147                get_phys_addr
+                0x0000c1a8                flush_tlb
+                0x0000c1be                heap_init
+                0x0000c1d8                kmalloc
+                0x0000c231                kfree
+                0x0000c241                memory_stats
+                0x0000c28c                heap_stats
+                0x0000c2bc                kmalloc_aligned
+                0x0000c31c                kcalloc
+ .text          0x0000c367      0x9db kernel/monitor.o
+                0x0000c367                monitor_init
+                0x0000c41d                monitor_log
+                0x0000c522                monitor_log_printf
+                0x0000c559                monitor_get_log_entry
+                0x0000c5cf                monitor_get_system_stats
+                0x0000c614                monitor_get_performance_metrics
+                0x0000c659                monitor_update_stats
+                0x0000c7d4                monitor_dump_logs
+                0x0000c922                monitor_dump_stats
+                0x0000cb1b                monitor_start_timer
+                0x0000cbf4                monitor_end_timer
+                0x0000ccd0                monitor_get_timer_value
+ .text          0x0000cd42      0x293 kernel/network.o
+                0x0000cd42                network_init
+                0x0000cdf6                network_send_packet
+                0x0000cef2                network_receive_packet
+                0x0000cf81                network_set_ip
+                0x0000cf9e                network_set_mac
+ .text          0x0000cfd5      0x748 kernel/power.o
+                0x0000cfd5                power_init
+                0x0000d077                power_set_state
+                0x0000d138                power_get_state
+                0x0000d14d                power_request_sleep
+                0x0000d1d0                power_request_wake
+                0x0000d206                power_handle_event
+                0x0000d279                power_get_battery_status
+                0x0000d379                power_get_battery_percentage
+                0x0000d3b9                power_is_battery_charging
+                0x0000d3f9                power_estimate_remaining_time
+                0x0000d439                power_get_statistics
+                0x0000d47e                power_update_statistics
+                0x0000d5c9                power_reset_statistics
+                0x0000d61b                power_set_cpu_frequency
+                0x0000d65a                power_get_cpu_frequency
+                0x0000d66f                power_throttle_cpu
+                0x0000d6b1                power_get_thermal_state
+                0x0000d6c6                power_set_fan_speed
+                0x0000d708                power_get_fan_speed
+ .text          0x0000d71d      0x76c kernel/process.o
+                0x0000d7e3                test_process_1
+                0x0000d7f2                test_process_2
+                0x0000d801                user_process_1
+                0x0000d810                user_process_2
+                0x0000d81f                memory_test_process
+                0x0000d82e                user_program_main
+                0x0000d83d                network_test_sender
+                0x0000d84c                network_test_receiver
+                0x0000d85b                device_test_process
+                0x0000d86a                security_test_process
+                0x0000d879                monitor_test_process
+                0x0000d888                power_test_process
+                0x0000d897                __stack_chk_fail_local
+                0x0000d8a6                process_init
+                0x0000d91c                process_create
+                0x0000d9e3                process_exit
+                0x0000da12                process_get
+                0x0000da45                process_print_list
+                0x0000dcb6                schedule
+                0x0000de74                process_get_current
+ .text          0x0000de89      0x766 kernel/program_loader.o
+                0x0000de89                program_loader_init
+                0x0000dec2                program_validate_elf
+                0x0000dfac                program_alloc_memory
+                0x0000e024                program_free_memory
+                0x0000e062                program_load
+                0x0000e46f                program_execute
+                0x0000e4e4                program_execute_from_info
+                0x0000e5c4                program_cleanup
+ .text          0x0000e5ef      0x881 kernel/security.o
+                0x0000e5ef                security_init
+                0x0000e6dd                security_set_context
+                0x0000e742                security_get_context
+                0x0000e783                security_check_permission
+                0x0000e7ac                security_check_file_access
+                0x0000e89b                security_check_device_access
+                0x0000e8d3                security_set_permission
+                0x0000ea3a                security_get_permission
+                0x0000eaf4                security_create_user
+                0x0000ec2d                security_delete_user
+                0x0000ecb0                security_set_user_password
+                0x0000ed82                security_authenticate_user
+ .text          0x0000ee70      0x4e1 kernel/shell.o
+                0x0000efaa                shell_init
+                0x0000f093                shell_execute_command
+                0x0000f19a                shell_run
+ .text          0x0000f351      0x475 kernel/string.o
+                0x0000f351                outb
+                0x0000f37a                inb
+                0x0000f3a1                outw
+                0x0000f3cc                inw
+                0x0000f3f5                outl
+                0x0000f417                inl
+                0x0000f43d                memset
+                0x0000f475                strcpy
+                0x0000f4af                strcmp
+                0x0000f4f8                strcat
+                0x0000f542                memcpy
+                0x0000f589                strncpy
+                0x0000f5d0                strncmp
+                0x0000f633                strlen
+                0x0000f664                itoa
+                0x0000f730                memcmp
+                0x0000f7a4                enable_interrupts
+                0x0000f7b5                disable_interrupts
+ .text          0x0000f7c6      0xc12 kernel/syscall.o
+                0x0000fc1b                syscall_interrupt_handler
+                0x0000fc96                syscall_init
+                0x0000fcc6                syscall
+                0x0000fcf0                sys_exit
+                0x0000fd1c                sys_write
+                0x0000fda1                sys_read
+                0x0000fe0b                sys_fork
+                0x0000fe22                sys_wait
+                0x0000fe36                sys_exec
+                0x0000fe4a                sys_getpid
+                0x0000fe7c                sys_yield
+                0x0000fe9e                sys_open
+                0x0000fed7                sys_close
+                0x0000ff13                sys_seek
+                0x0000ff4c                sys_stat
+                0x0000ff78                sys_ipc_send
+                0x0000ff9c                sys_ipc_receive
+                0x0000ffb0                sys_vm_alloc
+                0x0000ffc4                sys_vm_free
+                0x0000ffd8                sys_vm_map
+                0x0000ffec                sys_power_state
+                0x00010022                sys_get_battery_info
+                0x00010065                sys_get_power_stats
+                0x000100a8                sys_network_send
+                0x000100e5                sys_network_receive
+                0x0001010b                sys_device_open
+                0x00010131                sys_device_close
+                0x00010157                sys_device_read
+                0x00010183                sys_device_write
+                0x000101af                sys_device_ioctl
+                0x000101db                sys_getuid
+                0x0001022d                sys_getgid
+                0x0001027f                sys_setuid
+                0x000102aa                sys_setgid
+                0x000102d5                sys_chmod
+                0x00010308                sys_chown
+                0x00010333                sys_log
+                0x0001036b                sys_get_stats
+                0x000103b6                sys_dump_logs
  *(.text.*)
  .text.__x86.get_pc_thunk.ax
-                0x0000f7b2        0x4 kernel/kmain.o
-                0x0000f7b2                __x86.get_pc_thunk.ax
+                0x000103d8        0x4 kernel/kmain.o
+                0x000103d8                __x86.get_pc_thunk.ax
  .text.__x86.get_pc_thunk.bx
-                0x0000f7b6        0x4 kernel/kmain.o
-                0x0000f7b6                __x86.get_pc_thunk.bx
+                0x000103dc        0x4 kernel/kmain.o
+                0x000103dc                __x86.get_pc_thunk.bx
  .text.__x86.get_pc_thunk.dx
-                0x0000f7ba        0x4 drivers/keyboard_intl.o
-                0x0000f7ba                __x86.get_pc_thunk.dx
+                0x000103e0        0x4 drivers/keyboard_intl.o
+                0x000103e0                __x86.get_pc_thunk.dx
  .text.__x86.get_pc_thunk.cx
-                0x0000f7be        0x4 kernel/isr.o
-                0x0000f7be                __x86.get_pc_thunk.cx
+                0x000103e4        0x4 kernel/isr.o
+                0x000103e4                __x86.get_pc_thunk.cx
 
-.iplt           0x0000f7c2        0x0
- .iplt          0x0000f7c2        0x0 kernel/entry.o
+.iplt           0x000103e8        0x0
+ .iplt          0x000103e8        0x0 kernel/entry.o
 
-.rodata         0x0000f7e0     0x11c8
+.rodata         0x00010400     0x1328
  *(.rodata .rodata.*)
- .rodata        0x0000f7e0      0x35b kernel/kmain.o
- *fill*         0x0000fb3b        0x5 
- .rodata        0x0000fb40       0x9a drivers/keyboard.o
- *fill*         0x0000fbda        0x6 
- .rodata        0x0000fbe0      0x421 drivers/keyboard_intl.o
- *fill*         0x00010001        0x3 
- .rodata        0x00010004       0x41 drivers/mouse.o
- *fill*         0x00010045        0xb 
- .rodata        0x00010050       0x90 drivers/serial.o
- .rodata        0x000100e0       0x64 fs/filesystem_enhanced.o
- .rodata        0x00010144      0x391 kernel/isr.o
- *fill*         0x000104d5        0x3 
- .rodata        0x000104d8       0x75 kernel/log.o
- *fill*         0x0001054d        0x3 
- .rodata        0x00010550       0x9b kernel/process.o
- *fill*         0x000105eb        0x1 
- .rodata        0x000105ec      0x23d kernel/program_loader.o
- .rodata        0x00010829       0x15 kernel/security.o
- *fill*         0x0001083e        0x2 
- .rodata        0x00010840      0x11d kernel/shell.o
- *fill*         0x0001095d        0x3 
- .rodata        0x00010960       0x48 kernel/string.o
+ .rodata        0x00010400      0x35b kernel/kmain.o
+ *fill*         0x0001075b        0x5 
+ .rodata        0x00010760       0x9a drivers/keyboard.o
+ *fill*         0x000107fa        0x6 
+ .rodata        0x00010800      0x421 drivers/keyboard_intl.o
+ *fill*         0x00010c21        0x3 
+ .rodata        0x00010c24       0x41 drivers/mouse.o
+ *fill*         0x00010c65        0xb 
+ .rodata        0x00010c70       0x90 drivers/serial.o
+ .rodata        0x00010d00       0x64 fs/filesystem_enhanced.o
+ .rodata        0x00010d64      0x391 kernel/isr.o
+ *fill*         0x000110f5        0x3 
+ .rodata        0x000110f8       0x75 kernel/log.o
+ *fill*         0x0001116d        0x3 
+ .rodata        0x00011170      0x160 kernel/monitor.o
+ .rodata        0x000112d0       0x9b kernel/process.o
+ *fill*         0x0001136b        0x1 
+ .rodata        0x0001136c      0x23d kernel/program_loader.o
+ .rodata        0x000115a9       0x15 kernel/security.o
+ *fill*         0x000115be        0x2 
+ .rodata        0x000115c0      0x11d kernel/shell.o
+ *fill*         0x000116dd        0x3 
+ .rodata        0x000116e0       0x48 kernel/string.o
 
-.rel.dyn        0x000109a8        0x0
- .rel.got       0x000109a8        0x0 kernel/entry.o
- .rel.iplt      0x000109a8        0x0 kernel/entry.o
+.rel.dyn        0x00011728        0x0
+ .rel.got       0x00011728        0x0 kernel/entry.o
+ .rel.iplt      0x00011728        0x0 kernel/entry.o
 
-.data           0x000109c0      0x110
+.data           0x00011740      0x110
  *(.data .data.*)
- .data          0x000109c0        0x4 drivers/vga.o
- *fill*         0x000109c4       0x1c 
+ .data          0x00011740        0x4 drivers/vga.o
+ *fill*         0x00011744       0x1c 
  .data.rel.ro.local
-                0x000109e0       0x30 drivers/keyboard_intl.o
- .data          0x00010a10        0x4 kernel/memory.o
- .data          0x00010a14        0xc kernel/power.o
- .data          0x00010a20        0x4 kernel/process.o
- *fill*         0x00010a24       0x1c 
+                0x00011760       0x30 drivers/keyboard_intl.o
+ .data          0x00011790        0x4 kernel/memory.o
+ .data          0x00011794        0xc kernel/power.o
+ .data          0x000117a0        0x4 kernel/process.o
+ *fill*         0x000117a4       0x1c 
  .data.rel.ro.local
-                0x00010a40       0x90 kernel/syscall.o
+                0x000117c0       0x90 kernel/syscall.o
 
-.got            0x00010ad0        0x0
- .got           0x00010ad0        0x0 kernel/entry.o
+.got            0x00011850        0x0
+ .got           0x00011850        0x0 kernel/entry.o
 
-.got.plt        0x00010ad0        0xc
- .got.plt       0x00010ad0        0xc kernel/entry.o
-                0x00010ad0                _GLOBAL_OFFSET_TABLE_
+.got.plt        0x00011850        0xc
+ .got.plt       0x00011850        0xc kernel/entry.o
+                0x00011850                _GLOBAL_OFFSET_TABLE_
 
-.igot.plt       0x00010adc        0x0
- .igot.plt      0x00010adc        0x0 kernel/entry.o
+.igot.plt       0x0001185c        0x0
+ .igot.plt      0x0001185c        0x0 kernel/entry.o
 
-.bss            0x00011000   0x3397ac
+.bss            0x00012000   0x34a2ec
  *(COMMON)
  *(.bss .bss.*)
- .bss           0x00011000        0x8 drivers/vga.o
- .bss           0x00011008       0x18 drivers/keyboard.o
- .bss           0x00011020        0xb drivers/keyboard_intl.o
- *fill*         0x0001102b        0x1 
- .bss           0x0001102c       0x11 drivers/mouse.o
- *fill*         0x0001103d        0x3 
- .bss           0x00011040        0x4 drivers/timer.o
-                0x00011040                timer_ticks
- *fill*         0x00011044       0x1c 
- .bss           0x00011060   0x104608 fs/filesystem_enhanced.o
- .bss           0x00115668        0x4 kernel/device.o
- *fill*         0x0011566c       0x14 
- .bss           0x00115680      0xc20 kernel/idt.o
-                0x00115680                idt
-                0x00115e80                idtp
- .bss           0x001162a0        0x4 kernel/isr.o
- .bss           0x001162a4        0x4 kernel/log.o
- *fill*         0x001162a8      0xd58 
- .bss           0x00117000   0x1020a4 kernel/memory.o
- *fill*         0x002190a4       0x1c 
- .bss           0x002190c0     0xbf2c kernel/network.o
- .bss           0x00224fec       0x40 kernel/power.o
- *fill*         0x0022502c       0x14 
- .bss           0x00225040    0x20b90 kernel/process.o
- *fill*         0x00245bd0       0x10 
- .bss           0x00245be0   0x100004 kernel/program_loader.o
- *fill*         0x00345be4       0x1c 
- .bss           0x00345c00     0x1804 kernel/security.o
- *fill*         0x00347404       0x1c 
- .bss           0x00347420     0x338c kernel/shell.o
-                0x00347420                shell_state
-                0x003487a0                history
-                0x0034a7ac                        _end = .
+ .bss           0x00012000        0x8 drivers/vga.o
+ .bss           0x00012008       0x18 drivers/keyboard.o
+ .bss           0x00012020        0xb drivers/keyboard_intl.o
+ *fill*         0x0001202b        0x1 
+ .bss           0x0001202c       0x11 drivers/mouse.o
+ *fill*         0x0001203d        0x3 
+ .bss           0x00012040        0x4 drivers/timer.o
+                0x00012040                timer_ticks
+ *fill*         0x00012044       0x1c 
+ .bss           0x00012060   0x104608 fs/filesystem_enhanced.o
+ .bss           0x00116668        0x4 kernel/context.o
+ .bss           0x0011666c        0x4 kernel/device.o
+ *fill*         0x00116670       0x10 
+ .bss           0x00116680      0xc20 kernel/idt.o
+                0x00116680                idt
+                0x00116e80                idtp
+ .bss           0x001172a0        0x4 kernel/isr.o
+ .bss           0x001172a4        0x4 kernel/log.o
+ *fill*         0x001172a8      0xd58 
+ .bss           0x00118000   0x1020a4 kernel/memory.o
+ *fill*         0x0021a0a4       0x1c 
+ .bss           0x0021a0c0    0x10b28 kernel/monitor.o
+ *fill*         0x0022abe8       0x18 
+ .bss           0x0022ac00     0xbf2c kernel/network.o
+ .bss           0x00236b2c       0x40 kernel/power.o
+ *fill*         0x00236b6c       0x14 
+ .bss           0x00236b80    0x20b90 kernel/process.o
+ *fill*         0x00257710       0x10 
+ .bss           0x00257720   0x100004 kernel/program_loader.o
+ *fill*         0x00357724       0x1c 
+ .bss           0x00357740     0x1804 kernel/security.o
+ *fill*         0x00358f44       0x1c 
+ .bss           0x00358f60     0x338c kernel/shell.o
+                0x00358f60                shell_state
+                0x0035a2e0                history
+                0x0035c2ec                        _end = .
 
 /DISCARD/
  *(.comment)
@@ -1234,7 +1232,7 @@ LOAD kernel/string.o
 LOAD kernel/syscall.o
 OUTPUT(kernel.elf elf32-i386)
 
-.debug_info     0x00000000     0x76c9
+.debug_info     0x00000000     0x8402
  .debug_info    0x00000000      0x21f kernel/kmain.o
  .debug_info    0x0000021f      0x34b drivers/vga.o
  .debug_info    0x0000056a      0x372 drivers/keyboard.o
@@ -1243,21 +1241,23 @@ OUTPUT(kernel.elf elf32-i386)
  .debug_info    0x000013c2      0x469 drivers/serial.o
  .debug_info    0x0000182b      0x2af drivers/timer.o
  .debug_info    0x00001ada      0x6a9 fs/filesystem_enhanced.o
- .debug_info    0x00002183      0x4ca kernel/device.o
- .debug_info    0x0000264d      0x49d kernel/idt.o
- .debug_info    0x00002aea      0x51e kernel/isr.o
- .debug_info    0x00003008      0x5ca kernel/log.o
- .debug_info    0x000035d2      0x51b kernel/memory.o
- .debug_info    0x00003aed      0x30a kernel/network.o
- .debug_info    0x00003df7      0x48e kernel/power.o
- .debug_info    0x00004285      0x5f1 kernel/process.o
- .debug_info    0x00004876      0x6cb kernel/program_loader.o
- .debug_info    0x00004f41      0x59f kernel/security.o
- .debug_info    0x000054e0      0x3fb kernel/shell.o
- .debug_info    0x000058db      0x531 kernel/string.o
- .debug_info    0x00005e0c     0x18bd kernel/syscall.o
+ .debug_info    0x00002183      0x2fa kernel/context.o
+ .debug_info    0x0000247d      0x4ca kernel/device.o
+ .debug_info    0x00002947      0x49d kernel/idt.o
+ .debug_info    0x00002de4      0x51e kernel/isr.o
+ .debug_info    0x00003302      0x5ca kernel/log.o
+ .debug_info    0x000038cc      0x51b kernel/memory.o
+ .debug_info    0x00003de7      0x789 kernel/monitor.o
+ .debug_info    0x00004570      0x30a kernel/network.o
+ .debug_info    0x0000487a      0x48e kernel/power.o
+ .debug_info    0x00004d08      0x5f1 kernel/process.o
+ .debug_info    0x000052f9      0x6cb kernel/program_loader.o
+ .debug_info    0x000059c4      0x59f kernel/security.o
+ .debug_info    0x00005f63      0x3fb kernel/shell.o
+ .debug_info    0x0000635e      0x531 kernel/string.o
+ .debug_info    0x0000688f     0x1b73 kernel/syscall.o
 
-.debug_abbrev   0x00000000     0x2482
+.debug_abbrev   0x00000000     0x2795
  .debug_abbrev  0x00000000      0x127 kernel/kmain.o
  .debug_abbrev  0x00000127      0x133 drivers/vga.o
  .debug_abbrev  0x0000025a      0x184 drivers/keyboard.o
@@ -1266,21 +1266,23 @@ OUTPUT(kernel.elf elf32-i386)
  .debug_abbrev  0x0000080a      0x17c drivers/serial.o
  .debug_abbrev  0x00000986      0x18e drivers/timer.o
  .debug_abbrev  0x00000b14      0x1b9 fs/filesystem_enhanced.o
- .debug_abbrev  0x00000ccd      0x1a0 kernel/device.o
- .debug_abbrev  0x00000e6d      0x1c6 kernel/idt.o
- .debug_abbrev  0x00001033      0x16c kernel/isr.o
- .debug_abbrev  0x0000119f      0x1bc kernel/log.o
- .debug_abbrev  0x0000135b      0x1cc kernel/memory.o
- .debug_abbrev  0x00001527      0x183 kernel/network.o
- .debug_abbrev  0x000016aa      0x20e kernel/power.o
- .debug_abbrev  0x000018b8      0x23b kernel/process.o
- .debug_abbrev  0x00001af3      0x1c5 kernel/program_loader.o
- .debug_abbrev  0x00001cb8      0x16b kernel/security.o
- .debug_abbrev  0x00001e23      0x21c kernel/shell.o
- .debug_abbrev  0x0000203f      0x12a kernel/string.o
- .debug_abbrev  0x00002169      0x319 kernel/syscall.o
+ .debug_abbrev  0x00000ccd      0x16e kernel/context.o
+ .debug_abbrev  0x00000e3b      0x1a0 kernel/device.o
+ .debug_abbrev  0x00000fdb      0x1c6 kernel/idt.o
+ .debug_abbrev  0x000011a1      0x16c kernel/isr.o
+ .debug_abbrev  0x0000130d      0x1bc kernel/log.o
+ .debug_abbrev  0x000014c9      0x1cc kernel/memory.o
+ .debug_abbrev  0x00001695      0x1a4 kernel/monitor.o
+ .debug_abbrev  0x00001839      0x183 kernel/network.o
+ .debug_abbrev  0x000019bc      0x20e kernel/power.o
+ .debug_abbrev  0x00001bca      0x23b kernel/process.o
+ .debug_abbrev  0x00001e05      0x1c5 kernel/program_loader.o
+ .debug_abbrev  0x00001fca      0x16b kernel/security.o
+ .debug_abbrev  0x00002135      0x21c kernel/shell.o
+ .debug_abbrev  0x00002351      0x12a kernel/string.o
+ .debug_abbrev  0x0000247b      0x31a kernel/syscall.o
 
-.debug_aranges  0x00000000      0x2a0
+.debug_aranges  0x00000000      0x2e0
  .debug_aranges
                 0x00000000       0x20 kernel/kmain.o
  .debug_aranges
@@ -1298,33 +1300,37 @@ OUTPUT(kernel.elf elf32-i386)
  .debug_aranges
                 0x000000e0       0x20 fs/filesystem_enhanced.o
  .debug_aranges
-                0x00000100       0x20 kernel/device.o
+                0x00000100       0x20 kernel/context.o
  .debug_aranges
-                0x00000120       0x20 kernel/idt.o
+                0x00000120       0x20 kernel/device.o
  .debug_aranges
-                0x00000140       0x20 kernel/isr.o
+                0x00000140       0x20 kernel/idt.o
  .debug_aranges
-                0x00000160       0x20 kernel/log.o
+                0x00000160       0x20 kernel/isr.o
  .debug_aranges
-                0x00000180       0x20 kernel/memory.o
+                0x00000180       0x20 kernel/log.o
  .debug_aranges
-                0x000001a0       0x20 kernel/network.o
+                0x000001a0       0x20 kernel/memory.o
  .debug_aranges
-                0x000001c0       0x20 kernel/power.o
+                0x000001c0       0x20 kernel/monitor.o
  .debug_aranges
-                0x000001e0       0x20 kernel/process.o
+                0x000001e0       0x20 kernel/network.o
  .debug_aranges
-                0x00000200       0x20 kernel/program_loader.o
+                0x00000200       0x20 kernel/power.o
  .debug_aranges
-                0x00000220       0x20 kernel/security.o
+                0x00000220       0x20 kernel/process.o
  .debug_aranges
-                0x00000240       0x20 kernel/shell.o
+                0x00000240       0x20 kernel/program_loader.o
  .debug_aranges
-                0x00000260       0x20 kernel/string.o
+                0x00000260       0x20 kernel/security.o
  .debug_aranges
-                0x00000280       0x20 kernel/syscall.o
+                0x00000280       0x20 kernel/shell.o
+ .debug_aranges
+                0x000002a0       0x20 kernel/string.o
+ .debug_aranges
+                0x000002c0       0x20 kernel/syscall.o
 
-.debug_macro    0x00000000     0x1ba5
+.debug_macro    0x00000000     0x1ccd
  .debug_macro   0x00000000      0x104 kernel/kmain.o
  .debug_macro   0x00000104      0x97c kernel/kmain.o
  .debug_macro   0x00000a80       0x28 kernel/kmain.o
@@ -1358,33 +1364,37 @@ OUTPUT(kernel.elf elf32-i386)
  .debug_macro   0x0000121b       0x1c drivers/timer.o
  .debug_macro   0x00001237       0x4f fs/filesystem_enhanced.o
  .debug_macro   0x00001286       0x70 fs/filesystem_enhanced.o
- .debug_macro   0x000012f6       0x61 kernel/device.o
- .debug_macro   0x00001357       0x22 kernel/device.o
- .debug_macro   0x00001379       0x62 kernel/idt.o
- .debug_macro   0x000013db       0x5d kernel/isr.o
- .debug_macro   0x00001438       0x5d kernel/log.o
- .debug_macro   0x00001495       0x5b kernel/memory.o
- .debug_macro   0x000014f0       0x5e kernel/memory.o
- .debug_macro   0x0000154e       0x58 kernel/network.o
- .debug_macro   0x000015a6       0x2e kernel/network.o
- .debug_macro   0x000015d4       0x58 kernel/power.o
- .debug_macro   0x0000162c       0x58 kernel/power.o
- .debug_macro   0x00001684       0x69 kernel/process.o
- .debug_macro   0x000016ed       0x9d kernel/program_loader.o
- .debug_macro   0x0000178a       0x3a kernel/program_loader.o
- .debug_macro   0x000017c4       0x58 kernel/security.o
- .debug_macro   0x0000181c       0x34 kernel/security.o
- .debug_macro   0x00001850       0x61 kernel/shell.o
- .debug_macro   0x000018b1       0x4c kernel/shell.o
- .debug_macro   0x000018fd       0x2c kernel/string.o
- .debug_macro   0x00001929       0xb2 kernel/syscall.o
- .debug_macro   0x000019db       0xe2 kernel/syscall.o
- .debug_macro   0x00001abd       0x34 kernel/syscall.o
- .debug_macro   0x00001af1       0x28 kernel/syscall.o
- .debug_macro   0x00001b19       0x3a kernel/syscall.o
- .debug_macro   0x00001b53       0x52 kernel/syscall.o
+ .debug_macro   0x000012f6       0x53 kernel/context.o
+ .debug_macro   0x00001349       0x1c kernel/context.o
+ .debug_macro   0x00001365       0x61 kernel/device.o
+ .debug_macro   0x000013c6       0x22 kernel/device.o
+ .debug_macro   0x000013e8       0x62 kernel/idt.o
+ .debug_macro   0x0000144a       0x5d kernel/isr.o
+ .debug_macro   0x000014a7       0x5d kernel/log.o
+ .debug_macro   0x00001504       0x5b kernel/memory.o
+ .debug_macro   0x0000155f       0x5e kernel/memory.o
+ .debug_macro   0x000015bd       0x6d kernel/monitor.o
+ .debug_macro   0x0000162a       0x4c kernel/monitor.o
+ .debug_macro   0x00001676       0x58 kernel/network.o
+ .debug_macro   0x000016ce       0x2e kernel/network.o
+ .debug_macro   0x000016fc       0x58 kernel/power.o
+ .debug_macro   0x00001754       0x58 kernel/power.o
+ .debug_macro   0x000017ac       0x69 kernel/process.o
+ .debug_macro   0x00001815       0x9d kernel/program_loader.o
+ .debug_macro   0x000018b2       0x3a kernel/program_loader.o
+ .debug_macro   0x000018ec       0x58 kernel/security.o
+ .debug_macro   0x00001944       0x34 kernel/security.o
+ .debug_macro   0x00001978       0x61 kernel/shell.o
+ .debug_macro   0x000019d9       0x4c kernel/shell.o
+ .debug_macro   0x00001a25       0x2c kernel/string.o
+ .debug_macro   0x00001a51       0xb2 kernel/syscall.o
+ .debug_macro   0x00001b03       0xe2 kernel/syscall.o
+ .debug_macro   0x00001be5       0x34 kernel/syscall.o
+ .debug_macro   0x00001c19       0x28 kernel/syscall.o
+ .debug_macro   0x00001c41       0x3a kernel/syscall.o
+ .debug_macro   0x00001c7b       0x52 kernel/syscall.o
 
-.debug_line     0x00000000     0x355d
+.debug_line     0x00000000     0x3a75
  .debug_line    0x00000000      0x18a kernel/kmain.o
  .debug_line    0x0000018a      0x1c5 drivers/vga.o
  .debug_line    0x0000034f      0x224 drivers/keyboard.o
@@ -1393,128 +1403,140 @@ OUTPUT(kernel.elf elf32-i386)
  .debug_line    0x00000aa9      0x21f drivers/serial.o
  .debug_line    0x00000cc8       0xe1 drivers/timer.o
  .debug_line    0x00000da9      0x352 fs/filesystem_enhanced.o
- .debug_line    0x000010fb      0x27b kernel/device.o
- .debug_line    0x00001376      0x16f kernel/idt.o
- .debug_line    0x000014e5      0x2cc kernel/isr.o
- .debug_line    0x000017b1      0x37d kernel/log.o
- .debug_line    0x00001b2e      0x27f kernel/memory.o
- .debug_line    0x00001dad      0x147 kernel/network.o
- .debug_line    0x00001ef4      0x30f kernel/power.o
- .debug_line    0x00002203      0x2f2 kernel/process.o
- .debug_line    0x000024f5      0x310 kernel/program_loader.o
- .debug_line    0x00002805      0x3fc kernel/security.o
- .debug_line    0x00002c01      0x1f0 kernel/shell.o
- .debug_line    0x00002df1      0x2e5 kernel/string.o
- .debug_line    0x000030d6      0x487 kernel/syscall.o
+ .debug_line    0x000010fb       0xc5 kernel/context.o
+ .debug_line    0x000011c0      0x27b kernel/device.o
+ .debug_line    0x0000143b      0x16f kernel/idt.o
+ .debug_line    0x000015aa      0x2cc kernel/isr.o
+ .debug_line    0x00001876      0x37d kernel/log.o
+ .debug_line    0x00001bf3      0x27f kernel/memory.o
+ .debug_line    0x00001e72      0x3c6 kernel/monitor.o
+ .debug_line    0x00002238      0x147 kernel/network.o
+ .debug_line    0x0000237f      0x30f kernel/power.o
+ .debug_line    0x0000268e      0x2f2 kernel/process.o
+ .debug_line    0x00002980      0x310 kernel/program_loader.o
+ .debug_line    0x00002c90      0x3fc kernel/security.o
+ .debug_line    0x0000308c      0x1f0 kernel/shell.o
+ .debug_line    0x0000327c      0x2e5 kernel/string.o
+ .debug_line    0x00003561      0x514 kernel/syscall.o
 
-.debug_str      0x00000000     0x5fe6
- .debug_str     0x00000000     0x5fe6 kernel/kmain.o
+.debug_str      0x00000000     0x62d0
+ .debug_str     0x00000000     0x62d0 kernel/kmain.o
                                0x3e1b (size before relaxing)
- .debug_str     0x00005fe6        0x0 drivers/vga.o
+ .debug_str     0x000062d0        0x0 drivers/vga.o
                                0x3270 (size before relaxing)
- .debug_str     0x00005fe6        0x0 drivers/keyboard.o
+ .debug_str     0x000062d0        0x0 drivers/keyboard.o
                                0x3557 (size before relaxing)
- .debug_str     0x00005fe6        0x0 drivers/keyboard_intl.o
+ .debug_str     0x000062d0        0x0 drivers/keyboard_intl.o
                                0x3796 (size before relaxing)
- .debug_str     0x00005fe6        0x0 drivers/mouse.o
+ .debug_str     0x000062d0        0x0 drivers/mouse.o
                                0x3743 (size before relaxing)
- .debug_str     0x00005fe6        0x0 drivers/serial.o
+ .debug_str     0x000062d0        0x0 drivers/serial.o
                                0x3611 (size before relaxing)
- .debug_str     0x00005fe6        0x0 drivers/timer.o
+ .debug_str     0x000062d0        0x0 drivers/timer.o
                                0x318a (size before relaxing)
- .debug_str     0x00005fe6        0x0 fs/filesystem_enhanced.o
+ .debug_str     0x000062d0        0x0 fs/filesystem_enhanced.o
                                0x3371 (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/device.o
+ .debug_str     0x000062d0        0x0 kernel/context.o
+                               0x31eb (size before relaxing)
+ .debug_str     0x000062d0        0x0 kernel/device.o
                                0x3570 (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/idt.o
+ .debug_str     0x000062d0        0x0 kernel/idt.o
                                0x3219 (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/isr.o
+ .debug_str     0x000062d0        0x0 kernel/isr.o
                                0x3524 (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/log.o
+ .debug_str     0x000062d0        0x0 kernel/log.o
                                0x34fc (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/memory.o
+ .debug_str     0x000062d0        0x0 kernel/memory.o
                                0x339c (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/network.o
+ .debug_str     0x000062d0        0x0 kernel/monitor.o
+                               0x3867 (size before relaxing)
+ .debug_str     0x000062d0        0x0 kernel/network.o
                                0x3453 (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/power.o
+ .debug_str     0x000062d0        0x0 kernel/power.o
                                0x36a4 (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/process.o
+ .debug_str     0x000062d0        0x0 kernel/process.o
                                0x33c4 (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/program_loader.o
+ .debug_str     0x000062d0        0x0 kernel/program_loader.o
                                0x3a1e (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/security.o
+ .debug_str     0x000062d0        0x0 kernel/security.o
                                0x3531 (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/shell.o
+ .debug_str     0x000062d0        0x0 kernel/shell.o
                                0x33b1 (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/string.o
+ .debug_str     0x000062d0        0x0 kernel/string.o
                                0x3115 (size before relaxing)
- .debug_str     0x00005fe6        0x0 kernel/syscall.o
-                               0x3f58 (size before relaxing)
+ .debug_str     0x000062d0        0x0 kernel/syscall.o
+                               0x419b (size before relaxing)
 
 .debug_line_str
-                0x00000000      0x374
+                0x00000000      0x396
  .debug_line_str
-                0x00000000      0x374 kernel/kmain.o
+                0x00000000      0x396 kernel/kmain.o
                                 0x1ff (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 drivers/vga.o
+                0x00000396        0x0 drivers/vga.o
                                  0xaf (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 drivers/keyboard.o
+                0x00000396        0x0 drivers/keyboard.o
                                 0x10c (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 drivers/keyboard_intl.o
+                0x00000396        0x0 drivers/keyboard_intl.o
                                 0x155 (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 drivers/mouse.o
+                0x00000396        0x0 drivers/mouse.o
                                 0x132 (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 drivers/serial.o
+                0x00000396        0x0 drivers/serial.o
                                 0x104 (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 drivers/timer.o
+                0x00000396        0x0 drivers/timer.o
                                  0xef (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 fs/filesystem_enhanced.o
+                0x00000396        0x0 fs/filesystem_enhanced.o
                                  0xf9 (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 kernel/device.o
-                                 0xed (size before relaxing)
- .debug_line_str
-                0x00000374        0x0 kernel/idt.o
-                                 0xcd (size before relaxing)
- .debug_line_str
-                0x00000374        0x0 kernel/isr.o
-                                 0xd3 (size before relaxing)
- .debug_line_str
-                0x00000374        0x0 kernel/log.o
-                                 0xe9 (size before relaxing)
- .debug_line_str
-                0x00000374        0x0 kernel/memory.o
-                                 0xda (size before relaxing)
- .debug_line_str
-                0x00000374        0x0 kernel/network.o
+                0x00000396        0x0 kernel/context.o
                                  0xe8 (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 kernel/power.o
+                0x00000396        0x0 kernel/device.o
+                                 0xed (size before relaxing)
+ .debug_line_str
+                0x00000396        0x0 kernel/idt.o
+                                 0xcd (size before relaxing)
+ .debug_line_str
+                0x00000396        0x0 kernel/isr.o
+                                 0xd3 (size before relaxing)
+ .debug_line_str
+                0x00000396        0x0 kernel/log.o
+                                 0xe9 (size before relaxing)
+ .debug_line_str
+                0x00000396        0x0 kernel/memory.o
+                                 0xda (size before relaxing)
+ .debug_line_str
+                0x00000396        0x0 kernel/monitor.o
+                                 0xf1 (size before relaxing)
+ .debug_line_str
+                0x00000396        0x0 kernel/network.o
+                                 0xe8 (size before relaxing)
+ .debug_line_str
+                0x00000396        0x0 kernel/power.o
                                  0xe0 (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 kernel/process.o
+                0x00000396        0x0 kernel/process.o
                                  0xee (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 kernel/program_loader.o
+                0x00000396        0x0 kernel/program_loader.o
                                 0x175 (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 kernel/security.o
+                0x00000396        0x0 kernel/security.o
                                  0xec (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 kernel/shell.o
+                0x00000396        0x0 kernel/shell.o
                                  0xf6 (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 kernel/string.o
+                0x00000396        0x0 kernel/string.o
                                  0xb0 (size before relaxing)
  .debug_line_str
-                0x00000374        0x0 kernel/syscall.o
+                0x00000396        0x0 kernel/syscall.o
                                 0x13a (size before relaxing)
 
 .note.GNU-stack
@@ -1536,6 +1558,8 @@ OUTPUT(kernel.elf elf32-i386)
  .note.GNU-stack
                 0x00000000        0x0 fs/filesystem_enhanced.o
  .note.GNU-stack
+                0x00000000        0x0 kernel/context.o
+ .note.GNU-stack
                 0x00000000        0x0 kernel/device.o
  .note.GNU-stack
                 0x00000000        0x0 kernel/idt.o
@@ -1545,6 +1569,8 @@ OUTPUT(kernel.elf elf32-i386)
                 0x00000000        0x0 kernel/log.o
  .note.GNU-stack
                 0x00000000        0x0 kernel/memory.o
+ .note.GNU-stack
+                0x00000000        0x0 kernel/monitor.o
  .note.GNU-stack
                 0x00000000        0x0 kernel/network.o
  .note.GNU-stack
