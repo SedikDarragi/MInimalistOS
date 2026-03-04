@@ -20,8 +20,11 @@ extern void shell_init(void);
 extern void shell_run(void);
 
 void kmain(void) {
+    /* Debug: Write 'M' to VGA to confirm C code entry */
+    ((volatile uint16_t*)0xB8000)[9] = 0x0F4D; // 'M' at 10th char position
+
     /* Clear screen immediately to remove BIOS text and garbage */
-    vga_clear();
+    // vga_clear(); // Temporarily disabled to debug crash
     vga_print("Minimalist OS Kernel Started\n");
 
     /* Initialize critical low-level systems first */
