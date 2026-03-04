@@ -142,67 +142,61 @@ static int vsnprintf(char* buf, size_t size, const char* format, va_list args) {
     return i;
 }
 
-// Simple printf-like function (basic implementation)
-void log_printf(log_level_t level, const char* format, ...) {
+// Internal function to handle the actual logging with a va_list
+static void log_vprintf(log_level_t level, const char* format, va_list args) {
     if (level < current_log_level) {
         return;
     }
-    
+
     print_log_prefix(level);
-    
-    // Use a buffer to format the string
+
     char buffer[256];
-    va_list args;
-    va_start(args, format);
     vsnprintf(buffer, sizeof(buffer), format, args);
-    va_end(args);
-    
+
     vga_print(buffer);
     vga_print("\n");
+}
+
+// Public printf-style logging function
+void log_printf(log_level_t level, const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    log_vprintf(level, format, args);
+    va_end(args);
 }
 
 // Simple log functions (variadic wrappers)
 void log_debug(const char* format, ...) {
     va_list args;
     va_start(args, format);
-    char buffer[256];
-    vsnprintf(buffer, sizeof(buffer), format, args);
+    log_vprintf(LOG_DEBUG, format, args);
     va_end(args);
-    log_printf(LOG_DEBUG, buffer);
 }
 
 void log_info(const char* format, ...) {
     va_list args;
     va_start(args, format);
-    char buffer[256];
-    vsnprintf(buffer, sizeof(buffer), format, args);
+    log_vprintf(LOG_INFO, format, args);
     va_end(args);
-    log_printf(LOG_INFO, buffer);
 }
 
 void log_warn(const char* format, ...) {
     va_list args;
     va_start(args, format);
-    char buffer[256];
-    vsnprintf(buffer, sizeof(buffer), format, args);
+    log_vprintf(LOG_WARN, format, args);
     va_end(args);
-    log_printf(LOG_WARN, buffer);
 }
 
 void log_error(const char* format, ...) {
     va_list args;
     va_start(args, format);
-    char buffer[256];
-    vsnprintf(buffer, sizeof(buffer), format, args);
+    log_vprintf(LOG_ERROR, format, args);
     va_end(args);
-    log_printf(LOG_ERROR, buffer);
 }
 
 void log_critical(const char* format, ...) {
     va_list args;
     va_start(args, format);
-    char buffer[256];
-    vsnprintf(buffer, sizeof(buffer), format, args);
+    log_vprintf(LOG_CRITICAL, format, args);
     va_end(args);
-    log_printf(LOG_CRITICAL, buffer);
 }

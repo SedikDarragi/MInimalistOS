@@ -20,17 +20,17 @@ extern void shell_init(void);
 extern void shell_run(void);
 
 void kmain(void) {
-    /* Clear screen immediately to remove BIOS text and garbage */
-    vga_clear();
-    vga_print("Minimalist OS Kernel Started\n");
-
     /* Initialize critical low-level systems first */
     idt_init();      /* Interrupt Descriptor Table */
     memory_init();   /* Physical Memory Manager */
     paging_init();   /* Virtual Memory Manager */
+
+    /* Now that memory and interrupts are safe, initialize output */
+    vga_clear();
     log_init();      /* Logging System */
 
-    
+    vga_print("Minimalist OS Kernel Started\n");
+
     log_info("Kernel main function started");
     
     // Initialize core systems
