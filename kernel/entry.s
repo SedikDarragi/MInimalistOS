@@ -11,26 +11,7 @@
 .global _start
 
 _start:
-    /* Debug: Write to VGA FIRST to see if we reach here */
-    movb $'X', %al
-    movb $0x0F, %ah
-    movw %ax, (VGA_BUFFER)
-    
-    /* Write 'K' to show kernel is running */
-    movb $'K', %al
-    movb $0x0F, %ah
-    movw %ax, (VGA_BUFFER + 6)
-    
-    /* Write '!' to show we're about to call kmain */
-    movb $'!', %al
-    movb $0x0F, %ah
-    movw %ax, (VGA_BUFFER + 12)
-    
-    /* Debug: Write 'S' to show segments are about to be set */
-    movb $'S', %al
-    movb $0x0F, %ah
-    movw %ax, (VGA_BUFFER + 14)
-
+    cli
     /* Initialize segment registers for Protected Mode (0x10 is Data Segment) */
     movw $0x10, %ax
     movw %ax, %ds
@@ -39,14 +20,10 @@ _start:
     movw %ax, %gs
     movw %ax, %ss
     
-    /* Debug: Write 'R' to show segments Ready */
-    movb $'R', %al
-    movb $0x0F, %ah
-    movw %ax, (VGA_BUFFER + 16)
-
     /* Set up stack for C code */
     movl $0x90000, %esp
     
+    cld
     /* Call C kernel main function */
     call kmain
     
