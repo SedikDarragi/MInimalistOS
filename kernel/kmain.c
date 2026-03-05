@@ -20,18 +20,20 @@ extern void shell_init(void);
 extern void shell_run(void);
 
 void kmain(void) {
+    /* Initialize output first for debugging */
+    /* Write a 'K' to the top-left corner to confirm entry */
+    *((volatile uint16_t*)0xB8000) = (0x0F << 8) | 'K';
+    
+    log_init();
+    log_info("Kernel started");
+
     /* Initialize critical low-level systems first */
     idt_init();      /* Interrupt Descriptor Table */
+    log_info("IDT initialized");
     memory_init();   /* Physical Memory Manager */
+    log_info("Memory initialized");
     paging_init();   /* Virtual Memory Manager */
-
-    /* Now that memory and interrupts are safe, initialize output */
-    vga_clear();
-    log_init();      /* Logging System */
-
-    vga_print("Minimalist OS Kernel Started\n");
-
-    log_info("Kernel main function started");
+    log_info("Paging initialized");
     
     // Initialize core systems
     vga_print("Initializing serial port...\n");
