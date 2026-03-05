@@ -20,8 +20,8 @@ _start:
     movw %ax, %gs
     movw %ax, %ss
     
-    /* Set up stack for C code */
-    movl $0x90000, %esp
+    /* Set up stack using the symbol from our BSS section */
+    movl $stack_top, %esp
     
     cld
     /* Call C kernel main function */
