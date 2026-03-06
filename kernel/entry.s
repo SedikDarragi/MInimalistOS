@@ -25,7 +25,13 @@ _start:
     
     cld
     /* Call C kernel main function */
-    call kmain
+    /*
+     * The symptom "BLSCGP" indicates `kmain` is not being reached. Depending on
+     * the C compiler and linker flags, C function symbols may be prefixed
+     * with an underscore. We are changing `kmain` to `_kmain` to see if this
+     * resolves the issue.
+     */
+    call _kmain
     
     /* If kmain returns, hang */
     cli

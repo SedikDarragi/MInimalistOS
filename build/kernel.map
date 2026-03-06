@@ -50,7 +50,6 @@ Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/sysca
 Discarded input sections
 
  .data          0x00000000        0x0 kernel/entry.o
- .bss           0x00000000     0x4000 kernel/entry.o
  .rodata        0x00000000       0x39 kernel/entry.o
  .note.gnu.property
                 0x00000000       0x28 kernel/entry.o
@@ -1156,45 +1155,46 @@ Linker script and memory map
 .igot.plt       0x0000a7fc        0x0
  .igot.plt      0x0000a7fc        0x0 kernel/entry.o
 
-.bss            0x0000b000   0x34a2ec
+.bss            0x0000b000   0x34e2ec
  *(COMMON)
  *(.bss .bss.*)
- .bss           0x0000b000        0x8 drivers/vga.o
- .bss           0x0000b008       0x18 drivers/keyboard.o
- .bss           0x0000b020        0xb drivers/keyboard_intl.o
- *fill*         0x0000b02b        0x1 
- .bss           0x0000b02c       0x11 drivers/mouse.o
- *fill*         0x0000b03d        0x3 
- .bss           0x0000b040        0x4 drivers/timer.o
-                0x0000b040                timer_ticks
- *fill*         0x0000b044       0x1c 
- .bss           0x0000b060   0x104608 fs/filesystem_enhanced.o
- .bss           0x0010f668        0x4 kernel/context.o
- .bss           0x0010f66c        0x4 kernel/device.o
- *fill*         0x0010f670       0x10 
- .bss           0x0010f680      0xc20 kernel/idt.o
-                0x0010f680                idt
-                0x0010fe80                idtp
- .bss           0x001102a0        0x4 kernel/isr.o
- .bss           0x001102a4        0x4 kernel/log.o
- *fill*         0x001102a8      0xd58 
- .bss           0x00111000   0x1020a4 kernel/memory.o
- *fill*         0x002130a4       0x1c 
- .bss           0x002130c0    0x10b28 kernel/monitor.o
- *fill*         0x00223be8       0x18 
- .bss           0x00223c00     0xbf2c kernel/network.o
- .bss           0x0022fb2c       0x40 kernel/power.o
- *fill*         0x0022fb6c       0x14 
- .bss           0x0022fb80    0x20b90 kernel/process.o
- *fill*         0x00250710       0x10 
- .bss           0x00250720   0x100004 kernel/program_loader.o
- *fill*         0x00350724       0x1c 
- .bss           0x00350740     0x1804 kernel/security.o
- *fill*         0x00351f44       0x1c 
- .bss           0x00351f60     0x338c kernel/shell.o
-                0x00351f60                shell_state
-                0x003532e0                history
-                0x003552ec                        _end = .
+ .bss           0x0000b000     0x4000 kernel/entry.o
+ .bss           0x0000f000        0x8 drivers/vga.o
+ .bss           0x0000f008       0x18 drivers/keyboard.o
+ .bss           0x0000f020        0xb drivers/keyboard_intl.o
+ *fill*         0x0000f02b        0x1 
+ .bss           0x0000f02c       0x11 drivers/mouse.o
+ *fill*         0x0000f03d        0x3 
+ .bss           0x0000f040        0x4 drivers/timer.o
+                0x0000f040                timer_ticks
+ *fill*         0x0000f044       0x1c 
+ .bss           0x0000f060   0x104608 fs/filesystem_enhanced.o
+ .bss           0x00113668        0x4 kernel/context.o
+ .bss           0x0011366c        0x4 kernel/device.o
+ *fill*         0x00113670       0x10 
+ .bss           0x00113680      0xc20 kernel/idt.o
+                0x00113680                idt
+                0x00113e80                idtp
+ .bss           0x001142a0        0x4 kernel/isr.o
+ .bss           0x001142a4        0x4 kernel/log.o
+ *fill*         0x001142a8      0xd58 
+ .bss           0x00115000   0x1020a4 kernel/memory.o
+ *fill*         0x002170a4       0x1c 
+ .bss           0x002170c0    0x10b28 kernel/monitor.o
+ *fill*         0x00227be8       0x18 
+ .bss           0x00227c00     0xbf2c kernel/network.o
+ .bss           0x00233b2c       0x40 kernel/power.o
+ *fill*         0x00233b6c       0x14 
+ .bss           0x00233b80    0x20b90 kernel/process.o
+ *fill*         0x00254710       0x10 
+ .bss           0x00254720   0x100004 kernel/program_loader.o
+ *fill*         0x00354724       0x1c 
+ .bss           0x00354740     0x1804 kernel/security.o
+ *fill*         0x00355f44       0x1c 
+ .bss           0x00355f60     0x338c kernel/shell.o
+                0x00355f60                shell_state
+                0x003572e0                history
+                0x003592ec                        _end = .
 
 /DISCARD/
  *(.comment)
