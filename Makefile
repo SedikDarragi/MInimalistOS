@@ -61,7 +61,7 @@ LDFLAGS = -m elf_i386 -T link.ld -nostdlib -z max-page-size=0x1000
 ASFLAGS = -f elf32
 
 # Source file organization
-KERNEL_SRCS := kernel/kmain.c kernel/log.c kernel/string.c kernel/memory.c \
+KERNEL_SRCS := kernel/kmain.c kernel/log.c kernel/string.c kernel/memory.c kernel/context.c \
                kernel/idt.c kernel/isr.c kernel/pci.c kernel/net_core.c \
                kernel/network.c kernel/process.c kernel/syscall.c \
                kernel/program_loader.c kernel/monitor.c \
