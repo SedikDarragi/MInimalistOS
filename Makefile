@@ -66,8 +66,7 @@ KERNEL_SRCS := kernel/kmain.c kernel/log.c kernel/string.c kernel/memory.c \
                kernel/net_core.c kernel/network.c kernel/process.c \
                kernel/syscall.c kernel/program_loader.c kernel/monitor.c \
                kernel/power.c kernel/device.c kernel/fs_test.c kernel/shell.c \
-               kernel/security.c kernel/user_process.c kernel/user_program.c \
-               kernel/usermode.c
+               kernel/security.c kernel/usermode.c
 
 KERNEL_TEST_SRCS := $(shell find kernel/ -name '*_test.c')
 TEST_SRCS := kernel/tests.c
@@ -80,7 +79,7 @@ KERNEL_ASM_SRCS := kernel/entry.s kernel/idt_asm.asm
 
 # Combine all source files
 # Main kernel should NOT include test sources; keep tests only in TEST_ALL_SRCS
-ALL_SRCS := $(KERNEL_SRCS) $(DRIVER_SRCS) $(FS_SRCS) $(KERNEL_TEST_SRCS)
+ALL_SRCS := $(KERNEL_SRCS) $(DRIVER_SRCS) $(FS_SRCS)
 TEST_ALL_SRCS := $(KERNEL_SRCS) $(TEST_SRCS) $(KERNEL_TEST_SRCS) $(DRIVER_SRCS) $(FS_SRCS)
 
 # Generate dependencies
