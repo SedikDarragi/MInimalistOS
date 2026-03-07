@@ -135,3 +135,9 @@ void kmain(void) {
 
 void vfs_init(void) {}
 int ramfs_mount(void) { return -1; }
+
+// Power management stubs to replace missing kernel/power.c
+void power_init(void) {}
+uint32_t sys_power_state(void) { return 0; }
+uint32_t sys_get_battery_info(void) { return 0; }
+uint32_t sys_get_power_stats(void) { return 0; }

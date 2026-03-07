@@ -18,54 +18,34 @@ Updated property 0xc0010001 (0x9) to merge kernel/entry.o (0x9) and kernel/idt.o
 Updated property 0xc0010002 (0x1) to merge kernel/entry.o (0x1) and kernel/idt.o (0x0)
 Removed property 0xc0010001 to merge kernel/entry.o (0x9) and kernel/idt_asm.o (not found)
 Removed property 0xc0010002 to merge kernel/entry.o (0x1) and kernel/idt_asm.o (not found)
-Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/interrupt_test.o (0x1)
-Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/interrupt_test.o (0x0)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/isr.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/isr.o (0x0)
-Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/keyboard_test.o (0x1)
-Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/keyboard_test.o (0x0)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/log.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/log.o (0x0)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/memory.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/memory.o (0x0)
-Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/memory_test.o (0x1)
-Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/memory_test.o (0x0)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/monitor.o (0x9)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/monitor.o (0x1)
-Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/monitor_test.o (0x9)
-Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/monitor_test.o (0x1)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/net_core.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/net_core.o (0x0)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/network.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/network.o (0x0)
-Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/network_test.o (0x9)
-Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/network_test.o (0x1)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/pci.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/pci.o (0x0)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/power.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/power.o (0x1)
-Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/power_test.o (0x9)
-Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/power_test.o (0x1)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/process.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/process.o (0x0)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/program_loader.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/program_loader.o (0x0)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/security.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/security.o (0x0)
-Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/security_test.o (0x9)
-Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/security_test.o (0x1)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/shell.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/shell.o (0x0)
-Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/simple_test.o (0x9)
-Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/simple_test.o (0x1)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/string.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/string.o (0x0)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/syscall.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/syscall.o (0x1)
-Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/user_process.o (0x9)
-Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/user_process.o (0x1)
-Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/user_program.o (0x9)
-Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/user_program.o (0x1)
 Removed property 0xc0010001 to merge kernel/entry.o (not found) and kernel/usermode.o (0x1)
 Removed property 0xc0010002 to merge kernel/entry.o (not found) and kernel/usermode.o (0x0)
 
@@ -351,40 +331,6 @@ Discarded input sections
  .note.gnu.property
                 0x00000000       0x28 kernel/device.o
  .eh_frame      0x00000000      0x18c kernel/device.o
- .group         0x00000000        0x8 kernel/device_test.o
- .group         0x00000000        0xc kernel/device_test.o
- .group         0x00000000        0xc kernel/device_test.o
- .group         0x00000000        0xc kernel/device_test.o
- .group         0x00000000        0xc kernel/device_test.o
- .group         0x00000000        0xc kernel/device_test.o
- .group         0x00000000        0xc kernel/device_test.o
- .text          0x00000000      0x405 kernel/device_test.o
- .data          0x00000000        0x0 kernel/device_test.o
- .bss           0x00000000        0x0 kernel/device_test.o
- .rodata        0x00000000      0x160 kernel/device_test.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/device_test.o
- .debug_info    0x00000000      0x2f4 kernel/device_test.o
- .debug_abbrev  0x00000000       0xe3 kernel/device_test.o
- .debug_aranges
-                0x00000000       0x20 kernel/device_test.o
- .debug_macro   0x00000000       0x58 kernel/device_test.o
- .debug_macro   0x00000000      0x97c kernel/device_test.o
- .debug_macro   0x00000000       0x28 kernel/device_test.o
- .debug_macro   0x00000000       0x10 kernel/device_test.o
- .debug_macro   0x00000000       0x22 kernel/device_test.o
- .debug_macro   0x00000000       0xe8 kernel/device_test.o
- .debug_macro   0x00000000       0x16 kernel/device_test.o
- .debug_line    0x00000000      0x158 kernel/device_test.o
- .debug_str     0x00000000     0x3399 kernel/device_test.o
- .debug_line_str
-                0x00000000       0xf3 kernel/device_test.o
- .comment       0x00000000       0x1c kernel/device_test.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/device_test.o
- .note.gnu.property
-                0x00000000       0x28 kernel/device_test.o
- .eh_frame      0x00000000       0x48 kernel/device_test.o
  .group         0x00000000        0x8 kernel/fs_test.o
  .group         0x00000000        0xc kernel/fs_test.o
  .group         0x00000000        0xc kernel/fs_test.o
@@ -439,47 +385,6 @@ Discarded input sections
                 0x00000000       0x28 kernel/idt.o
  .eh_frame      0x00000000      0x170 kernel/idt.o
  .text          0x00000000        0x8 kernel/idt_asm.o
- .group         0x00000000        0x8 kernel/interrupt_test.o
- .group         0x00000000        0x8 kernel/interrupt_test.o
- .group         0x00000000        0xc kernel/interrupt_test.o
- .group         0x00000000        0xc kernel/interrupt_test.o
- .group         0x00000000        0xc kernel/interrupt_test.o
- .group         0x00000000        0xc kernel/interrupt_test.o
- .group         0x00000000        0xc kernel/interrupt_test.o
- .group         0x00000000        0xc kernel/interrupt_test.o
- .group         0x00000000        0xc kernel/interrupt_test.o
- .group         0x00000000        0xc kernel/interrupt_test.o
- .text          0x00000000      0x750 kernel/interrupt_test.o
- .data          0x00000000        0x0 kernel/interrupt_test.o
- .bss           0x00000000        0x8 kernel/interrupt_test.o
- .rodata        0x00000000      0x301 kernel/interrupt_test.o
- .text.__x86.get_pc_thunk.ax
-                0x00000000        0x4 kernel/interrupt_test.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/interrupt_test.o
- .debug_info    0x00000000      0x388 kernel/interrupt_test.o
- .debug_abbrev  0x00000000      0x189 kernel/interrupt_test.o
- .debug_aranges
-                0x00000000       0x20 kernel/interrupt_test.o
- .debug_macro   0x00000000       0x66 kernel/interrupt_test.o
- .debug_macro   0x00000000      0x976 kernel/interrupt_test.o
- .debug_macro   0x00000000       0x28 kernel/interrupt_test.o
- .debug_macro   0x00000000       0x10 kernel/interrupt_test.o
- .debug_macro   0x00000000       0x64 kernel/interrupt_test.o
- .debug_macro   0x00000000       0x16 kernel/interrupt_test.o
- .debug_macro   0x00000000       0x10 kernel/interrupt_test.o
- .debug_macro   0x00000000       0x22 kernel/interrupt_test.o
- .debug_macro   0x00000000       0x16 kernel/interrupt_test.o
- .debug_line    0x00000000      0x220 kernel/interrupt_test.o
- .debug_str     0x00000000     0x362c kernel/interrupt_test.o
- .debug_line_str
-                0x00000000      0x110 kernel/interrupt_test.o
- .comment       0x00000000       0x1c kernel/interrupt_test.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/interrupt_test.o
- .note.gnu.property
-                0x00000000       0x28 kernel/interrupt_test.o
- .eh_frame      0x00000000      0x110 kernel/interrupt_test.o
  .group         0x00000000        0x8 kernel/isr.o
  .group         0x00000000        0x8 kernel/isr.o
  .group         0x00000000        0x8 kernel/isr.o
@@ -506,46 +411,6 @@ Discarded input sections
  .note.gnu.property
                 0x00000000       0x28 kernel/isr.o
  .eh_frame      0x00000000      0x71c kernel/isr.o
- .group         0x00000000        0x8 kernel/keyboard_test.o
- .group         0x00000000        0xc kernel/keyboard_test.o
- .group         0x00000000        0xc kernel/keyboard_test.o
- .group         0x00000000        0xc kernel/keyboard_test.o
- .group         0x00000000        0xc kernel/keyboard_test.o
- .group         0x00000000        0xc kernel/keyboard_test.o
- .group         0x00000000        0xc kernel/keyboard_test.o
- .group         0x00000000        0xc kernel/keyboard_test.o
- .group         0x00000000        0xc kernel/keyboard_test.o
- .text          0x00000000      0x7d3 kernel/keyboard_test.o
- .data          0x00000000        0x0 kernel/keyboard_test.o
- .bss           0x00000000        0x0 kernel/keyboard_test.o
- .rodata        0x00000000      0x35a kernel/keyboard_test.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/keyboard_test.o
- .debug_info    0x00000000      0x39f kernel/keyboard_test.o
- .debug_abbrev  0x00000000      0x144 kernel/keyboard_test.o
- .debug_aranges
-                0x00000000       0x20 kernel/keyboard_test.o
- .debug_rnglists
-                0x00000000       0x22 kernel/keyboard_test.o
- .debug_macro   0x00000000       0x6c kernel/keyboard_test.o
- .debug_macro   0x00000000      0x976 kernel/keyboard_test.o
- .debug_macro   0x00000000       0x28 kernel/keyboard_test.o
- .debug_macro   0x00000000       0x10 kernel/keyboard_test.o
- .debug_macro   0x00000000       0x10 kernel/keyboard_test.o
- .debug_macro   0x00000000       0x16 kernel/keyboard_test.o
- .debug_macro   0x00000000       0x10 kernel/keyboard_test.o
- .debug_macro   0x00000000       0x22 kernel/keyboard_test.o
- .debug_macro   0x00000000       0x16 kernel/keyboard_test.o
- .debug_line    0x00000000      0x308 kernel/keyboard_test.o
- .debug_str     0x00000000     0x3525 kernel/keyboard_test.o
- .debug_line_str
-                0x00000000      0x118 kernel/keyboard_test.o
- .comment       0x00000000       0x1c kernel/keyboard_test.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/keyboard_test.o
- .note.gnu.property
-                0x00000000       0x28 kernel/keyboard_test.o
- .eh_frame      0x00000000       0xfc kernel/keyboard_test.o
  .group         0x00000000        0x8 kernel/log.o
  .group         0x00000000        0x8 kernel/log.o
  .group         0x00000000        0xc kernel/log.o
@@ -590,44 +455,6 @@ Discarded input sections
  .note.gnu.property
                 0x00000000       0x28 kernel/memory.o
  .eh_frame      0x00000000      0x260 kernel/memory.o
- .group         0x00000000        0x8 kernel/memory_test.o
- .group         0x00000000        0xc kernel/memory_test.o
- .group         0x00000000        0xc kernel/memory_test.o
- .group         0x00000000        0xc kernel/memory_test.o
- .group         0x00000000        0xc kernel/memory_test.o
- .group         0x00000000        0xc kernel/memory_test.o
- .group         0x00000000        0xc kernel/memory_test.o
- .group         0x00000000        0xc kernel/memory_test.o
- .group         0x00000000        0xc kernel/memory_test.o
- .text          0x00000000      0xc2f kernel/memory_test.o
- .data          0x00000000        0x0 kernel/memory_test.o
- .bss           0x00000000        0x0 kernel/memory_test.o
- .rodata        0x00000000      0x38b kernel/memory_test.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/memory_test.o
- .debug_info    0x00000000      0x424 kernel/memory_test.o
- .debug_abbrev  0x00000000      0x15e kernel/memory_test.o
- .debug_aranges
-                0x00000000       0x20 kernel/memory_test.o
- .debug_macro   0x00000000       0x62 kernel/memory_test.o
- .debug_macro   0x00000000      0x976 kernel/memory_test.o
- .debug_macro   0x00000000       0x28 kernel/memory_test.o
- .debug_macro   0x00000000       0x10 kernel/memory_test.o
- .debug_macro   0x00000000       0x5e kernel/memory_test.o
- .debug_macro   0x00000000       0x16 kernel/memory_test.o
- .debug_macro   0x00000000       0x10 kernel/memory_test.o
- .debug_macro   0x00000000       0x22 kernel/memory_test.o
- .debug_macro   0x00000000       0x16 kernel/memory_test.o
- .debug_line    0x00000000      0x3df kernel/memory_test.o
- .debug_str     0x00000000     0x3659 kernel/memory_test.o
- .debug_line_str
-                0x00000000      0x101 kernel/memory_test.o
- .comment       0x00000000       0x1c kernel/memory_test.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/memory_test.o
- .note.gnu.property
-                0x00000000       0x28 kernel/memory_test.o
- .eh_frame      0x00000000       0xb4 kernel/memory_test.o
  .group         0x00000000        0x8 kernel/monitor.o
  .group         0x00000000        0x8 kernel/monitor.o
  .group         0x00000000        0x8 kernel/monitor.o
@@ -655,40 +482,6 @@ Discarded input sections
  .note.gnu.property
                 0x00000000       0x28 kernel/monitor.o
  .eh_frame      0x00000000      0x228 kernel/monitor.o
- .group         0x00000000        0x8 kernel/monitor_test.o
- .group         0x00000000        0xc kernel/monitor_test.o
- .group         0x00000000        0xc kernel/monitor_test.o
- .group         0x00000000        0xc kernel/monitor_test.o
- .group         0x00000000        0xc kernel/monitor_test.o
- .group         0x00000000        0xc kernel/monitor_test.o
- .group         0x00000000        0xc kernel/monitor_test.o
- .text          0x00000000      0x3b4 kernel/monitor_test.o
- .data          0x00000000        0x0 kernel/monitor_test.o
- .bss           0x00000000        0x0 kernel/monitor_test.o
- .rodata        0x00000000      0x1e0 kernel/monitor_test.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/monitor_test.o
- .debug_info    0x00000000      0x4af kernel/monitor_test.o
- .debug_abbrev  0x00000000      0x141 kernel/monitor_test.o
- .debug_aranges
-                0x00000000       0x20 kernel/monitor_test.o
- .debug_macro   0x00000000       0x58 kernel/monitor_test.o
- .debug_macro   0x00000000      0x97c kernel/monitor_test.o
- .debug_macro   0x00000000       0x28 kernel/monitor_test.o
- .debug_macro   0x00000000       0x10 kernel/monitor_test.o
- .debug_macro   0x00000000       0x4c kernel/monitor_test.o
- .debug_macro   0x00000000       0xe8 kernel/monitor_test.o
- .debug_macro   0x00000000       0x16 kernel/monitor_test.o
- .debug_line    0x00000000      0x147 kernel/monitor_test.o
- .debug_str     0x00000000     0x366c kernel/monitor_test.o
- .debug_line_str
-                0x00000000       0xf7 kernel/monitor_test.o
- .comment       0x00000000       0x1c kernel/monitor_test.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/monitor_test.o
- .note.gnu.property
-                0x00000000       0x28 kernel/monitor_test.o
- .eh_frame      0x00000000       0x48 kernel/monitor_test.o
  .group         0x00000000        0x8 kernel/net_core.o
  .group         0x00000000        0x8 kernel/net_core.o
  .group         0x00000000        0xc kernel/net_core.o
@@ -750,40 +543,6 @@ Discarded input sections
  .note.gnu.property
                 0x00000000       0x28 kernel/network.o
  .eh_frame      0x00000000       0xec kernel/network.o
- .group         0x00000000        0x8 kernel/network_test.o
- .group         0x00000000        0xc kernel/network_test.o
- .group         0x00000000        0xc kernel/network_test.o
- .group         0x00000000        0xc kernel/network_test.o
- .group         0x00000000        0xc kernel/network_test.o
- .group         0x00000000        0xc kernel/network_test.o
- .group         0x00000000        0xc kernel/network_test.o
- .text          0x00000000      0x29e kernel/network_test.o
- .data          0x00000000        0x0 kernel/network_test.o
- .bss           0x00000000        0x0 kernel/network_test.o
- .rodata        0x00000000       0x90 kernel/network_test.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/network_test.o
- .debug_info    0x00000000      0x29c kernel/network_test.o
- .debug_abbrev  0x00000000      0x10f kernel/network_test.o
- .debug_aranges
-                0x00000000       0x20 kernel/network_test.o
- .debug_macro   0x00000000       0x58 kernel/network_test.o
- .debug_macro   0x00000000      0x97c kernel/network_test.o
- .debug_macro   0x00000000       0x28 kernel/network_test.o
- .debug_macro   0x00000000       0x10 kernel/network_test.o
- .debug_macro   0x00000000       0x2e kernel/network_test.o
- .debug_macro   0x00000000       0xe8 kernel/network_test.o
- .debug_macro   0x00000000       0x16 kernel/network_test.o
- .debug_line    0x00000000      0x12f kernel/network_test.o
- .debug_str     0x00000000     0x33fa kernel/network_test.o
- .debug_line_str
-                0x00000000       0xf7 kernel/network_test.o
- .comment       0x00000000       0x1c kernel/network_test.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/network_test.o
- .note.gnu.property
-                0x00000000       0x28 kernel/network_test.o
- .eh_frame      0x00000000       0x64 kernel/network_test.o
  .group         0x00000000        0x8 kernel/pci.o
  .group         0x00000000        0x8 kernel/pci.o
  .group         0x00000000        0xc kernel/pci.o
@@ -849,40 +608,6 @@ Discarded input sections
  .note.gnu.property
                 0x00000000       0x28 kernel/power.o
  .eh_frame      0x00000000      0x2c4 kernel/power.o
- .group         0x00000000        0x8 kernel/power_test.o
- .group         0x00000000        0xc kernel/power_test.o
- .group         0x00000000        0xc kernel/power_test.o
- .group         0x00000000        0xc kernel/power_test.o
- .group         0x00000000        0xc kernel/power_test.o
- .group         0x00000000        0xc kernel/power_test.o
- .group         0x00000000        0xc kernel/power_test.o
- .text          0x00000000      0x7e0 kernel/power_test.o
- .data          0x00000000        0x0 kernel/power_test.o
- .bss           0x00000000        0x0 kernel/power_test.o
- .rodata        0x00000000      0x220 kernel/power_test.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/power_test.o
- .debug_info    0x00000000      0x5c5 kernel/power_test.o
- .debug_abbrev  0x00000000      0x12a kernel/power_test.o
- .debug_aranges
-                0x00000000       0x20 kernel/power_test.o
- .debug_macro   0x00000000       0x58 kernel/power_test.o
- .debug_macro   0x00000000      0x97c kernel/power_test.o
- .debug_macro   0x00000000       0x28 kernel/power_test.o
- .debug_macro   0x00000000       0x10 kernel/power_test.o
- .debug_macro   0x00000000       0x58 kernel/power_test.o
- .debug_macro   0x00000000       0xe8 kernel/power_test.o
- .debug_macro   0x00000000       0x16 kernel/power_test.o
- .debug_line    0x00000000      0x265 kernel/power_test.o
- .debug_str     0x00000000     0x3684 kernel/power_test.o
- .debug_line_str
-                0x00000000       0xef kernel/power_test.o
- .comment       0x00000000       0x1c kernel/power_test.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/power_test.o
- .note.gnu.property
-                0x00000000       0x28 kernel/power_test.o
- .eh_frame      0x00000000       0x4c kernel/power_test.o
  .group         0x00000000        0x8 kernel/process.o
  .group         0x00000000        0x8 kernel/process.o
  .group         0x00000000        0x8 kernel/process.o
@@ -960,40 +685,6 @@ Discarded input sections
  .note.gnu.property
                 0x00000000       0x28 kernel/security.o
  .eh_frame      0x00000000      0x1e0 kernel/security.o
- .group         0x00000000        0x8 kernel/security_test.o
- .group         0x00000000        0xc kernel/security_test.o
- .group         0x00000000        0xc kernel/security_test.o
- .group         0x00000000        0xc kernel/security_test.o
- .group         0x00000000        0xc kernel/security_test.o
- .group         0x00000000        0xc kernel/security_test.o
- .group         0x00000000        0xc kernel/security_test.o
- .text          0x00000000      0x40e kernel/security_test.o
- .data          0x00000000        0x0 kernel/security_test.o
- .bss           0x00000000        0x0 kernel/security_test.o
- .rodata        0x00000000      0x1a0 kernel/security_test.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/security_test.o
- .debug_info    0x00000000      0x371 kernel/security_test.o
- .debug_abbrev  0x00000000       0xe2 kernel/security_test.o
- .debug_aranges
-                0x00000000       0x20 kernel/security_test.o
- .debug_macro   0x00000000       0x58 kernel/security_test.o
- .debug_macro   0x00000000      0x97c kernel/security_test.o
- .debug_macro   0x00000000       0x28 kernel/security_test.o
- .debug_macro   0x00000000       0x10 kernel/security_test.o
- .debug_macro   0x00000000       0x34 kernel/security_test.o
- .debug_macro   0x00000000       0xe8 kernel/security_test.o
- .debug_macro   0x00000000       0x16 kernel/security_test.o
- .debug_line    0x00000000      0x16e kernel/security_test.o
- .debug_str     0x00000000     0x345a kernel/security_test.o
- .debug_line_str
-                0x00000000       0xfb kernel/security_test.o
- .comment       0x00000000       0x1c kernel/security_test.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/security_test.o
- .note.gnu.property
-                0x00000000       0x28 kernel/security_test.o
- .eh_frame      0x00000000       0x48 kernel/security_test.o
  .group         0x00000000        0x8 kernel/shell.o
  .group         0x00000000        0x8 kernel/shell.o
  .group         0x00000000        0xc kernel/shell.o
@@ -1018,47 +709,6 @@ Discarded input sections
  .note.gnu.property
                 0x00000000       0x28 kernel/shell.o
  .eh_frame      0x00000000      0x168 kernel/shell.o
- .group         0x00000000        0x8 kernel/simple_test.o
- .group         0x00000000        0x8 kernel/simple_test.o
- .group         0x00000000        0xc kernel/simple_test.o
- .group         0x00000000        0xc kernel/simple_test.o
- .group         0x00000000        0xc kernel/simple_test.o
- .group         0x00000000        0xc kernel/simple_test.o
- .group         0x00000000        0xc kernel/simple_test.o
- .group         0x00000000        0xc kernel/simple_test.o
- .group         0x00000000        0xc kernel/simple_test.o
- .text          0x00000000      0x41e kernel/simple_test.o
- .data          0x00000000        0x0 kernel/simple_test.o
- .bss           0x00000000        0x0 kernel/simple_test.o
- .rodata        0x00000000      0x1a0 kernel/simple_test.o
- .data.rel.local
-                0x00000000       0x3c kernel/simple_test.o
- .text.__x86.get_pc_thunk.ax
-                0x00000000        0x4 kernel/simple_test.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/simple_test.o
- .debug_info    0x00000000      0x3df kernel/simple_test.o
- .debug_abbrev  0x00000000      0x1b8 kernel/simple_test.o
- .debug_aranges
-                0x00000000       0x20 kernel/simple_test.o
- .debug_macro   0x00000000       0x5d kernel/simple_test.o
- .debug_macro   0x00000000      0x976 kernel/simple_test.o
- .debug_macro   0x00000000       0x28 kernel/simple_test.o
- .debug_macro   0x00000000       0x10 kernel/simple_test.o
- .debug_macro   0x00000000       0x16 kernel/simple_test.o
- .debug_macro   0x00000000       0x10 kernel/simple_test.o
- .debug_macro   0x00000000       0x22 kernel/simple_test.o
- .debug_macro   0x00000000       0x16 kernel/simple_test.o
- .debug_line    0x00000000      0x1d2 kernel/simple_test.o
- .debug_str     0x00000000     0x34a1 kernel/simple_test.o
- .debug_line_str
-                0x00000000      0x101 kernel/simple_test.o
- .comment       0x00000000       0x1c kernel/simple_test.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/simple_test.o
- .note.gnu.property
-                0x00000000       0x28 kernel/simple_test.o
- .eh_frame      0x00000000      0x138 kernel/simple_test.o
  .group         0x00000000        0x8 kernel/string.o
  .group         0x00000000        0x8 kernel/string.o
  .group         0x00000000        0xc kernel/string.o
@@ -1110,68 +760,6 @@ Discarded input sections
  .note.gnu.property
                 0x00000000       0x28 kernel/syscall.o
  .eh_frame      0x00000000      0x9c0 kernel/syscall.o
- .group         0x00000000        0x8 kernel/user_process.o
- .group         0x00000000        0xc kernel/user_process.o
- .group         0x00000000        0xc kernel/user_process.o
- .group         0x00000000        0xc kernel/user_process.o
- .group         0x00000000        0xc kernel/user_process.o
- .group         0x00000000        0xc kernel/user_process.o
- .text          0x00000000      0x1ae kernel/user_process.o
- .data          0x00000000        0x0 kernel/user_process.o
- .bss           0x00000000        0x0 kernel/user_process.o
- .rodata        0x00000000       0x40 kernel/user_process.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/user_process.o
- .debug_info    0x00000000      0x1ae kernel/user_process.o
- .debug_abbrev  0x00000000       0xc9 kernel/user_process.o
- .debug_aranges
-                0x00000000       0x20 kernel/user_process.o
- .debug_macro   0x00000000       0x45 kernel/user_process.o
- .debug_macro   0x00000000      0x97c kernel/user_process.o
- .debug_macro   0x00000000       0x28 kernel/user_process.o
- .debug_macro   0x00000000       0x10 kernel/user_process.o
- .debug_macro   0x00000000       0xe2 kernel/user_process.o
- .debug_macro   0x00000000       0x16 kernel/user_process.o
- .debug_line    0x00000000       0xf3 kernel/user_process.o
- .debug_str     0x00000000     0x32db kernel/user_process.o
- .debug_line_str
-                0x00000000       0xe4 kernel/user_process.o
- .comment       0x00000000       0x1c kernel/user_process.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/user_process.o
- .note.gnu.property
-                0x00000000       0x28 kernel/user_process.o
- .eh_frame      0x00000000       0x64 kernel/user_process.o
- .group         0x00000000        0x8 kernel/user_program.o
- .group         0x00000000        0xc kernel/user_program.o
- .group         0x00000000        0xc kernel/user_program.o
- .group         0x00000000        0xc kernel/user_program.o
- .group         0x00000000        0xc kernel/user_program.o
- .text          0x00000000       0xd3 kernel/user_program.o
- .data          0x00000000        0x0 kernel/user_program.o
- .bss           0x00000000        0x0 kernel/user_program.o
- .rodata        0x00000000       0x30 kernel/user_program.o
- .text.__x86.get_pc_thunk.bx
-                0x00000000        0x4 kernel/user_program.o
- .debug_info    0x00000000      0x125 kernel/user_program.o
- .debug_abbrev  0x00000000       0xc7 kernel/user_program.o
- .debug_aranges
-                0x00000000       0x20 kernel/user_program.o
- .debug_macro   0x00000000       0x32 kernel/user_program.o
- .debug_macro   0x00000000      0x97c kernel/user_program.o
- .debug_macro   0x00000000       0x28 kernel/user_program.o
- .debug_macro   0x00000000       0x10 kernel/user_program.o
- .debug_macro   0x00000000       0xe2 kernel/user_program.o
- .debug_line    0x00000000       0xa3 kernel/user_program.o
- .debug_str     0x00000000     0x327f kernel/user_program.o
- .debug_line_str
-                0x00000000       0xd5 kernel/user_program.o
- .comment       0x00000000       0x1c kernel/user_program.o
- .note.GNU-stack
-                0x00000000        0x0 kernel/user_program.o
- .note.gnu.property
-                0x00000000       0x28 kernel/user_program.o
- .eh_frame      0x00000000       0x48 kernel/user_program.o
  .group         0x00000000        0x8 kernel/usermode.o
  .group         0x00000000        0x8 kernel/usermode.o
  .group         0x00000000        0xc kernel/usermode.o
@@ -1436,8 +1024,14 @@ Linker script and memory map
                 0x0000677c                test_process_2
                 0x0000678b                user_process_1
                 0x0000679a                user_process_2
+                0x000067a9                memory_test_process
                 0x000067b8                user_program_main
+                0x000067c7                network_test_sender
+                0x000067d6                network_test_receiver
+                0x000067e5                device_test_process
                 0x000067f4                security_test_process
+                0x00006803                monitor_test_process
+                0x00006812                power_test_process
                 0x00006821                __stack_chk_fail_local
                 0x00006830                process_init
                 0x000068a6                process_create
@@ -1659,34 +1253,23 @@ LOAD drivers/timer.o
 LOAD fs/filesystem_enhanced.o
 LOAD kernel/context.o
 LOAD kernel/device.o
-LOAD kernel/device_test.o
 LOAD kernel/fs_test.o
 LOAD kernel/idt.o
 LOAD kernel/idt_asm.o
-LOAD kernel/interrupt_test.o
 LOAD kernel/isr.o
-LOAD kernel/keyboard_test.o
 LOAD kernel/log.o
 LOAD kernel/memory.o
-LOAD kernel/memory_test.o
 LOAD kernel/monitor.o
-LOAD kernel/monitor_test.o
 LOAD kernel/net_core.o
 LOAD kernel/network.o
-LOAD kernel/network_test.o
 LOAD kernel/pci.o
 LOAD kernel/power.o
-LOAD kernel/power_test.o
 LOAD kernel/process.o
 LOAD kernel/program_loader.o
 LOAD kernel/security.o
-LOAD kernel/security_test.o
 LOAD kernel/shell.o
-LOAD kernel/simple_test.o
 LOAD kernel/string.o
 LOAD kernel/syscall.o
-LOAD kernel/user_process.o
-LOAD kernel/user_program.o
 LOAD kernel/usermode.o
 OUTPUT(kernel.elf elf32-i386)
 
