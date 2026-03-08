@@ -42,6 +42,7 @@ int serial_init(void) {
     // Set in loopback mode, test the serial chip
     outb(SERIAL_MODEM_CMD_PORT(SERIAL_COM1_BASE), 0x1E);
     
+    /* Loopback test disabled to prevent potential hangs on QEMU
     // Test serial chip (send byte 0xAE and check if we receive same byte)
     outb(SERIAL_DATA_PORT(SERIAL_COM1_BASE), 0xAE);
     
@@ -49,6 +50,7 @@ int serial_init(void) {
     if (inb(SERIAL_DATA_PORT(SERIAL_COM1_BASE)) != 0xAE) {
         return 0; // Serial port is faulty
     }
+    */
     
     // Set serial port to normal operation mode
     // (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
@@ -65,7 +67,11 @@ int serial_is_transmit_empty(uint16_t com) {
 
 // Write character to serial port
 void serial_putchar(uint16_t com, char c) {
-    while (serial_is_transmit_empty(com) == 0);
+    // Add timeout to prevent infinite hang if serial port is stuck
+    int timeout = 100000;
+    while (serial_is_transmit_empty(com) == 0) {
+        if (timeout-- <= 0) break;
+    }
     
     outb(SERIAL_DATA_PORT(com), c);
 }

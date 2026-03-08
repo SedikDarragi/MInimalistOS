@@ -18,6 +18,7 @@
 
 extern void shell_init(void);
 extern void shell_run(void);
+extern void keyboard_init(void);
 
 void kmain(void) {
     /* Initialize output first for debugging */
@@ -38,10 +39,10 @@ void kmain(void) {
     // Initialize core systems
     vga_print("Initializing serial port...\n");
     if (serial_init()) {
-        vga_print("Serial port: OK\n");
+        vga_print("Serial port: OK (Debug enabled)\n");
         serial_info("Serial port initialized for debugging");
     } else {
-        vga_print("Serial port: FAILED\n");
+        vga_print("Serial port: FAILED (Continuing)\n");
     }
 
     /* --- Temporarily disable networking to isolate potential crash --- */
@@ -80,16 +81,13 @@ void kmain(void) {
     syscall_init();
     serial_info("Syscalls initialized");
     
-    vga_print("Initializing keyboard (intl)...\n");
-    if (keyboard_intl_init() == 0) {
-        vga_print("Keyboard INTL: OK\n");
-        log_info("International keyboard driver initialized");
-        vga_print("Current layout: ");
-        vga_print((char*)keyboard_intl_get_layout_name());
-        vga_print("\n");
-    } else {
-        vga_print("Keyboard INTL: FAILED\n");
-    }
+    vga_print("Initializing keyboard...\n");
+    // Use standard keyboard driver for shell compatibility
+    keyboard_init();
+    vga_print("Keyboard: OK\n");
+    
+    // Disable intl keyboard to prevent IRQ conflicts
+    // keyboard_intl_init();
     
     vga_print("Initializing mouse...\n");
     mouse_init();

@@ -241,7 +241,7 @@ QEMU_DEBUG = -d int,cpu_reset -D qemu.log
 # Run the OS in QEMU with basic settingssds
 run: os.img
 	$(E) "  QEMU    $<"
-	@$(QEMU) $(QEMU_OPTS) $(QEMU_DISK) -vga std -display sdl
+	@$(QEMU) $(QEMU_OPTS) $(QEMU_DISK) -vga std -display sdl -serial file:serial.log
 
 # Run QEMU with debug output and GDB server
 debug: os.img

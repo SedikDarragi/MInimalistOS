@@ -11,6 +11,9 @@
 #include "string.h"
 #include "io.h"
 
+// External declaration for keyboard driver
+extern char keyboard_getchar(void);
+
 // System call handler table
 typedef uint32_t (*syscall_func_t)(uint32_t, uint32_t, uint32_t, uint32_t);
 
@@ -257,10 +260,17 @@ uint32_t sys_write(uint32_t fd, const char* buf, uint32_t count) {
 
 uint32_t sys_read(uint32_t fd, char* buf, uint32_t count) {
     if (fd == 0) { // stdin
-        // Simple blocking read from serial for now
         for (uint32_t i = 0; i < count; i++) {
-            while ((inb(0x3F8 + 5) & 1) == 0); // Wait for data
-            buf[i] = inb(0x3F8);
+            char c = 0;
+            // Wait for keyboard input (blocking)
+            while ((c = keyboard_getchar()) == 0) {
+                // Also check serial port for input (optional fallback)
+                if ((inb(0x3F8 + 5) & 1)) {
+                    c = inb(0x3F8);
+                    break;
+                }
+            }
+            buf[i] = c;
         }
         return count;
     }
