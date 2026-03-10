@@ -39,22 +39,9 @@ int serial_init(void) {
     // IRQs enabled, RTS/DSR set
     outb(SERIAL_MODEM_CMD_PORT(SERIAL_COM1_BASE), 0x0B);
     
-    // Set in loopback mode, test the serial chip
-    outb(SERIAL_MODEM_CMD_PORT(SERIAL_COM1_BASE), 0x1E);
-    
-    /* Loopback test disabled to prevent potential hangs on QEMU
-    // Test serial chip (send byte 0xAE and check if we receive same byte)
-    outb(SERIAL_DATA_PORT(SERIAL_COM1_BASE), 0xAE);
-    
-    // Check if serial is faulty
-    if (inb(SERIAL_DATA_PORT(SERIAL_COM1_BASE)) != 0xAE) {
-        return 0; // Serial port is faulty
-    }
-    */
-    
-    // Set serial port to normal operation mode
-    // (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
-    outb(SERIAL_MODEM_CMD_PORT(SERIAL_COM1_BASE), 0x0F);
+    // The loopback test was previously disabled but still set the modem
+    // control register, which can cause hangs in QEMU. We are removing
+    // the loopback-related writes entirely. The 0x0B write above is sufficient.
     
     log_info("Serial port initialized for debugging");
     return 1; // Success

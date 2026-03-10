@@ -39,10 +39,10 @@ void kmain(void) {
     // Initialize core systems
     vga_print("Initializing serial port...\n");
     if (serial_init()) {
-        vga_print("Serial port: OK (Debug enabled)\n");
+        vga_print("Serial port: OK\n");
         serial_info("Serial port initialized for debugging");
     } else {
-        vga_print("Serial port: FAILED (Continuing)\n");
+        vga_print("Serial port: FAILED\n");
     }
 
     /* --- Temporarily disable networking to isolate potential crash --- */
