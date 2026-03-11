@@ -54,7 +54,9 @@ static void keyboard_update_leds(void) {
 char keyboard_getchar(void) {
     uint8_t scancode;
     
-    while (!keyboard_available());
+    if (!keyboard_available()) {
+        return 0;
+    }
     
     scancode = inb(KEYBOARD_DATA_PORT);
     

@@ -1,6 +1,6 @@
 #include "timer.h"
 #include "../include/idt.h"
-#include "../include/process_simple.h"
+#include "../kernel/process.h"
 
 #define PIT_CMD_PORT 0x43
 #define PIT_CHANNEL0 0x40
