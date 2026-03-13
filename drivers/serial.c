@@ -43,7 +43,6 @@ int serial_init(void) {
     // control register, which can cause hangs in QEMU. We are removing
     // the loopback-related writes entirely. The 0x0B write above is sufficient.
     
-    log_info("Serial port initialized for debugging");
     return 1; // Success
 }
 
