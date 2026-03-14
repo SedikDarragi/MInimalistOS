@@ -11,10 +11,14 @@ void context_init(cpu_context_t* context, void (*entry_point)(), uint32_t stack_
 __asm__(
     ".global context_switch\n"
     "context_switch:\n"
-    "    mov 4(%esp), %eax\n"      // Get old_context pointer
+    "    push %ebp\n"              // Set up stack frame
+    "    mov %esp, %ebp\n"
+    "    push %eax\n"              // Save original EAX on stack
+    "    mov 8(%ebp), %eax\n"      // Get old_context pointer (skip EBP and Return Addr)
     "    test %eax, %eax\n"        // Check if NULL
     "    jz 2f\n"                  // If NULL, skip saving
-    "    mov %eax, 0(%eax)\n"      // Save EAX
+    "    pop %edx\n"               // Get original EAX from stack
+    "    mov %edx, 0(%eax)\n"      // Save original EAX
     "    mov %ebx, 4(%eax)\n"      // Save EBX
     "    mov %ecx, 8(%eax)\n"      // Save ECX
     "    mov %edx, 12(%eax)\n"     // Save EDX
@@ -22,19 +26,21 @@ __asm__(
     "    mov %edi, 20(%eax)\n"     // Save EDI
     "    mov %ebp, 24(%eax)\n"     // Save EBP
     "    mov %esp, 28(%eax)\n"     // Save ESP
-    "    mov (%esp), %edx\n"       // Get return address
+    "    mov 4(%ebp), %edx\n"      // Get return address (EIP)
     "    mov %edx, 32(%eax)\n"     // Save EIP
     "    pushfl\n"
     "    pop %edx\n"
     "    mov %edx, 36(%eax)\n"     // Save EFLAGS
+    "    jmp 3f\n"
     "    2:\n"
-    "    mov 8(%esp), %eax\n"      // Get new_context pointer
+    "    pop %eax\n"               // Clean up stack if we skipped saving
+    "    3:\n"
+    "    mov 12(%ebp), %eax\n"     // Get new_context pointer
     "    mov 36(%eax), %edx\n"     // Get new EFLAGS
     "    push %edx\n"
     "    popfl\n"                  // Load EFLAGS
     "    mov 28(%eax), %esp\n"     // Load ESP
-    "    mov 32(%eax), %edx\n"     // Get new EIP
-    "    mov %edx, (%esp)\n"       // Setup return address
+    "    push 32(%eax)\n"          // Push new EIP to simulate return address
     "    mov 24(%eax), %ebp\n"     // Load EBP
     "    mov 20(%eax), %edi\n"     // Load EDI
     "    mov 16(%eax), %esi\n"     // Load ESI

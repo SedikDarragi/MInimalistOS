@@ -13,6 +13,7 @@
 
 // External declaration for keyboard driver
 extern char keyboard_getchar(void);
+extern void serial_putchar(uint16_t com, char c);
 
 // System call handler table
 typedef uint32_t (*syscall_func_t)(uint32_t, uint32_t, uint32_t, uint32_t);
@@ -248,10 +249,9 @@ uint32_t sys_exit(uint32_t status) {
 uint32_t sys_write(uint32_t fd, const char* buf, uint32_t count) {
     if (fd == 1) {  // stdout
         vga_print(buf);
-        // Mirror to serial port (COM1) for debugging/console
+        // Mirror to serial port (COM1) using the driver function with timeout
         for (uint32_t i = 0; i < count; i++) {
-            while ((inb(0x3F8 + 5) & 0x20) == 0); // Wait for transmit empty
-            outb(0x3F8, buf[i]);
+            serial_putchar(0x3F8, buf[i]);
         }
         return count;
     }
