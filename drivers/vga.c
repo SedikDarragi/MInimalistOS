@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "../kernel/io.h"
+
 // VGA memory address
 #define VGA_MEMORY 0xB8000
 
@@ -9,6 +11,15 @@
 static int cursor_x = 0;
 static int cursor_y = 0;
 static vga_color_t current_color = VGA_COLOR_LIGHT_GREY;
+
+// Update hardware cursor position
+static void vga_update_cursor(void) {
+    uint16_t pos = cursor_y * VGA_WIDTH + cursor_x;
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, (uint8_t)(pos & 0xFF));
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
+}
 
 // Helper function to write to VGA memory
 static inline void vga_putchar_at(char c, uint8_t color, int x, int y) {
@@ -29,6 +40,7 @@ void vga_clear(void) {
     }
     cursor_x = 0;
     cursor_y = 0;
+    vga_update_cursor();
 }
 
 void vga_set_color(vga_color_t fg, vga_color_t bg) {
@@ -58,6 +70,8 @@ void vga_putchar(char c) {
         vga_scroll();
         cursor_y = VGA_HEIGHT - 1;
     }
+
+    vga_update_cursor();
 }
 
 void vga_print(const char* str) {
@@ -95,5 +109,6 @@ void vga_set_cursor(int x, int y) {
     if (x >= 0 && x < VGA_WIDTH && y >= 0 && y < VGA_HEIGHT) {
         cursor_x = x;
         cursor_y = y;
+        vga_update_cursor();
     }
 }
