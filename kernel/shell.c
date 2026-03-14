@@ -20,7 +20,7 @@ static void serial_print(const char* str) {
     while (*str) serial_putc(*str++);
 }
 
-static char serial_getchar(void) {
+static char shell_serial_getchar(void) {
     if (inb(0x3F8 + 5) & 1) return inb(0x3F8); // Check data ready
     return 0;
 }
