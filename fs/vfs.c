@@ -1,3 +1,6 @@
+// This file is deprecated and replaced by filesystem_enhanced.c
+// Disabling to prevent build conflicts.
+#if 0
 #include "../include/filesystem.h"
 #include "../include/memory.h"
 #include "../include/string.h"
@@ -305,3 +308,4 @@ int vfs_list_dir(const char* path, char* buffer, uint32_t buffer_size) {
     log_info("Directory listed: %s", path);
     return strlen(buffer);
 }
+#endif

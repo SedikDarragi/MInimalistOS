@@ -22,9 +22,6 @@ extern void keyboard_init(void);
 
 void kmain(void) {
     /* Initialize output first for debugging */
-    /* Write a 'K' to the top-left corner to confirm entry */
-    *((volatile uint16_t*)0xB8000) = (0x0F << 8) | 'K';
-    
     log_init();
     log_info("Kernel started");
 
@@ -35,6 +32,9 @@ void kmain(void) {
     log_info("Memory initialized");
     paging_init();   /* Virtual Memory Manager */
     log_info("Paging initialized");
+    
+    /* Initialize VGA display to ensure correct colors */
+    vga_init();
     
     // Initialize core systems
     vga_print("Initializing serial port...\n");
