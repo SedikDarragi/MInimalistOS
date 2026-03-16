@@ -2,11 +2,13 @@
 #define IDT_H
 
 #include <stdint.h>
-
-/* This defines what the stack looks like after an ISR was running */
+ 
+/* This defines what the stack looks like after an ISR was running.
+ * It is pushed by the assembly stubs in interrupts.s.
+ */
 struct regs {
-    uint32_t gs, fs, es, ds;
-    uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+    uint32_t ds;                                     /* Data segment selector */
+    uint32_t edi, esi, ebp, esp_dummy, ebx, edx, ecx, eax; /* Pushed by pusha. esp_dummy is the original esp */
     uint32_t int_no, err_code;
     uint32_t eip, cs, eflags, useresp, ss;
 };

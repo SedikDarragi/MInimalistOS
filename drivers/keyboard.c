@@ -1,19 +1,19 @@
 #include "keyboard.h"
 #include "../kernel/log.h"
 
-static const char scancode_to_ascii[] = {
+static const char scancode_to_ascii_azerty[] = {
     0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
-    '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
-    0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`',
-    0, '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0,
+    '\t', 'a', 'z', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '^', '$', '\n',
+    0, 'q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'u', '`',
+    0, '*', 'w', 'x', 'c', 'v', 'b', 'n', ',', ';', ':', '!', 0,
     '*', 0, ' '
 };
 
-static const char scancode_to_ascii_shift[] = {
+static const char scancode_to_ascii_azerty_shift[] = {
     0, 0, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '\b',
-    '\t', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n',
-    0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~',
-    0, '|', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 0,
+    '\t', 'A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 0, 0, '\n',
+    0, 'Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', '%', 0,
+    0, '>', 'W', 'X', 'C', 'V', 'B', 'N', '?', '.', '/', 0, 0,
     '*', 0, ' '
 };
 
@@ -102,8 +102,8 @@ char keyboard_getchar(void) {
     }
     
     // Convert scancode to ASCII
-    if (scancode < sizeof(scancode_to_ascii)) {
-        char base_char = shift_pressed ? scancode_to_ascii_shift[scancode] : scancode_to_ascii[scancode];
+    if (scancode < sizeof(scancode_to_ascii_azerty)) {
+        char base_char = shift_pressed ? scancode_to_ascii_azerty_shift[scancode] : scancode_to_ascii_azerty[scancode];
         
         // Apply caps lock to letters
         if (caps_lock && base_char >= 'a' && base_char <= 'z') {

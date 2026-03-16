@@ -85,6 +85,7 @@ void kmain(void) {
     // Use standard keyboard driver for shell compatibility
     keyboard_init();
     vga_print("Keyboard: OK\n");
+    enable_irq(1); // Enable keyboard interrupts (IRQ 1)
     
     // Disable intl keyboard to prevent IRQ conflicts
     // keyboard_intl_init();
