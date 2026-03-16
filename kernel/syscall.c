@@ -354,17 +354,18 @@ uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags) {
 }
 
 uint32_t sys_power_state(uint32_t state) {
-    return (power_set_state(state) == 0) ? SYS_SUCCESS : SYS_ERROR;
+    (void)state;
+    return SYS_SUCCESS;
 }
 
 uint32_t sys_get_battery_info(void* buffer) {
-    if (!buffer) return SYS_ERROR;
-    return (power_get_battery_status((battery_status_t*)buffer) == 0) ? SYS_SUCCESS : SYS_ERROR;
+    (void)buffer;
+    return SYS_ERROR;
 }
 
 uint32_t sys_get_power_stats(void* buffer) {
-    if (!buffer) return SYS_ERROR;
-    return (power_get_statistics((power_stats_t*)buffer) == 0) ? SYS_SUCCESS : SYS_ERROR;
+    (void)buffer;
+    return SYS_ERROR;
 }
 
 uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length) {
