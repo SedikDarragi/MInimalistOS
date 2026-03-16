@@ -75,7 +75,7 @@ DRIVER_SRCS := drivers/vga.c drivers/keyboard.c drivers/keyboard_intl.c \
 FS_SRCS := fs/filesystem_enhanced.c
 
 # Assembly sources (both .s and .asm) 
-KERNEL_ASM_SRCS := kernel/entry.s kernel/idt_asm.asm
+KERNEL_ASM_SRCS := kernel/entry.s kernel/interrupts.s
 
 # Combine all source files
 # Main kernel should NOT include test sources; keep tests only in TEST_ALL_SRCS
@@ -92,7 +92,9 @@ KERNEL_OBJS_TEMP = $(ALL_SRCS:.c=.o) \
 
 # Remove duplicates and sort, but ensure entry.o is first
 KERNEL_OBJS_SORTED := $(sort $(KERNEL_OBJS_TEMP))
-KERNEL_OBJS := kernel/entry.o kernel/kmain.o drivers/vga.o $(filter-out kernel/entry.o kernel/kmain.o drivers/vga.o,$(KERNEL_OBJS_SORTED))
+# Filter out isr.o because we replaced it with interrupts.o
+KERNEL_OBJS_FILTERED := $(filter-out kernel/isr.o, $(KERNEL_OBJS_SORTED))
+KERNEL_OBJS := kernel/entry.o kernel/kmain.o drivers/vga.o $(filter-out kernel/entry.o kernel/kmain.o drivers/vga.o,$(KERNEL_OBJS_FILTERED))
 
 # Include generated dependencies
 -include $(DEPS)

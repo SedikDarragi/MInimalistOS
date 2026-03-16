@@ -90,10 +90,10 @@ void kmain(void) {
     // keyboard_intl_init();
     
     vga_print("Initializing mouse...\n");
-    // mouse_init();
+    // mouse_init(); // Keep disabled to prevent hang
     
     vga_print("Initializing power management...\n");
-    // power_init();
+    // power_init(); // Keep disabled
     serial_info("Power management initialized");
     
     vga_print("Initializing program loader...\n");
