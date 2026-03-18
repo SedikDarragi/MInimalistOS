@@ -71,7 +71,7 @@ KERNEL_SRCS := kernel/kmain.c kernel/log.c kernel/string.c kernel/memory.c \
 KERNEL_TEST_SRCS := $(shell find kernel/ -name '*_test.c')
 TEST_SRCS := kernel/tests.c
 DRIVER_SRCS := drivers/vga.c drivers/keyboard.c drivers/keyboard_intl.c \
-               drivers/serial.c drivers/timer.c drivers/mouse.c drivers/net_ne2k.c
+               drivers/serial.c drivers/timer.c drivers/net_ne2k.c
 FS_SRCS := fs/filesystem_enhanced.c
 
 # Assembly sources (both .s and .asm) 
