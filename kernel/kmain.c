@@ -7,7 +7,6 @@
 #include "../include/filesystem.h"
 #include "../include/syscall.h"
 #include "../drivers/keyboard_intl.h"
-#include "../drivers/mouse.h"
 #include "../include/program_loader.h"
 #include "../include/net.h"
 #include "../drivers/net_ne2k.h"
