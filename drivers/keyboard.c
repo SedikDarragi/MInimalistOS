@@ -29,6 +29,12 @@ static int scroll_lock = 0;
 #define LED_NUM_LOCK    0x02
 #define LED_CAPS_LOCK   0x04
 
+// Keyboard buffer
+#define KB_BUFFER_SIZE 256
+static char kb_buffer[KB_BUFFER_SIZE];
+static volatile int kb_write_ptr = 0;
+static volatile int kb_read_ptr = 0;
+
 void keyboard_init(void) {
     // Enable keyboard
     outb(KEYBOARD_STATUS_PORT, 0xAE);
@@ -51,11 +57,12 @@ static void keyboard_update_leds(void) {
     outb(KEYBOARD_DATA_PORT, leds);
 }
 
-char keyboard_getchar(void) {
+// Interrupt handler called by ISR
+void keyboard_handler(void) {
     uint8_t scancode;
     
-    if (!keyboard_available()) {
-        return 0;
+    if (!(inb(KEYBOARD_STATUS_PORT) & 0x01)) {
+        return;
     }
     
     scancode = inb(KEYBOARD_DATA_PORT);
@@ -65,40 +72,40 @@ char keyboard_getchar(void) {
         case 0x2A: // Left shift pressed
         case 0x36: // Right shift pressed
             shift_pressed = 1;
-            return 0;
+            return;
         case 0xAA: // Left shift released
         case 0xB6: // Right shift released
             shift_pressed = 0;
-            return 0;
+            return;
         case 0x1D: // Left ctrl pressed
             ctrl_pressed = 1;
-            return 0;
+            return;
         case 0x9D: // Left ctrl released
             ctrl_pressed = 0;
-            return 0;
+            return;
         case 0x38: // Left alt pressed
             alt_pressed = 1;
-            return 0;
+            return;
         case 0xB8: // Left alt released
             alt_pressed = 0;
-            return 0;
+            return;
         case 0x3A: // Caps lock
             caps_lock = !caps_lock;
             keyboard_update_leds();
-            return 0;
+            return;
         case 0x45: // Num lock
             num_lock = !num_lock;
             keyboard_update_leds();
-            return 0;
+            return;
         case 0x46: // Scroll lock
             scroll_lock = !scroll_lock;
             keyboard_update_leds();
-            return 0;
+            return;
     }
     
     // Ignore key releases (high bit set)
     if (scancode & 0x80) {
-        return 0;
+        return;
     }
     
     // Convert scancode to ASCII
@@ -112,10 +119,26 @@ char keyboard_getchar(void) {
             base_char += 32; // Convert to lowercase
         }
         
-        return base_char;
+        if (base_char != 0) {
+            // Add to buffer
+            int next_write = (kb_write_ptr + 1) % KB_BUFFER_SIZE;
+            if (next_write != kb_read_ptr) { // Buffer not full
+                kb_buffer[kb_write_ptr] = base_char;
+                kb_write_ptr = next_write;
+            }
+        }
+    }
+}
+
+char keyboard_getchar(void) {
+    // Check if buffer is empty
+    if (kb_read_ptr == kb_write_ptr) {
+        return 0;
     }
     
-    return 0;
+    char c = kb_buffer[kb_read_ptr];
+    kb_read_ptr = (kb_read_ptr + 1) % KB_BUFFER_SIZE;
+    return c;
 }
 
 // Check if a key is currently pressed
