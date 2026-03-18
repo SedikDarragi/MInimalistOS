@@ -1,5 +1,6 @@
 #include "keyboard.h"
 #include "../kernel/log.h"
+#include "../include/idt.h"
 
 static const char scancode_to_ascii_azerty[] = {
     0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
@@ -35,9 +36,16 @@ static char kb_buffer[KB_BUFFER_SIZE];
 static volatile int kb_write_ptr = 0;
 static volatile int kb_read_ptr = 0;
 
+// Interrupt wrapper
+static void keyboard_interrupt_handler(struct regs* r) {
+    (void)r;
+    keyboard_handler();
+}
+
 void keyboard_init(void) {
     // Enable keyboard
     outb(KEYBOARD_STATUS_PORT, 0xAE);
+    register_interrupt_handler(33, keyboard_interrupt_handler); // Register IRQ1 (INT 33)
 }
 
 int keyboard_available(void) {

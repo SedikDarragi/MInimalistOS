@@ -131,5 +131,20 @@ void kmain(void) {
 /* --- Stubs to fix linker errors --- */
 // These satisfy references from process.c and syscall.c if drivers are missing
 
+// Filesystem stubs
 void vfs_init(void) {}
 int ramfs_mount(void) { return -1; }
+
+// Test process stubs referenced by process.c
+void test_process_1(void) {}
+void test_process_2(void) {}
+void user_process_1(void) {}
+void user_process_2(void) {}
+void memory_test_process(void) {}
+void user_program_main(void) {}
+void network_test_sender(void) {}
+void network_test_receiver(void) {}
+void device_test_process(void) {}
+void security_test_process(void) {}
+void monitor_test_process(void) {}
+void power_test_process(void) {}
