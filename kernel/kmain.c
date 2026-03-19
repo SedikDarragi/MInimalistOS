@@ -89,9 +89,6 @@ void kmain(void) {
     // Disable intl keyboard to prevent IRQ conflicts
     // keyboard_intl_init();
     
-    vga_print("Initializing mouse...\n");
-    // mouse_init(); // Keep disabled to prevent hang
-    
     vga_print("Initializing power management...\n");
     // power_init(); // Keep disabled
     serial_info("Power management initialized");
