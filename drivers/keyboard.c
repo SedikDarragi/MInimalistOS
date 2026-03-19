@@ -43,6 +43,9 @@ static void keyboard_interrupt_handler(struct regs* r) {
 }
 
 void keyboard_init(void) {
+    // Explicitly disable the mouse interface on the PS/2 controller
+    outb(KEYBOARD_STATUS_PORT, 0xA7);
+    
     // Enable keyboard
     outb(KEYBOARD_STATUS_PORT, 0xAE);
     register_interrupt_handler(33, keyboard_interrupt_handler); // Register IRQ1 (INT 33)
