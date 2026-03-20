@@ -113,6 +113,9 @@ void kmain(void) {
     // Enable interrupts to allow keyboard input
     __asm__ volatile("sti");
     
+    // Clear screen to make shell visible
+    vga_clear();
+    
     // Initialize and run the shell
     serial_info("Entering shell...");
     shell_init();
