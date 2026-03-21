@@ -236,7 +236,7 @@ QEMU = qemu-system-i386
 # Temporarily disabled to isolate a potential crash during boot.
 QEMU_NET =
 
-QEMU_OPTS = -m 32M -monitor stdio -no-reboot -no-shutdown -device usb-tablet $(QEMU_NET)
+QEMU_OPTS = -m 32M -monitor stdio -no-reboot -no-shutdown -usb -device usb-tablet $(QEMU_NET)
 QEMU_DISK = -drive file=os.img,format=raw,if=ide
 QEMU_DEBUG = -d int,cpu_reset -D qemu.log
 
