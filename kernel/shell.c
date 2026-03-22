@@ -72,11 +72,15 @@ void shell_run(void) {
     
     while (1) {
         // Print prompt
+        vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
         shell_print(shell_state.username);
         shell_print("@");
         shell_print(shell_state.hostname);
+        vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
         shell_print(":");
+        vga_set_color(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK);
         shell_print(shell_state.cwd);
+        vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
         shell_print("$ ");
         
         buffer_pos = 0;
