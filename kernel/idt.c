@@ -59,8 +59,8 @@ void pic_remap(void) {
     outb(PIC2_DATA, 0x02);
     outb(PIC1_DATA, 0x01);
     outb(PIC2_DATA, 0x01);
-    outb(PIC1_DATA, 0x0);
-    outb(PIC2_DATA, 0x0);
+    outb(PIC1_DATA, 0xFF);
+    outb(PIC2_DATA, 0xFF);
 }
 
 // Generic C-level interrupt handler
