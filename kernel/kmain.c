@@ -64,7 +64,7 @@ void kmain(void) {
     serial_info("Process management initialized");
     
     vga_print("Initializing timer...\n");
-    timer_init();
+    // timer_init(); // Temporarily disabled to prevent scheduler crashes
     
     vga_print("Initializing filesystem...\n");
     // vfs_init();  // Not included in simple kernel build
@@ -112,6 +112,7 @@ void kmain(void) {
     
     // Clear screen to make shell visible
     vga_clear();
+    vga_print("Shell initialized. Waiting for input...\n");
     
     // Enable interrupts to allow keyboard input
     __asm__ volatile("sti");

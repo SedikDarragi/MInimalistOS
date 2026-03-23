@@ -70,13 +70,9 @@ static void keyboard_update_leds(void) {
 
 // Interrupt handler called by ISR
 void keyboard_handler(void) {
-    uint8_t scancode;
-    
-    if (!(inb(KEYBOARD_STATUS_PORT) & 0x01)) {
-        return;
-    }
-    
-    scancode = inb(KEYBOARD_DATA_PORT);
+    // In an interrupt handler, we don't need to check the status port.
+    // The IRQ itself tells us data is ready to be read from the data port.
+    uint8_t scancode = inb(KEYBOARD_DATA_PORT);
     
     // Handle modifier keys
     switch (scancode) {
