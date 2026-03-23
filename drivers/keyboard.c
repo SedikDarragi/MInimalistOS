@@ -2,19 +2,19 @@
 #include "../kernel/log.h"
 #include "../include/idt.h"
 
-static const char scancode_to_ascii_azerty[] = {
+static const char scancode_to_ascii_us[] = {
     0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
-    '\t', 'a', 'z', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '^', '$', '\n',
-    0, 'q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'u', '`',
-    0, '*', 'w', 'x', 'c', 'v', 'b', 'n', ',', ';', ':', '!', 0,
+    '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
+    0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`',
+    0, '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0,
     '*', 0, ' '
 };
 
-static const char scancode_to_ascii_azerty_shift[] = {
+static const char scancode_to_ascii_us_shift[] = {
     0, 0, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '\b',
-    '\t', 'A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 0, 0, '\n',
-    0, 'Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', '%', 0,
-    0, '>', 'W', 'X', 'C', 'V', 'B', 'N', '?', '.', '/', 0, 0,
+    '\t', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n',
+    0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~',
+    0, '|', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 0,
     '*', 0, ' '
 };
 
@@ -43,11 +43,29 @@ static void keyboard_interrupt_handler(struct regs* r) {
 }
 
 void keyboard_init(void) {
-    // Explicitly disable the mouse interface on the PS/2 controller
+    // Disable devices
+    outb(KEYBOARD_STATUS_PORT, 0xAD);
     outb(KEYBOARD_STATUS_PORT, 0xA7);
     
-    // Enable keyboard
+    // Flush output buffer
+    while(inb(KEYBOARD_STATUS_PORT) & 1) {
+        inb(KEYBOARD_DATA_PORT);
+    }
+    
+    // Enable IRQ1 in the Configuration Byte
+    outb(KEYBOARD_STATUS_PORT, 0x20); // Read Command Byte
+    while((inb(KEYBOARD_STATUS_PORT) & 1) == 0); // Wait for data
+    uint8_t status = inb(KEYBOARD_DATA_PORT);
+    status |= 0x01; // Enable IRQ1
+    status |= 0x40; // Enable translation (Scancode Set 2 -> 1)
+    
+    outb(KEYBOARD_STATUS_PORT, 0x60); // Write Command Byte
+    while(inb(KEYBOARD_STATUS_PORT) & 2); // Wait for input buffer empty
+    outb(KEYBOARD_DATA_PORT, status);
+    
+    // Enable keyboard device
     outb(KEYBOARD_STATUS_PORT, 0xAE);
+    
     register_interrupt_handler(33, keyboard_interrupt_handler); // Register IRQ1 (INT 33)
 }
 
@@ -116,8 +134,8 @@ void keyboard_handler(void) {
     }
     
     // Convert scancode to ASCII
-    if (scancode < sizeof(scancode_to_ascii_azerty)) {
-        char base_char = shift_pressed ? scancode_to_ascii_azerty_shift[scancode] : scancode_to_ascii_azerty[scancode];
+    if (scancode < sizeof(scancode_to_ascii_us)) {
+        char base_char = shift_pressed ? scancode_to_ascii_us_shift[scancode] : scancode_to_ascii_us[scancode];
         
         // Apply caps lock to letters
         if (caps_lock && base_char >= 'a' && base_char <= 'z') {
