@@ -52,17 +52,6 @@ void keyboard_init(void) {
         inb(KEYBOARD_DATA_PORT);
     }
     
-    // Enable IRQ1 in the Configuration Byte
-    outb(KEYBOARD_STATUS_PORT, 0x20); // Read Command Byte
-    while((inb(KEYBOARD_STATUS_PORT) & 1) == 0); // Wait for data
-    uint8_t status = inb(KEYBOARD_DATA_PORT);
-    status |= 0x01; // Enable IRQ1
-    status |= 0x40; // Enable translation (Scancode Set 2 -> 1)
-    
-    outb(KEYBOARD_STATUS_PORT, 0x60); // Write Command Byte
-    while(inb(KEYBOARD_STATUS_PORT) & 2); // Wait for input buffer empty
-    outb(KEYBOARD_DATA_PORT, status);
-    
     // Enable keyboard device
     outb(KEYBOARD_STATUS_PORT, 0xAE);
     
@@ -75,15 +64,7 @@ int keyboard_available(void) {
 
 // Update keyboard LEDs
 static void keyboard_update_leds(void) {
-    uint8_t leds = 0;
-    if (scroll_lock) leds |= LED_SCROLL_LOCK;
-    if (num_lock) leds |= LED_NUM_LOCK;
-    if (caps_lock) leds |= LED_CAPS_LOCK;
-    
-    // Send LED command
-    outb(KEYBOARD_DATA_PORT, 0xED);
-    while (inb(KEYBOARD_STATUS_PORT) & 0x02); // Wait for input buffer empty
-    outb(KEYBOARD_DATA_PORT, leds);
+    // LED updates disabled to prevent potential ISR hangs
 }
 
 // Interrupt handler called by ISR
