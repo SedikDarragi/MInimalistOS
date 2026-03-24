@@ -50,7 +50,7 @@ void keyboard_init(void) {
     outb(KEYBOARD_STATUS_PORT, 0xA7);
     
     // Flush output buffer
-    timeout = 1000;
+    timeout = 100000;
     while((inb(KEYBOARD_STATUS_PORT) & 1) && timeout--) {
         inb(KEYBOARD_DATA_PORT);
     }
@@ -61,7 +61,7 @@ void keyboard_init(void) {
 
     // Enable IRQ1 in the Configuration Byte (safe version with timeouts)
     outb(KEYBOARD_STATUS_PORT, 0x20); // Read Command Byte
-    timeout = 1000;
+    timeout = 100000;
     while((!(inb(KEYBOARD_STATUS_PORT) & 1)) && timeout--); // Wait for data
     
     if (timeout > 0) {
@@ -70,13 +70,20 @@ void keyboard_init(void) {
         status |= 0x40; // Enable translation (Scancode Set 2 -> 1)
         
         outb(KEYBOARD_STATUS_PORT, 0x60); // Write Command Byte
-        timeout = 1000;
+        timeout = 100000;
         while((inb(KEYBOARD_STATUS_PORT) & 2) && timeout--); // Wait for input buffer empty
         outb(KEYBOARD_DATA_PORT, status);
     }
     
     // Enable keyboard device
     outb(KEYBOARD_STATUS_PORT, 0xAE);
+    
+    // Enable keyboard scanning (Send 0xF4 to Data Port)
+    // This is critical for many keyboards to start sending interrupts
+    outb(KEYBOARD_DATA_PORT, 0xF4);
+    timeout = 100000;
+    while((!(inb(KEYBOARD_STATUS_PORT) & 1)) && timeout--); // Wait for ACK
+    if (timeout > 0) inb(KEYBOARD_DATA_PORT); // Consume ACK (0xFA)
     
     register_interrupt_handler(33, keyboard_interrupt_handler); // Register IRQ1 (INT 33)
 }
