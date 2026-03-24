@@ -1,91 +1,92 @@
-/* Interrupt Service Routines and Request Handlers */
 .section .text
-.align 4
 
-/* Extern declarations for C handlers */
+# External C handlers
 .extern fault_handler
 .extern irq_handler
 
-/* Common ISR Stub (for Exceptions) */
+# Common ISR stub (Exception Handlers)
 isr_common_stub:
-    pusha               /* Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax */
-    
-    movw %ds, %ax
-    push %eax           /* Save data segment descriptor */
-    
-    movw $0x10, %ax     /* Load kernel data segment descriptor */
-    movw %ax, %ds
-    movw %ax, %es
-    movw %ax, %fs
-    movw %ax, %gs
-    
-    push %esp           /* Push pointer to stack frame (struct regs*) */
-    call fault_handler  /* Call C handler */
-    add $4, %esp        /* Pop stack frame pointer */
-    
-    pop %eax            /* Restore original data segment descriptor */
-    movw %ax, %ds
-    movw %ax, %es
-    movw %ax, %fs
-    movw %ax, %gs
-    
-    popa                /* Pop edi,esi,ebp... */
-    add $8, %esp        /* Clean up pushed error code and ISR number */
-    iret                /* Return from interrupt */
-
-/* Common IRQ Stub (for Hardware Interrupts) */
-irq_common_stub:
     pusha
+    push %ds
+    push %es
+    push %fs
+    push %gs
     
-    movw %ds, %ax
+    mov $0x10, %ax
+    mov %ax, %ds
+    mov %ax, %es
+    mov %ax, %fs
+    mov %ax, %gs
+    
+    mov %esp, %eax
     push %eax
-    
-    movw $0x10, %ax
-    movw %ax, %ds
-    movw %ax, %es
-    movw %ax, %fs
-    movw %ax, %gs
-    
-    push %esp
-    call irq_handler
-    add $4, %esp
-    
+    call fault_handler
     pop %eax
-    movw %ax, %ds
-    movw %ax, %es
-    movw %ax, %fs
-    movw %ax, %gs
     
+    pop %gs
+    pop %fs
+    pop %es
+    pop %ds
     popa
-    add $8, %esp
+    add $8, %esp  # Cleans up error code and ISR number
     iret
 
-/* Macros to define ISRs */
+# Common IRQ stub (Hardware Interrupts)
+irq_common_stub:
+    pusha
+    push %ds
+    push %es
+    push %fs
+    push %gs
+    
+    mov $0x10, %ax
+    mov %ax, %ds
+    mov %ax, %es
+    mov %ax, %fs
+    mov %ax, %gs
+    
+    mov %esp, %eax
+    push %eax
+    call irq_handler
+    pop %eax
+    
+    pop %gs
+    pop %fs
+    pop %es
+    pop %ds
+    popa
+    add $8, %esp  # Cleans up error code and ISR number
+    iret
+
+# Macros for exception stubs
 .macro ISR_NOERRCODE num
-    .global isr\num
-    isr\num:
-        push $0         /* Push dummy error code */
-        push $\num      /* Push interrupt number */
-        jmp isr_common_stub
+.global isr\num
+isr\num:
+    cli
+    push $0
+    push $\num
+    jmp isr_common_stub
 .endm
 
 .macro ISR_ERRCODE num
-    .global isr\num
-    isr\num:
-        /* Error code is already pushed by CPU */
-        push $\num
-        jmp isr_common_stub
+.global isr\num
+isr\num:
+    cli
+    push $\num
+    jmp isr_common_stub
 .endm
 
-.macro IRQ num, idt_num
-    .global irq\num
-    irq\num:
-        push $0
-        push $\idt_num
-        jmp irq_common_stub
+# Macros for IRQ stubs
+.macro IRQ num, map_num
+.global irq\num
+irq\num:
+    cli
+    push $0
+    push $\map_num
+    jmp irq_common_stub
 .endm
 
-/* Define Exception Handlers (0-31) */
+# Define Exception Handlers (0-31)
 ISR_NOERRCODE 0
 ISR_NOERRCODE 1
 ISR_NOERRCODE 2
@@ -119,20 +120,20 @@ ISR_NOERRCODE 29
 ISR_NOERRCODE 30
 ISR_NOERRCODE 31
 
-/* Define IRQ Handlers (32-47) */
-IRQ 0, 32
-IRQ 1, 33
-IRQ 2, 34
-IRQ 3, 35
-IRQ 4, 36
-IRQ 5, 37
-IRQ 6, 38
-IRQ 7, 39
-IRQ 8, 40
-IRQ 9, 41
+# Define IRQ Handlers (0-15 mapped to 32-47)
+IRQ 0,  32  # Timer
+IRQ 1,  33  # Keyboard
+IRQ 2,  34
+IRQ 3,  35
+IRQ 4,  36
+IRQ 5,  37
+IRQ 6,  38
+IRQ 7,  39
+IRQ 8,  40
+IRQ 9,  41
 IRQ 10, 42
 IRQ 11, 43
-IRQ 12, 44
+IRQ 12, 44  # Mouse
 IRQ 13, 45
 IRQ 14, 46
 IRQ 15, 47
