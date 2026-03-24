@@ -43,13 +43,36 @@ static void keyboard_interrupt_handler(struct regs* r) {
 }
 
 void keyboard_init(void) {
+    int timeout;
+
     // Disable devices
     outb(KEYBOARD_STATUS_PORT, 0xAD);
     outb(KEYBOARD_STATUS_PORT, 0xA7);
     
     // Flush output buffer
-    while(inb(KEYBOARD_STATUS_PORT) & 1) {
+    timeout = 1000;
+    while((inb(KEYBOARD_STATUS_PORT) & 1) && timeout--) {
         inb(KEYBOARD_DATA_PORT);
+    }
+
+    // Initialize buffer
+    kb_write_ptr = 0;
+    kb_read_ptr = 0;
+
+    // Enable IRQ1 in the Configuration Byte (safe version with timeouts)
+    outb(KEYBOARD_STATUS_PORT, 0x20); // Read Command Byte
+    timeout = 1000;
+    while((!(inb(KEYBOARD_STATUS_PORT) & 1)) && timeout--); // Wait for data
+    
+    if (timeout > 0) {
+        uint8_t status = inb(KEYBOARD_DATA_PORT);
+        status |= 0x01; // Enable IRQ1
+        status |= 0x40; // Enable translation (Scancode Set 2 -> 1)
+        
+        outb(KEYBOARD_STATUS_PORT, 0x60); // Write Command Byte
+        timeout = 1000;
+        while((inb(KEYBOARD_STATUS_PORT) & 2) && timeout--); // Wait for input buffer empty
+        outb(KEYBOARD_DATA_PORT, status);
     }
     
     // Enable keyboard device
