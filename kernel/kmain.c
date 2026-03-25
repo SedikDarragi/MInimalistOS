@@ -110,16 +110,15 @@ void kmain(void) {
     vga_print("Timer: OK\n");
     vga_print("System ready!\n");
     
-    // Prepare the shell state first
-    shell_init();
-
-    // Clear screen and show fresh prompt
+    // Initialize VGA with a known good color and clear
+    vga_init();
     vga_clear();
     
-    // Enable interrupts to allow keyboard input
-    __asm__ volatile("sti");
+    // Prepare the shell state (welcome message will now be visible)
+    shell_init();
     
-    // Initialize and run the shell
+    // Enable interrupts and enter the shell
+    __asm__ volatile("sti");
     shell_run();
 
     // Simple kernel loop

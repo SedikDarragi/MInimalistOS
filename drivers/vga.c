@@ -44,8 +44,7 @@ void vga_clear(void) {
 }
 
 void vga_set_color(vga_color_t fg, vga_color_t bg) {
-    (void)bg; // Suppress unused parameter warning
-    current_color = fg;
+    current_color = (uint8_t)((bg << 4) | (fg & 0x0F));
 }
 
 void vga_putchar(char c) {
