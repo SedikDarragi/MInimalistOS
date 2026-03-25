@@ -110,16 +110,16 @@ void kmain(void) {
     vga_print("Timer: OK\n");
     vga_print("System ready!\n");
     
-    // Clear screen to make shell visible
+    // Prepare the shell state first
+    shell_init();
+
+    // Clear screen and show fresh prompt
     vga_clear();
-    vga_print("Shell initialized. Waiting for input...\n");
     
     // Enable interrupts to allow keyboard input
     __asm__ volatile("sti");
     
     // Initialize and run the shell
-    serial_info("Entering shell...");
-    shell_init();
     shell_run();
 
     // Simple kernel loop
