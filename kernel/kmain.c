@@ -108,12 +108,10 @@ void kmain(void) {
     
     vga_print("Process management: OK\n");
     vga_print("Timer: OK\n");
-    vga_print("System ready!\n");
-    
-    // Fresh start for the UI
-    vga_init();
-    
-    // Prepare the shell state and print welcome message
+
+    vga_print("Starting Shell...\n");
+
+    // Prepare the shell state
     shell_init();
     
     // Enable interrupts and enter the shell
