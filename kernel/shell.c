@@ -91,10 +91,7 @@ void shell_run(void) {
             c = keyboard_getchar();
             if (c == 0) c = shell_serial_getchar(); // Also check serial input
             
-            if (c == 0) {
-                __asm__ volatile("hlt"); // Wait for interrupt to save CPU
-                continue;
-            }
+            if (c == 0) continue;
             
             if (c == '\n') {
                 shell_print("\n");
