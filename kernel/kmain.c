@@ -110,11 +110,10 @@ void kmain(void) {
     vga_print("Timer: OK\n");
     vga_print("System ready!\n");
     
-    // Initialize VGA with a known good color and clear
+    // Fresh start for the UI
     vga_init();
-    vga_clear();
     
-    // Prepare the shell state (welcome message will now be visible)
+    // Prepare the shell state and print welcome message
     shell_init();
     
     // Enable interrupts and enter the shell
