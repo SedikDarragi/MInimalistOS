@@ -10,7 +10,7 @@
 // Current cursor position
 static int cursor_x = 0;
 static int cursor_y = 0;
-static vga_color_t current_color = VGA_COLOR_LIGHT_GREY;
+static uint8_t current_color = 0x07; // Light Grey on Black
 
 // Update hardware cursor position
 static void vga_update_cursor(void) {
@@ -28,8 +28,8 @@ static inline void vga_putchar_at(char c, uint8_t color, int x, int y) {
 }
 
 void vga_init(void) {
-    vga_clear();
     vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    vga_clear();
 }
 
 void vga_clear(void) {
