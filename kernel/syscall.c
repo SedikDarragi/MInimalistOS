@@ -84,8 +84,8 @@ static uint32_t sys_network_send_wrapper(uint32_t dst_ip, uint32_t type, uint32_
 }
 
 static uint32_t sys_network_receive_wrapper(uint32_t packet, uint32_t size, uint32_t unused3, uint32_t unused4) {
-    (void)size; (void)unused3; (void)unused4;
-    return sys_network_receive((void*)packet);
+    (void)unused3; (void)unused4;
+    return sys_network_receive((void*)packet, size);
 }
 
 static uint32_t sys_device_open_wrapper(uint32_t name, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
@@ -159,8 +159,8 @@ static uint32_t sys_dump_logs_wrapper(uint32_t unused1, uint32_t unused2, uint32
 }
 
 static uint32_t sys_power_state_wrapper(uint32_t state, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
-    (void)unused2; (void)unused3; (void)unused4;
-    return sys_power_state(state);
+    (void)state; (void)unused2; (void)unused3; (void)unused4;
+    return sys_power_state();
 }
 
 static uint32_t sys_get_battery_info_wrapper(uint32_t buffer, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
@@ -227,7 +227,7 @@ void syscall_init(void) {
 }
 
 // User-level system call interface
-uint32_t syscall(uint32_t num, uint32_t arg1, uint32_t arg2, uint32_t arg3) {
+int syscall(uint32_t num, uint32_t arg1, uint32_t arg2, uint32_t arg3) {
     uint32_t result;
     
     asm volatile (
@@ -353,8 +353,7 @@ uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags) {
     return 0;
 }
 
-uint32_t sys_power_state(uint32_t state) {
-    (void)state;
+uint32_t sys_power_state(void) {
     return SYS_SUCCESS;
 }
 
@@ -372,8 +371,8 @@ uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint1
     return network_send_packet(dst_ip, type, data, length);
 }
 
-uint32_t sys_network_receive(void* packet) {
-    return network_receive_packet((network_packet_t*)packet);
+uint32_t sys_network_receive(void* packet, uint32_t size) {
+    return network_receive_packet((network_packet_t*)packet); // Size ignored in current stub
 }
 
 uint32_t sys_device_open(const char* name) {
