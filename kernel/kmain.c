@@ -109,6 +109,9 @@ void kmain(void) {
     vga_print("Process management: OK\n");
     vga_print("Timer: OK\n");
 
+    // Clear the screen to provide a clean workspace for the shell
+    vga_clear();
+
     vga_print("Starting Shell...\n");
 
     // Prepare the shell state
