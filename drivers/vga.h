@@ -30,6 +30,7 @@ typedef enum {
 void vga_init(void);
 void vga_clear(void);
 void vga_set_color(vga_color_t fg, vga_color_t bg);
+void vga_enable_cursor(uint8_t cursor_start, uint8_t cursor_end);
 void vga_putchar(char c);
 void vga_print(const char* str);
 void vga_print_at(const char* str, int x, int y);
