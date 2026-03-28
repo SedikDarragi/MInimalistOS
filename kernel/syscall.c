@@ -84,7 +84,7 @@ static uint32_t sys_network_send_wrapper(uint32_t dst_ip, uint32_t type, uint32_
 }
 
 static uint32_t sys_network_receive_wrapper(uint32_t packet, uint32_t size, uint32_t unused3, uint32_t unused4) {
-    (void)unused3; (void)unused4;
+    (void)size; (void)unused3; (void)unused4;
     return sys_network_receive((void*)packet);
 }
 
