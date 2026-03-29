@@ -132,7 +132,7 @@ int program_load(const char* filename, program_info_t* prog_info) {
     // Read ELF header first to get file size
     elf32_header_t header;
     fs_seek(fd, 0);
-    if (fs_read(fd, &header, sizeof(header)) != sizeof(header)) {
+    if ((uint32_t)fs_read(fd, &header, sizeof(header)) != (uint32_t)sizeof(header)) {
         fs_close(fd);
         log_info("Failed to read ELF header");
         return -1;
