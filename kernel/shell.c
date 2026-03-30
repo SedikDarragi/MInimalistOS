@@ -101,7 +101,9 @@ void shell_run(void) {
                 if (buffer_pos > 0) {
                     buffer_pos--;
                     input_buffer[buffer_pos] = '\0';
-                    shell_print("\b \b"); // Visual backspace
+                    vga_putchar('\b');
+                    vga_putchar(' ');
+                    vga_putchar('\b');
                 }
             } else if (buffer_pos < SHELL_BUFFER_SIZE - 1) {
                 input_buffer[buffer_pos++] = c;
