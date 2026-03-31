@@ -4,15 +4,12 @@
 
 #include "../kernel/io.h"
 
-// VGA memory address
 #define VGA_MEMORY 0xB8000
 
-// Current cursor position
 static int cursor_x = 0;
 static int cursor_y = 0;
-static uint8_t current_color = 0x07; // Light Grey on Black
+static uint8_t current_color = 0x07;
 
-// Update hardware cursor position
 static void vga_update_cursor(void) {
     uint16_t pos = cursor_y * VGA_WIDTH + cursor_x;
     outb(0x3D4, 0x0F);
@@ -21,7 +18,6 @@ static void vga_update_cursor(void) {
     outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
 }
 
-// Helper function to write to VGA memory
 static inline void vga_putchar_at(char c, uint8_t color, int x, int y) {
     uint16_t* vga = (uint16_t*)VGA_MEMORY;
     vga[y * VGA_WIDTH + x] = (uint16_t)c | (uint16_t)color << 8;
@@ -97,7 +93,6 @@ void vga_print_at(const char* str, int x, int y) {
 }
 
 void vga_scroll(void) {
-    // Move everything up one line
     uint16_t* vga = (uint16_t*)VGA_MEMORY;
     for (int y = 0; y < VGA_HEIGHT - 1; y++) {
         for (int x = 0; x < VGA_WIDTH; x++) {
@@ -105,7 +100,6 @@ void vga_scroll(void) {
         }
     }
     
-    // Clear the last line
     for (int x = 0; x < VGA_WIDTH; x++) {
         vga_putchar_at(' ', current_color, x, VGA_HEIGHT - 1);
     }
