@@ -3,15 +3,12 @@
 #include "../include/string.h"
 #include "io.h"
 
-// Global shell state definitions
 shell_state_t shell_state;
 command_history_t history;
 
-// External dependency for keyboard input (assuming standard driver naming)
 extern char keyboard_getchar(void);
 extern void serial_putchar(uint16_t com, char c);
 
-// Serial I/O helpers
 static void serial_print(const char* str) {
     while (*str) {
         if (*str == '\n') serial_putchar(0x3F8, '\r');
@@ -20,7 +17,7 @@ static void serial_print(const char* str) {
 }
 
 static char shell_serial_getchar(void) {
-    if (inb(0x3F8 + 5) & 1) return inb(0x3F8); // Check data ready
+    if (inb(0x3F8 + 5) & 1) return inb(0x3F8);
     return 0;
 }
 
@@ -30,11 +27,9 @@ static void shell_print(const char* str) {
 }
 
 void shell_init(void) {
-    // Initialize shell state
     memset(&shell_state, 0, sizeof(shell_state_t));
     memset(&history, 0, sizeof(command_history_t));
     
-    // Set default values
     strncpy(shell_state.username, "root", sizeof(shell_state.username) - 1);
     shell_state.username[sizeof(shell_state.username) - 1] = '\0';
     strncpy(shell_state.hostname, "minos", sizeof(shell_state.hostname) - 1);
@@ -42,7 +37,6 @@ void shell_init(void) {
     strncpy(shell_state.cwd, "/", sizeof(shell_state.cwd) - 1);
     shell_state.cwd[sizeof(shell_state.cwd) - 1] = '\0';
     
-    // Print welcome message
     shell_print("\n");
     shell_print("Minimalist OS Shell v0.1\n");
     shell_print("Type 'help' for a list of commands.\n");
@@ -71,7 +65,6 @@ void shell_run(void) {
     char c;
     
     while (1) {
-        // Print prompt
         vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
         shell_print(shell_state.username);
         shell_print("@");
@@ -86,24 +79,21 @@ void shell_run(void) {
         buffer_pos = 0;
         memset(input_buffer, 0, SHELL_BUFFER_SIZE);
         
-        // Input loop
         while (1) {
             c = keyboard_getchar();
-            if (c == 0) c = shell_serial_getchar(); // Also check serial input
+            if (c == 0) c = shell_serial_getchar();
             
             if (c == 0) continue;
             
             if (c == '\n') {
                 shell_print("\n");
                 shell_execute_command(input_buffer);
-                break; // Break input loop to reprint prompt
+                break;
             } else if (c == '\b') {
                 if (buffer_pos > 0) {
                     buffer_pos--;
                     input_buffer[buffer_pos] = '\0';
-                    vga_putchar('\b');
-                    vga_putchar(' ');
-                    vga_putchar('\b');
+                    shell_print("\b \b");
                 }
             } else if (buffer_pos < SHELL_BUFFER_SIZE - 1) {
                 input_buffer[buffer_pos++] = c;
