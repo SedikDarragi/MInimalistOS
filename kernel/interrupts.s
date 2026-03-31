@@ -1,10 +1,8 @@
 .section .text
 
-# External C handlers
 .extern fault_handler
 .extern irq_handler
 
-# Common ISR stub (Exception Handlers)
 isr_common_stub:
     pusha
     push %ds
@@ -28,10 +26,9 @@ isr_common_stub:
     pop %es
     pop %ds
     popa
-    add $8, %esp  # Cleans up error code and ISR number
+    add $8, %esp
     iret
 
-# Common IRQ stub (Hardware Interrupts)
 irq_common_stub:
     pusha
     push %ds
@@ -55,10 +52,9 @@ irq_common_stub:
     pop %es
     pop %ds
     popa
-    add $8, %esp  # Cleans up error code and ISR number
+    add $8, %esp
     iret
 
-# Macros for exception stubs
 .macro ISR_NOERRCODE num
 .global isr\num
 isr\num:
@@ -76,7 +72,6 @@ isr\num:
     jmp isr_common_stub
 .endm
 
-# Macros for IRQ stubs
 .macro IRQ num, map_num
 .global irq\num
 irq\num:
@@ -86,7 +81,6 @@ irq\num:
     jmp irq_common_stub
 .endm
 
-# Define Exception Handlers (0-31)
 ISR_NOERRCODE 0
 ISR_NOERRCODE 1
 ISR_NOERRCODE 2
@@ -120,9 +114,8 @@ ISR_NOERRCODE 29
 ISR_NOERRCODE 30
 ISR_NOERRCODE 31
 
-# Define IRQ Handlers (0-15 mapped to 32-47)
-IRQ 0,  32  # Timer
-IRQ 1,  33  # Keyboard
+IRQ 0,  32
+IRQ 1,  33
 IRQ 2,  34
 IRQ 3,  35
 IRQ 4,  36
@@ -133,7 +126,7 @@ IRQ 8,  40
 IRQ 9,  41
 IRQ 10, 42
 IRQ 11, 43
-IRQ 12, 44  # Mouse
+IRQ 12, 44
 IRQ 13, 45
 IRQ 14, 46
 IRQ 15, 47
