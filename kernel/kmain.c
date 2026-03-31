@@ -20,22 +20,18 @@ extern void shell_run(void);
 extern void keyboard_init(void);
 
 void kmain(void) {
-    /* Initialize output first for debugging */
     log_init();
     log_info("Kernel started");
 
-    /* Initialize critical low-level systems first */
-    idt_init();      /* Interrupt Descriptor Table */
+    idt_init();
     log_info("IDT initialized");
-    memory_init();   /* Physical Memory Manager */
+    memory_init();
     log_info("Memory initialized");
-    paging_init();   /* Virtual Memory Manager */
+    paging_init();
     log_info("Paging initialized");
     
-    /* Initialize VGA display to ensure correct colors */
     vga_init();
     
-    // Initialize core systems
     vga_print("Initializing serial port...\n");
     if (serial_init()) {
         vga_print("Serial port: OK\n");
@@ -44,36 +40,15 @@ void kmain(void) {
         vga_print("Serial port: FAILED\n");
     }
 
-    /* --- Temporarily disable networking to isolate potential crash --- */
     vga_print("Networking: SKIPPED\n");
-    // // Temporary: dump PCI bus 0 so we can see NIC vendor/device IDs
-    // pci_dump_bus0();
-    // 
-    // vga_print("Initializing network core...\n");
-    // net_init();
-    // 
-    // vga_print("Initializing NE2000 NIC (skeleton)...\n");
-    // if (net_ne2k_init() == 0) {
-    //     vga_print("NE2000: registered as eth0 (skeleton)\n");
-    // } else {
-    //     vga_print("NE2000: FAILED to register\n");
-    // }
     
     vga_print("Initializing process management...\n");
     process_init();
     serial_info("Process management initialized");
     
     vga_print("Initializing timer...\n");
-    // timer_init(); // Temporarily disabled to prevent scheduler crashes
     
     vga_print("Initializing filesystem...\n");
-    // vfs_init();  // Not included in simple kernel build
-    // if (ramfs_mount() >= 0) {
-    //     vga_print("RAM filesystem: OK\n");
-    //     log_info("RAM filesystem mounted at /ram");
-    // } else {
-    //     vga_print("RAM filesystem: FAILED\n");
-    // }
     vga_print("Filesystem: SKIPPED (simple build)\n");
     
     vga_print("Initializing system call interface...\n");
@@ -81,16 +56,11 @@ void kmain(void) {
     serial_info("Syscalls initialized");
     
     vga_print("Initializing keyboard...\n");
-    // Use standard keyboard driver for shell compatibility
     keyboard_init();
     vga_print("Keyboard: OK\n");
-    enable_irq(1); // Enable keyboard interrupts (IRQ 1)
-    
-    // Disable intl keyboard to prevent IRQ conflicts
-    // keyboard_intl_init();
+    enable_irq(1);
     
     vga_print("Initializing power management...\n");
-    // power_init(); // Keep disabled
     serial_info("Power management initialized");
     
     vga_print("Initializing program loader...\n");
@@ -103,34 +73,22 @@ void kmain(void) {
     
     vga_print("Core systems initialized successfully\n");
     
-    // Create a test process
-    // process_create("test_process", NULL);
-    
     vga_print("Process management: OK\n");
     vga_print("Timer: OK\n");
 
-    // Clear the screen to provide a clean workspace for the shell
     vga_clear();
 
     vga_print("Starting Shell...\n");
 
-    // Prepare the shell state
     shell_init();
     
-    // Enable interrupts and enter the shell
     __asm__ volatile("sti");
     shell_run();
 
-    // Simple kernel loop
     while (1) {
-        // Kernel idle loop
         __asm__ volatile("hlt");
     }
 }
 
-/* --- Stubs to fix linker errors --- */
-// These satisfy references from process.c and syscall.c if drivers are missing
-
-// Filesystem stubs
 void vfs_init(void) {}
 int ramfs_mount(void) { return -1; }
