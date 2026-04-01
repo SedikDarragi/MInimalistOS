@@ -1128,7 +1128,7 @@ LOAD kernel/syscall.o
 LOAD kernel/usermode.o
 OUTPUT(kernel.elf elf32-i386)
 
-.debug_info     0x00000000     0x6e11
+.debug_info     0x00000000     0x6e0e
  .debug_info    0x00000000      0x21a kernel/kmain.o
  .debug_info    0x0000021a      0x3b3 drivers/vga.o
  .debug_info    0x000005cd      0x537 drivers/keyboard.o
@@ -1146,7 +1146,7 @@ OUTPUT(kernel.elf elf32-i386)
  .debug_info    0x000044c1      0x59f kernel/security.o
  .debug_info    0x00004a60      0x44b kernel/shell.o
  .debug_info    0x00004eab      0x531 kernel/string.o
- .debug_info    0x000053dc     0x1a35 kernel/syscall.o
+ .debug_info    0x000053dc     0x1a32 kernel/syscall.o
 
 .debug_abbrev   0x00000000     0x1ef6
  .debug_abbrev  0x00000000      0x128 kernel/kmain.o
@@ -1260,25 +1260,25 @@ OUTPUT(kernel.elf elf32-i386)
  .debug_macro   0x000018a1       0x3a kernel/syscall.o
  .debug_macro   0x000018db       0x52 kernel/syscall.o
 
-.debug_line     0x00000000     0x2eed
- .debug_line    0x00000000      0x167 kernel/kmain.o
- .debug_line    0x00000167      0x223 drivers/vga.o
- .debug_line    0x0000038a      0x2de drivers/keyboard.o
- .debug_line    0x00000668      0x20f drivers/serial.o
- .debug_line    0x00000877      0x352 fs/filesystem_enhanced.o
- .debug_line    0x00000bc9       0xc5 kernel/context.o
- .debug_line    0x00000c8e      0x27b kernel/device.o
- .debug_line    0x00000f09      0x18a kernel/idt.o
- .debug_line    0x00001093      0x381 kernel/log.o
- .debug_line    0x00001414      0x27f kernel/memory.o
- .debug_line    0x00001693      0x3c6 kernel/monitor.o
- .debug_line    0x00001a59      0x147 kernel/network.o
- .debug_line    0x00001ba0      0x2f2 kernel/process.o
- .debug_line    0x00001e92      0x310 kernel/program_loader.o
- .debug_line    0x000021a2      0x3fc kernel/security.o
- .debug_line    0x0000259e      0x1c6 kernel/shell.o
- .debug_line    0x00002764      0x2e5 kernel/string.o
- .debug_line    0x00002a49      0x4a4 kernel/syscall.o
+.debug_line     0x00000000     0x2eeb
+ .debug_line    0x00000000      0x165 kernel/kmain.o
+ .debug_line    0x00000165      0x223 drivers/vga.o
+ .debug_line    0x00000388      0x2de drivers/keyboard.o
+ .debug_line    0x00000666      0x20f drivers/serial.o
+ .debug_line    0x00000875      0x352 fs/filesystem_enhanced.o
+ .debug_line    0x00000bc7       0xc5 kernel/context.o
+ .debug_line    0x00000c8c      0x27b kernel/device.o
+ .debug_line    0x00000f07      0x18a kernel/idt.o
+ .debug_line    0x00001091      0x381 kernel/log.o
+ .debug_line    0x00001412      0x27f kernel/memory.o
+ .debug_line    0x00001691      0x3c6 kernel/monitor.o
+ .debug_line    0x00001a57      0x147 kernel/network.o
+ .debug_line    0x00001b9e      0x2f2 kernel/process.o
+ .debug_line    0x00001e90      0x310 kernel/program_loader.o
+ .debug_line    0x000021a0      0x3fc kernel/security.o
+ .debug_line    0x0000259c      0x1c6 kernel/shell.o
+ .debug_line    0x00002762      0x2e5 kernel/string.o
+ .debug_line    0x00002a47      0x4a4 kernel/syscall.o
 
 .debug_str      0x00000000     0x5af6
  .debug_str     0x00000000     0x5af6 kernel/kmain.o
