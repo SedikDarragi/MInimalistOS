@@ -23,7 +23,15 @@ static inline void vga_putchar_at(char c, uint8_t color, int x, int y) {
     vga[y * VGA_WIDTH + x] = (uint16_t)c | (uint16_t)color << 8;
 }
 
+void vga_enable_cursor(uint8_t cursor_start, uint8_t cursor_end) {
+    outb(0x3D4, 0x0A);
+    outb(0x3D5, (inb(0x3D5) & 0xC0) | cursor_start);
+    outb(0x3D4, 0x0B);
+    outb(0x3D5, (inb(0x3D5) & 0xE0) | cursor_end);
+}
+
 void vga_init(void) {
+    vga_enable_cursor(14, 15);
     vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
     vga_clear();
 }
