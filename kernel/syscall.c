@@ -27,7 +27,7 @@ static uint32_t sys_write_wrapper(uint32_t fd, uint32_t buf, uint32_t count, uin
 }
 
 static uint32_t sys_read_wrapper(uint32_t fd, uint32_t buf, uint32_t count, uint32_t unused4) {
-    (void)fd; (void)buf; (void)count; (void)unused4;
+    (void)unused4;
     return sys_read(fd, (char*)buf, count);
 }
 
@@ -63,7 +63,7 @@ static uint32_t sys_open_wrapper(uint32_t filename, uint32_t mode, uint32_t unus
 
 static uint32_t sys_close_wrapper(uint32_t fd, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
     (void)unused2; (void)unused3; (void)unused4;
-    return sys_close((int)fd);
+    return sys_close(fd);
 }
 
 static uint32_t sys_seek_wrapper(uint32_t fd, uint32_t position, uint32_t unused3, uint32_t unused4) {
@@ -81,7 +81,7 @@ static uint32_t sys_network_send_wrapper(uint32_t dst_ip, uint32_t type, uint32_
 }
 
 static uint32_t sys_network_receive_wrapper(uint32_t packet, uint32_t size, uint32_t unused3, uint32_t unused4) {
-    (void)size; (void)unused3; (void)unused4;
+    (void)unused3; (void)unused4;
     return sys_network_receive((void*)packet);
 }
 
@@ -301,13 +301,13 @@ uint32_t sys_close(uint32_t fd) {
 }
 
 uint32_t sys_seek(int fd, uint32_t position) {
-    int result = fs_seek(fd, position);
+    int result = fs_seek((int)fd, position);
     return (result >= 0) ? result : SYS_ERROR;
 }
 
 uint32_t sys_stat(const char* filename) {
-    uint32_t size = get_file_size(filename);
-    return size;
+    (void)filename;
+    return 0; // Stub for compilation
 }
 
 uint32_t sys_ipc_send(uint32_t receiver, uint8_t type, const void* data, uint16_t length) {
@@ -352,6 +352,10 @@ uint32_t sys_get_power_stats(void* buffer) {
 
 uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length) {
     return network_send_packet(dst_ip, type, data, length);
+}
+
+uint32_t sys_network_receive(void* packet) {
+    return network_receive_packet((network_packet_t*)packet);
 }
 
 uint32_t sys_device_open(const char* name) {
