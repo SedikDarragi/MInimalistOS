@@ -11,14 +11,11 @@
 #include "string.h"
 #include "io.h"
 
-// External declaration for keyboard driver
 extern char keyboard_getchar(void);
 extern void serial_putchar(uint16_t com, char c);
 
-// System call handler table
 typedef uint32_t (*syscall_func_t)(uint32_t, uint32_t, uint32_t, uint32_t);
 
-// Wrapper functions with correct signature
 static uint32_t sys_exit_wrapper(uint32_t status, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
     (void)unused2; (void)unused3; (void)unused4;
     return sys_exit(status);
@@ -212,21 +209,17 @@ void syscall_interrupt_handler(struct regs* r) {
     uint32_t syscall_num = r->eax;
     
     if (syscall_num < sizeof(syscall_table) / sizeof(syscall_table[0]) && syscall_table[syscall_num]) {
-        // Call the appropriate system call
         uint32_t result = syscall_table[syscall_num](r->ebx, r->ecx, r->edx, r->esi);
-        r->eax = result;  // Return value in EAX
+        r->eax = result;
     } else {
-        r->eax = SYS_ERROR;  // Invalid system call
+        r->eax = SYS_ERROR;
     }
 }
 
-// Initialize system calls
 void syscall_init(void) {
-    // Register system call interrupt handler (int 0x80)
     register_interrupt_handler(0x80, syscall_interrupt_handler);
 }
 
-// User-level system call interface
 uint32_t syscall(uint32_t num, uint32_t arg1, uint32_t arg2, uint32_t arg3) {
     uint32_t result;
     
@@ -240,16 +233,14 @@ uint32_t syscall(uint32_t num, uint32_t arg1, uint32_t arg2, uint32_t arg3) {
     return result;
 }
 
-// System call implementations
 uint32_t sys_exit(uint32_t status) {
     process_exit(status);
     return SYS_SUCCESS;
 }
 
 uint32_t sys_write(uint32_t fd, const char* buf, uint32_t count) {
-    if (fd == 1) {  // stdout
+    if (fd == 1) {
         vga_print(buf);
-        // Mirror to serial port (COM1) using the driver function with timeout
         for (uint32_t i = 0; i < count; i++) {
             serial_putchar(0x3F8, buf[i]);
         }
@@ -259,12 +250,10 @@ uint32_t sys_write(uint32_t fd, const char* buf, uint32_t count) {
 }
 
 uint32_t sys_read(uint32_t fd, char* buf, uint32_t count) {
-    if (fd == 0) { // stdin
+    if (fd == 0) {
         for (uint32_t i = 0; i < count; i++) {
             char c = 0;
-            // Wait for keyboard input (blocking)
             while ((c = keyboard_getchar()) == 0) {
-                // Also check serial port for input (optional fallback)
                 if ((inb(0x3F8 + 5) & 1)) {
                     c = inb(0x3F8);
                     break;
@@ -278,19 +267,16 @@ uint32_t sys_read(uint32_t fd, char* buf, uint32_t count) {
 }
 
 uint32_t sys_fork(void) {
-    // For now, just return current PID (simplified)
     return sys_getpid();
 }
 
 uint32_t sys_wait(uint32_t pid) {
-    (void)pid; // Suppress unused parameter warning
-    // For now, just return success
+    (void)pid;
     return SYS_SUCCESS;
 }
 
 uint32_t sys_exec(const char* path) {
-    (void)path; // Suppress unused parameter warning
-    // For now, just return error
+    (void)path;
     return SYS_ERROR;
 }
 
@@ -300,7 +286,6 @@ uint32_t sys_getpid(void) {
 }
 
 uint32_t sys_yield(void) {
-    // Call scheduler to switch to another process
     schedule();
     return SYS_SUCCESS;
 }
@@ -327,20 +312,17 @@ uint32_t sys_stat(const char* filename) {
 
 uint32_t sys_ipc_send(uint32_t receiver, uint8_t type, const void* data, uint16_t length) {
     (void)receiver; (void)type; (void)data; (void)length;
-    // Direct implementation for now
     return 0;
 }
 
 uint32_t sys_ipc_receive(uint32_t sender, void* msg) {
     (void)sender; (void)msg;
-    // Direct implementation for now
     return 0;
 }
 
 uint32_t sys_vm_alloc(uint32_t size, uint32_t flags) {
     (void)size; (void)flags;
-    // Direct implementation for now
-    return 0x10000000;  // Return fixed address
+    return 0x10000000;
 }
 
 uint32_t sys_vm_free(uint32_t addr) {
@@ -353,8 +335,7 @@ uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags) {
     return 0;
 }
 
-uint32_t sys_power_state(uint32_t state) {
-    (void)state;
+uint32_t sys_power_state(void) {
     return SYS_SUCCESS;
 }
 
@@ -370,10 +351,6 @@ uint32_t sys_get_power_stats(void* buffer) {
 
 uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length) {
     return network_send_packet(dst_ip, type, data, length);
-}
-
-uint32_t sys_network_receive(void* packet) {
-    return network_receive_packet((network_packet_t*)packet);
 }
 
 uint32_t sys_device_open(const char* name) {
@@ -419,8 +396,6 @@ uint32_t sys_chmod(const char* path, uint32_t mode) {
 }
 
 uint32_t sys_chown(const char* path, uint32_t uid, uint32_t gid) {
-    // Preserve permissions by reading them first, or use a default.
-    // For now, using a default set of permissions.
     return security_set_permission(path, uid, gid, PERM_READ | PERM_WRITE | PERM_EXECUTE);
 }
 
