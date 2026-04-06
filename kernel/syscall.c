@@ -335,7 +335,8 @@ uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags) {
     return 0;
 }
 
-uint32_t sys_power_state(void) {
+uint32_t sys_power_state(uint32_t state) {
+    (void)state; // Mark argument as unused if its logic is not yet implemented
     return SYS_SUCCESS;
 }
 
