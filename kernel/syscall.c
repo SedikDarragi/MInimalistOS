@@ -81,7 +81,7 @@ static uint32_t sys_network_send_wrapper(uint32_t dst_ip, uint32_t type, uint32_
 }
 
 static uint32_t sys_network_receive_wrapper(uint32_t packet, uint32_t size, uint32_t unused3, uint32_t unused4) {
-    (void)size; (void)unused3; (void)unused4; // 'size' is passed to wrapper but not to the sys_network_receive implementation
+    (void)size; (void)unused3; (void)unused4;
     return sys_network_receive((void*)packet);
 }
 
@@ -336,7 +336,7 @@ uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags) {
 }
 
 uint32_t sys_power_state(uint32_t state) {
-    (void)state; // Mark as unused if the implementation doesn't use it yet
+    (void)state;
     return SYS_SUCCESS;
 }
 
