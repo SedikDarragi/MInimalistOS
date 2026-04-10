@@ -81,8 +81,8 @@ static uint32_t sys_network_send_wrapper(uint32_t dst_ip, uint32_t type, uint32_
 }
 
 static uint32_t sys_network_receive_wrapper(uint32_t packet, uint32_t size, uint32_t unused3, uint32_t unused4) {
-    (void)unused3; (void)unused4;
-    return sys_network_receive((void*)packet, size);
+    (void)size; (void)unused3; (void)unused4;
+    return sys_network_receive((void*)packet);
 }
 
 static uint32_t sys_device_open_wrapper(uint32_t name, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
@@ -156,8 +156,8 @@ static uint32_t sys_dump_logs_wrapper(uint32_t unused1, uint32_t unused2, uint32
 }
 
 static uint32_t sys_power_state_wrapper(uint32_t state, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
-    (void)state; (void)unused2; (void)unused3; (void)unused4;
-    return sys_power_state();
+    (void)unused2; (void)unused3; (void)unused4;
+    return sys_power_state(state);
 }
 
 static uint32_t sys_get_battery_info_wrapper(uint32_t buffer, uint32_t unused2, uint32_t unused3, uint32_t unused4) {
@@ -335,7 +335,8 @@ uint32_t sys_vm_map(uint32_t virt_addr, uint32_t phys_addr, uint32_t flags) {
     return 0;
 }
 
-uint32_t sys_power_state(void) {
+uint32_t sys_power_state(uint32_t state) {
+    (void)state;
     return SYS_SUCCESS;
 }
 
@@ -353,8 +354,7 @@ uint32_t sys_network_send(uint32_t dst_ip, uint8_t type, const void* data, uint1
     return network_send_packet(dst_ip, type, data, length);
 }
 
-uint32_t sys_network_receive(void* buffer, uint32_t size) {
-    (void)size;
+uint32_t sys_network_receive(void* buffer) {
     return network_receive_packet((network_packet_t*)buffer);
 }
 
