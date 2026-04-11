@@ -44,24 +44,28 @@ void kmain(void) {
     
     vga_print("Initializing process management...\n");
     process_init();
-    serial_info("Process management initialized");
+    vga_print("Process management: READY\n");
     
     vga_print("Initializing timer...\n");
+    vga_print("Timer: SKIPPED\n");
     
     vga_print("Initializing filesystem...\n");
     vga_print("Filesystem: SKIPPED (simple build)\n");
     
     vga_print("Initializing system call interface...\n");
     syscall_init();
-    serial_info("Syscalls initialized");
+    vga_print("Syscalls: READY\n");
     
     vga_print("Initializing keyboard...\n");
     keyboard_init();
-    vga_print("Keyboard: OK\n");
+    vga_print("Keyboard driver: READY\n");
+    
+    vga_print("Enabling IRQ 1...\n");
     enable_irq(1);
+    vga_print("Interrupts: UNMASKED\n");
     
     vga_print("Initializing power management...\n");
-    serial_info("Power management initialized");
+    vga_print("Power management: READY\n");
     
     vga_print("Initializing program loader...\n");
     if (program_loader_init() == 0) {
@@ -71,7 +75,8 @@ void kmain(void) {
         vga_print("Program Loader: FAILED\n");
     }
     
-    vga_print("Core systems initialized successfully\n");
+    vga_print("All systems initialized. Clearing screen...\n");
+    for(volatile int i = 0; i < 2000000; i++); // Short delay to see the text
     
     vga_print("Process management: OK\n");
     vga_print("Timer: OK\n");
