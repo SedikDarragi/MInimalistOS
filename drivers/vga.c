@@ -60,9 +60,11 @@ void vga_putchar(char c) {
     } else if (c == '\b') {
         if (cursor_x > 0) {
             cursor_x--;
+            vga_putchar_at(' ', current_color, cursor_x, cursor_y);
         } else if (cursor_y > 0) {
             cursor_y--;
             cursor_x = VGA_WIDTH - 1;
+            vga_putchar_at(' ', current_color, cursor_x, cursor_y);
         }
     } else if (c == '\t') {
         cursor_x = (cursor_x + 8) & ~7;
