@@ -40,6 +40,7 @@ void shell_init(void) {
     shell_print("\n");
     shell_print("Minimalist OS Shell v0.1\n");
     shell_print("Type 'help' for a list of commands.\n");
+    shell_print("Ready.\n");
 }
 
 void shell_execute_command(const char* command) {
