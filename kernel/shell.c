@@ -65,6 +65,8 @@ void shell_run(void) {
     int buffer_pos = 0;
     char c;
     
+    shell_print("Shell loop started.\n");
+
     while (1) {
         vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
         shell_print(shell_state.username);
