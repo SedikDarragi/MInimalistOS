@@ -25,13 +25,16 @@ static inline void vga_putchar_at(char c, uint8_t color, int x, int y) {
 
 void vga_enable_cursor(uint8_t cursor_start, uint8_t cursor_end) {
     outb(0x3D4, 0x0A);
-    outb(0x3D5, (inb(0x3D5) & 0xC0) | cursor_start);
+    // Bit 5 of 0x0A is the Cursor Disable bit. We force it to 0 to enable.
+    outb(0x3D5, (0x00 & 0xC0) | (cursor_start & 0x1F));
+    
     outb(0x3D4, 0x0B);
-    outb(0x3D5, (inb(0x3D5) & 0xE0) | cursor_end);
+    outb(0x3D5, (0x00 & 0xE0) | (cursor_end & 0x1F));
 }
 
 void vga_init(void) {
-    vga_enable_cursor(14, 15);
+    // 0 to 15 creates a full block cursor; 14 to 15 is a thin underline.
+    vga_enable_cursor(0, 15);
     vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
     vga_clear();
 }
