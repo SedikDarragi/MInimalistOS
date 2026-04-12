@@ -10,7 +10,8 @@ main:
     mov ds, ax
     mov es, ax
     mov ss, ax
-    mov sp, 0x9000
+    ; Move real-mode stack below the bootloader (0x7C00) to avoid kernel overlap
+    mov sp, 0x7C00
     
     ; Save boot drive
     mov [boot_drive], dl
@@ -141,6 +142,10 @@ main:
     mov eax, cr0
     or eax, 1
     mov cr0, eax
+
+    ; Set up a proper 32-bit stack well above the kernel.
+    ; The kernel is at 0x8000; 0x90000 is in a safe, free memory area.
+    mov esp, 0x90000
     
     ; Far jump to kernel with code segment selector
     ; This will load CS and transition to protected mode
