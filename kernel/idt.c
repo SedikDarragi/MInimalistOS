@@ -2,6 +2,7 @@
 #include <stddef.h> // For memset
 #include "../include/idt.h"
 #include "io.h"
+#include "../drivers/vga.h"
 
 // PIC I/O Ports
 #define PIC1_CMD    0x20
@@ -65,8 +66,12 @@ void pic_remap(void) {
 
 // Generic C-level interrupt handler
 void fault_handler(struct regs *r) {
-    // For now, just hang on any CPU exception
-    (void)r; // Suppress unused variable warning
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_RED);
+    vga_print("\n*** CPU EXCEPTION: ");
+    char buf[16];
+    itoa(r->int_no, buf, 10);
+    vga_print(buf);
+    vga_print(" ***\n");
     asm volatile ("cli; hlt");
 }
 
@@ -78,6 +83,13 @@ void irq_handler(struct regs *r) {
     }
     outb(PIC1_CMD, 0x20);
     
+    // Debug: Print IRQ if it's not the timer (32) to avoid spamming
+    if (r->int_no != 32) {
+        vga_print("[IRQ: ");
+        char buf[16]; itoa(r->int_no, buf, 10); vga_print(buf);
+        vga_print("]");
+    }
+
     // Call the handler if it exists
     if (interrupt_handlers[r->int_no] != 0) {
         interrupt_handlers[r->int_no](r);
