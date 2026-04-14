@@ -87,10 +87,10 @@ void kmain(void) {
 
     shell_init();
     
-    vga_print("Enabling interrupts...\n");
+    vga_print("Interrupts: ENABLING...\n");
+    vga_print("Shell: LAUNCHING...\n");
+
     __asm__ volatile("sti");
-    
-    vga_print("Jumping to shell_run...\n");
     shell_run();
 
     while (1) {
