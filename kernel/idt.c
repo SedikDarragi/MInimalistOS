@@ -83,13 +83,6 @@ void irq_handler(struct regs *r) {
     }
     outb(PIC1_CMD, 0x20);
     
-    // Debug: Print IRQ if it's not the timer (32) to avoid spamming
-    if (r->int_no != 32) {
-        vga_print("[IRQ: ");
-        char buf[16]; itoa(r->int_no, buf, 10); vga_print(buf);
-        vga_print("]");
-    }
-
     // Call the handler if it exists
     if (interrupt_handlers[r->int_no] != 0) {
         interrupt_handlers[r->int_no](r);
