@@ -65,9 +65,7 @@ void shell_run(void) {
     int buffer_pos = 0;
     char c;
     
-    vga_set_color(VGA_COLOR_LIGHT_MAGENTA, VGA_COLOR_BLACK);
-    shell_print("[DEBUG] Entering shell_run main loop...\n");
-    vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+    shell_print("\n[SHELL] Ready for input.\n");
 
     while (1) {
         vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
