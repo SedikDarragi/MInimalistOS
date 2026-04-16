@@ -143,6 +143,14 @@ main:
     or eax, 1
     mov cr0, eax
 
+    ; Update all data segment registers to point to the GDT data selector (0x10)
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+
     ; Set up a proper 32-bit stack well above the kernel.
     ; The kernel is at 0x8000; 0x90000 is in a safe, free memory area.
     mov esp, 0x90000
