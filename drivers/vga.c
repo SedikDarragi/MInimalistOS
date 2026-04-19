@@ -11,11 +11,12 @@ static int cursor_y = 0;
 static uint8_t current_color = 0x07;
 
 static void vga_update_cursor(void) {
-    uint16_t pos = cursor_y * VGA_WIDTH + cursor_x;
-    outb(0x3D4, 0x0F);
-    outb(0x3D5, (uint8_t)(pos & 0xFF));
+    uint16_t pos = (uint16_t)(cursor_y * VGA_WIDTH + cursor_x);
+    
     outb(0x3D4, 0x0E);
     outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, (uint8_t)(pos & 0xFF));
 }
 
 static inline void vga_putchar_at(char c, uint8_t color, int x, int y) {
