@@ -7,12 +7,12 @@ shell_state_t shell_state;
 command_history_t history;
 
 extern char keyboard_getchar(void);
-extern void serial_putchar(uint16_t com, char c);
+extern void serial_putchar(char c);
 
 static void serial_print(const char* str) {
     while (*str) {
-        if (*str == '\n') serial_putchar(0x3F8, '\r');
-        serial_putchar(0x3F8, *str++);
+        if (*str == '\n') serial_putchar('\r');
+        serial_putchar(*str++);
     }
 }
 
@@ -65,7 +65,11 @@ void shell_run(void) {
     int buffer_pos = 0;
     char c;
     
-    shell_print("\n[SHELL] Ready for input.\n");
+    // Ensure VGA cursor is visible and updated
+    vga_set_cursor(0, 11); // Set to a fresh line below kmain output
+    
+    vga_print("\n[SHELL] Starting interactive loop...\n");
+    serial_print("[SHELL] Starting interactive loop...\n");
 
     while (1) {
         vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
