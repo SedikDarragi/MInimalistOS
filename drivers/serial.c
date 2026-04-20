@@ -47,15 +47,16 @@ int serial_init(void) {
 }
 
 // Check if transmit buffer is empty
-int serial_is_transmit_empty(uint16_t com) {
-    return inb(SERIAL_LINE_STATUS_PORT(com)) & 0x20;
+static int serial_is_transmit_empty(void) {
+    return inb(SERIAL_LINE_STATUS_PORT(SERIAL_COM1_BASE)) & 0x20;
 }
 
 // Write character to serial port
-void serial_putchar(uint16_t com, char c) {
+void serial_putchar(char c) {
     // Add timeout to prevent infinite hang if serial port is stuck
+    uint16_t com = SERIAL_COM1_BASE;
     int timeout = 100000;
-    while (serial_is_transmit_empty(com) == 0) {
+    while (serial_is_transmit_empty() == 0) {
         if (timeout-- <= 0) break;
     }
     
