@@ -7,12 +7,12 @@ shell_state_t shell_state;
 command_history_t history;
 
 extern char keyboard_getchar(void);
-extern void serial_putchar(char c);
+extern void serial_putchar(uint16_t com, char c);
 
 static void serial_print(const char* str) {
     while (*str) {
-        if (*str == '\n') serial_putchar('\r');
-        serial_putchar(*str++);
+        if (*str == '\n') serial_putchar(0x3F8, '\r');
+        serial_putchar(0x3F8, *str++);
     }
 }
 
