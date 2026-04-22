@@ -12,7 +12,7 @@
 #include "io.h"
 
 extern char keyboard_getchar(void);
-extern void serial_putchar(char c);
+extern void serial_putchar(uint16_t com, char c);
 
 typedef uint32_t (*syscall_func_t)(uint32_t, uint32_t, uint32_t, uint32_t);
 
@@ -243,7 +243,7 @@ uint32_t sys_write(uint32_t fd, const char* buf, uint32_t count) {
         vga_print(buf);
         // Note: Assuming 0x3F8 is COM1. Consider using a define.
         for (uint32_t i = 0; i < count; i++) {
-            serial_putchar(buf[i]);
+            serial_putchar(0x3F8, buf[i]);
         }
         return count;
     }
