@@ -47,7 +47,7 @@ int serial_init(void) {
 }
 
 // Check if transmit buffer is empty
-static int serial_is_transmit_empty(uint16_t com) {
+int serial_is_transmit_empty(uint16_t com) {
     return inb(SERIAL_LINE_STATUS_PORT(com)) & 0x20;
 }
 
