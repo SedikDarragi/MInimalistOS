@@ -54,7 +54,7 @@ static int serial_is_transmit_empty(uint16_t com) {
 // Write character to serial port
 void serial_putchar(uint16_t com, char c) {
     // Add timeout to prevent infinite hang if serial port is stuck
-    int timeout = 100000;
+    volatile int timeout = 100000; // Use volatile to prevent optimization
     while (serial_is_transmit_empty(com) == 0) {
         if (timeout-- <= 0) break;
     }
