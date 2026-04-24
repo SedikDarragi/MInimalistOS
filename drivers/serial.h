@@ -12,7 +12,7 @@
 // Function declarations
 int serial_init(void);
 int serial_is_transmit_empty(uint16_t com);
-void serial_putchar(char c);
+void serial_putchar(uint16_t com, char c);
 void serial_write(uint16_t com, const char* str);
 int serial_is_data_ready(uint16_t com);
 char serial_getchar(uint16_t com);

@@ -104,6 +104,7 @@ void vga_print_at(const char* str, int x, int y) {
     vga_print(str);
     cursor_x = old_x;
     cursor_y = old_y;
+    vga_update_cursor();
 }
 
 void vga_scroll(void) {
