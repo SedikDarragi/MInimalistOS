@@ -8,13 +8,6 @@
 void context_switch(cpu_context_t* old_context, cpu_context_t* new_context);
 void context_init(cpu_context_t* context, void (*entry_point)(), uint32_t stack_top);
 
-void context_init(cpu_context_t* context, void (*entry_point)(), uint32_t stack_top) {
-    memset(context, 0, sizeof(cpu_context_t));
-    context->eip = (uint32_t)entry_point;
-    context->esp = stack_top;
-    context->eflags = 0x202; // Interrupts enabled
-}
-
 // Current running context
 static cpu_context_t* current_context = NULL;
 
