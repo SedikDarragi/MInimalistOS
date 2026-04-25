@@ -1,6 +1,6 @@
 // This file is deprecated and replaced by filesystem_enhanced.c
 // Disabling to prevent build conflicts.
-#if 0
+#if 0 // Full block disable
 #include "../include/filesystem.h"
 #include "../include/memory.h"
 #include "../include/string.h"
