@@ -9,11 +9,16 @@
 #define MAX_OPEN_FILES 16
 #define MAX_PATH_LEN 256
 
+// Forward declaration of the operations structure
+typedef struct vfs_node_ops vfs_node_ops_t;
+
 // Simple file descriptor
 typedef struct {
     uint32_t inode;
     uint32_t offset;
     uint8_t in_use;
+    int (*read)(uint32_t, void*, uint32_t, uint32_t);
+    int (*write)(uint32_t, const void*, uint32_t, uint32_t);
 } simple_fd_t;
 
 static simple_fd_t file_descriptors[MAX_OPEN_FILES];
