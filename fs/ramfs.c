@@ -109,22 +109,9 @@ int ramfs_create_file(const char* name, const void* data, uint32_t size) {
         return -1;
     }
     
-    // Find free data space
-    uint32_t data_offset = 0;
-    uint8_t found_space = 0;
-    
-    for (int i = 0; i < MAX_FILES; i++) {
-        if (!ramfs->files[i].in_use) {
-            data_offset = i * MAX_FILE_SIZE;
-            found_space = 1;
-            break;
-        }
-    }
-    
-    if (!found_space) {
-        log_error("No free data space");
-        return -1;
-    }
+    // Calculate data offset based on the file pointer position in the array
+    uint32_t file_index = (uint32_t)(file - ramfs->files);
+    uint32_t data_offset = file_index * MAX_FILE_SIZE;
     
     // Initialize file
     strncpy(file->name, name, MAX_FILENAME_LEN - 1);
