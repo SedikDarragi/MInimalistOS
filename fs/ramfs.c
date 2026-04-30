@@ -30,6 +30,11 @@ static ramfs_t* ramfs = NULL;
 
 // Initialize RAM filesystem
 int ramfs_init(void) {
+    if (ramfs != NULL) {
+        log_warn("RAMFS already initialized");
+        return 0;
+    }
+
     // Allocate memory for filesystem structure
     ramfs = kmalloc(sizeof(ramfs_t));
     if (!ramfs) {
@@ -96,6 +101,11 @@ static ramfs_file_t* ramfs_find_free_slot(void) {
 int ramfs_create_file(const char* name, const void* data, uint32_t size) {
     if (!ramfs || !name) return -1;
     
+    if (size > MAX_FILE_SIZE) {
+        log_error("File size exceeds maximum: %d", size);
+        return -1;
+    }
+
     // Check if file already exists
     if (ramfs_find_file(name)) {
         log_error("File already exists: %s", name);
