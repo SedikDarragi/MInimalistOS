@@ -98,6 +98,3 @@ void kmain(void) {
         __asm__ volatile("hlt");
     }
 }
-
-void vfs_init(void) {}
-int ramfs_mount(void) { return -1; }

@@ -307,15 +307,15 @@ Discarded input sections
  .group         0x00000000        0xc fs/ramfs.o
  .group         0x00000000        0xc fs/ramfs.o
  .group         0x00000000        0xc fs/ramfs.o
- .text          0x00000000      0x885 fs/ramfs.o
+ .text          0x00000000      0x8d3 fs/ramfs.o
  .data          0x00000000        0x0 fs/ramfs.o
  .bss           0x00000000        0x4 fs/ramfs.o
- .rodata        0x00000000      0x1b0 fs/ramfs.o
+ .rodata        0x00000000      0x1ea fs/ramfs.o
  .text.__x86.get_pc_thunk.ax
                 0x00000000        0x4 fs/ramfs.o
  .text.__x86.get_pc_thunk.bx
                 0x00000000        0x4 fs/ramfs.o
- .debug_info    0x00000000      0x6b3 fs/ramfs.o
+ .debug_info    0x00000000      0x6c6 fs/ramfs.o
  .debug_abbrev  0x00000000      0x1dd fs/ramfs.o
  .debug_aranges
                 0x00000000       0x20 fs/ramfs.o
@@ -329,8 +329,8 @@ Discarded input sections
  .debug_macro   0x00000000       0x16 fs/ramfs.o
  .debug_macro   0x00000000       0x22 fs/ramfs.o
  .debug_macro   0x00000000       0x16 fs/ramfs.o
- .debug_line    0x00000000      0x3ed fs/ramfs.o
- .debug_str     0x00000000     0x37e7 fs/ramfs.o
+ .debug_line    0x00000000      0x404 fs/ramfs.o
+ .debug_str     0x00000000     0x37f0 fs/ramfs.o
  .debug_line_str
                 0x00000000      0x120 fs/ramfs.o
  .comment       0x00000000       0x1c fs/ramfs.o
