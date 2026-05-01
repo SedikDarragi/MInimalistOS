@@ -31,19 +31,18 @@ static int scheduler_ticks = 0;
 static process_t* current_process_ptr = NULL;
 
 // External test process functions
-void test_process_1(void) { while(1); }
-void test_process_2(void) { while(1); }
-void user_process_1(void) { while(1); }
-void user_process_2(void) { while(1); }
-void memory_test_process(void) { while(1); }
-void user_program_main(void) { while(1); }
-// extern void fs_test_process(void);
-void network_test_sender(void) { while(1); }
-void network_test_receiver(void) { while(1); }
-void device_test_process(void) { while(1); }
-void security_test_process(void) { while(1); }
-void monitor_test_process(void) { while(1); }
-void power_test_process(void) { while(1); }
+extern void test_process_1(void);
+extern void test_process_2(void);
+extern void user_process_1(void);
+extern void user_process_2(void);
+extern void memory_test_process(void);
+extern void user_program_main(void);
+extern void network_test_sender(void);
+extern void network_test_receiver(void);
+extern void device_test_process(void);
+extern void security_test_process(void);
+extern void monitor_test_process(void);
+extern void power_test_process(void);
 
 // Stack protection stub
 void __stack_chk_fail_local(void) {
