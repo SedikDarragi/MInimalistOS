@@ -98,12 +98,3 @@ void kmain(void) {
         __asm__ volatile("hlt");
     }
 }
-
-/* 
- * REMOVAL NOTICE: 
- * The linker reports multiple definitions of vfs_init and ramfs_mount here.
- * If your kmain.c contains:
- * void vfs_init(void) { ... }
- * int ramfs_mount(void) { ... }
- * Delete them! They are now in fs/vfs_simple.c and fs/ramfs.c
- */
