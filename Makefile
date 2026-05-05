@@ -76,7 +76,7 @@ KERNEL_TEST_SRCS := $(shell find kernel/ -name '*_test.c')
 TEST_SRCS := kernel/tests.c
 DRIVER_SRCS := drivers/vga.c drivers/keyboard.c drivers/keyboard_intl.c \
                drivers/serial.c drivers/timer.c drivers/net_ne2k.c
-FS_SRCS := fs/filesystem_enhanced.c fs/vfs_simple.c fs/ramfs.c
+FS_SRCS := fs/ramfs.c fs/vfs_simple.c
 
 # Assembly sources (both .s and .asm) 
 KERNEL_ASM_SRCS := kernel/entry.s kernel/interrupts.s kernel/context_switch.asm
