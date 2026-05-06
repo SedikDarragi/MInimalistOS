@@ -259,7 +259,7 @@ int ramfs_mount(void) {
     }
     
     // Mount at /ram
-    return vfs_mount("/ram", ramfs, 
+    return fs_mount("/ram", ramfs, 
                    ramfs_read, ramfs_write, 
                    ramfs_open, ramfs_close, 
                    ramfs_stat);
