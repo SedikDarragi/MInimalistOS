@@ -24,7 +24,7 @@ typedef struct {
 static simple_fd_t file_descriptors[MAX_OPEN_FILES];
 
 // Initialize VFS
-void vfs_init(void) {
+void fs_init(void) {
     for (int i = 0; i < MAX_OPEN_FILES; i++) {
         file_descriptors[i].in_use = 0;
         file_descriptors[i].inode = 0;
@@ -36,7 +36,7 @@ void vfs_init(void) {
 }
 
 // Open a file (simplified)
-int vfs_open(const char* path, int flags) {
+int fs_open(const char* path, int flags) {
     // Find free file descriptor
     int fd = -1;
     for (int i = 0; i < MAX_OPEN_FILES; i++) {
@@ -63,7 +63,7 @@ int vfs_open(const char* path, int flags) {
 }
 
 // Close a file
-int vfs_close(int fd) {
+int fs_close(int fd) {
     if (fd < 0 || fd >= MAX_OPEN_FILES || !file_descriptors[fd].in_use) {
         log_error("Invalid file descriptor");
         return -1;
@@ -74,8 +74,19 @@ int vfs_close(int fd) {
     return 0;
 }
 
+// Seek in a file
+int fs_seek(int fd, uint32_t offset) {
+    if (fd < 0 || fd >= MAX_OPEN_FILES || !file_descriptors[fd].in_use) {
+        log_error("Invalid file descriptor");
+        return -1;
+    }
+    
+    file_descriptors[fd].offset = offset;
+    return offset;
+}
+
 // Read from a file (simplified)
-int vfs_read(int fd, void* buffer, uint32_t count) {
+int fs_read(int fd, void* buffer, uint32_t count) {
     if (fd < 0 || fd >= MAX_OPEN_FILES || !file_descriptors[fd].in_use) {
         log_error("Invalid file descriptor");
         return -1;
@@ -101,7 +112,7 @@ int vfs_read(int fd, void* buffer, uint32_t count) {
 }
 
 // Write to a file (simplified)
-int vfs_write(int fd, const void* buffer, uint32_t count) {
+int fs_write(int fd, const void* buffer, uint32_t count) {
     if (fd < 0 || fd >= MAX_OPEN_FILES || !file_descriptors[fd].in_use) {
         log_error("Invalid file descriptor");
         return -1;
@@ -114,7 +125,7 @@ int vfs_write(int fd, const void* buffer, uint32_t count) {
 }
 
 // Get file status (simplified)
-int vfs_stat(const char* path, vfs_stat_t* stat) {
+int fs_stat(const char* path, vfs_stat_t* stat) {
     if (!path || !stat) {
         return -1;
     }
@@ -129,7 +140,7 @@ int vfs_stat(const char* path, vfs_stat_t* stat) {
 }
 
 // Mount filesystem (simplified)
-int vfs_mount(const char* mount_point, void* fs_data,
+int fs_mount(const char* mount_point, void* fs_data,
              int (*read_func)(uint32_t, void*, uint32_t, uint32_t),
              int (*write_func)(uint32_t, const void*, uint32_t, uint32_t),
              int (*open_func)(const char*, int),
@@ -141,7 +152,7 @@ int vfs_mount(const char* mount_point, void* fs_data,
 }
 
 // List directory (simplified)
-int vfs_list_dir(const char* path, char* buffer, uint32_t buffer_size) {
+int fs_list_dir(const char* path, char* buffer, uint32_t buffer_size) {
     if (!path || !buffer || buffer_size == 0) {
         return -1;
     }
