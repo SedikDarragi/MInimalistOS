@@ -26,21 +26,6 @@ typedef struct {
     uint32_t atime;
 } vfs_stat_t;
 
-// VFS function declarations
-void vfs_init(void);
-int vfs_mount(const char* mount_point, void* fs_data,
-             int (*read_func)(uint32_t, void*, uint32_t, uint32_t),
-             int (*write_func)(uint32_t, const void*, uint32_t, uint32_t),
-             int (*open_func)(const char*, int),
-             int (*close_func)(uint32_t),
-             int (*stat_func)(const char*, vfs_stat_t*));
-int vfs_open(const char* path, int flags);
-int vfs_close(int fd);
-int vfs_read(int fd, void* buffer, uint32_t count);
-int vfs_write(int fd, const void* buffer, uint32_t count);
-int vfs_stat(const char* path, vfs_stat_t* stat);
-int vfs_list_dir(const char* path, char* buffer, uint32_t buffer_size);
-
 // RAMFS function declarations
 int ramfs_init(void);
 int ramfs_create_file(const char* name, const void* data, uint32_t size);
