@@ -1,7 +1,7 @@
 #include "../include/program_loader.h"
 #include "../include/filesystem.h"
 #include "../include/memory.h"
-#include "../include/process_simple.h"
+#include "process.h"
 #include "../kernel/log.h"
 #include "../drivers/vga.h"
 #include "../include/string.h"
@@ -248,7 +248,7 @@ int program_execute_from_info(const program_info_t* prog_info) {
     }
     
     // Create process
-    int pid = process_create((void*)prog_info->entry_point, "user_program");
+    int pid = process_create("user_program", (void*)prog_info->entry_point);
     if (pid < 0) {
         program_free_memory(stack_ptr, prog_info->stack_size);
         log_info("Failed to create process for program");
