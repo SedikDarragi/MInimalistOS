@@ -155,7 +155,8 @@ int program_load(const char* filename, program_info_t* prog_info) {
     }
     
     fs_seek(fd, header.e_phoff);
-    if ((uint32_t)fs_read(fd, phdrs, ph_size) != ph_size) {
+    int bytes_read = fs_read(fd, phdrs, ph_size);
+    if (bytes_read < 0 || (uint32_t)bytes_read != ph_size) {
         program_free_memory(phdrs, ph_size);
         fs_close(fd);
         log_info("Failed to read program headers");
