@@ -18,6 +18,8 @@
 extern void shell_init(void);
 extern void shell_run(void);
 extern void keyboard_init(void);
+extern void fs_init(void);
+extern int ramfs_mount(void);
 
 void kmain(void) {
     log_init();
@@ -50,7 +52,9 @@ void kmain(void) {
     vga_print("Timer: SKIPPED\n");
     
     vga_print("Initializing filesystem...\n");
-    vga_print("Filesystem: SKIPPED (simple build)\n");
+    fs_init();
+    ramfs_mount();
+    vga_print("Filesystem: READY\n");
     
     vga_print("Initializing system call interface...\n");
     syscall_init();
