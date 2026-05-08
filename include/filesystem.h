@@ -83,12 +83,19 @@ typedef struct {
 void fs_init(void);
 int fs_create(const char* filename, uint8_t type);
 int fs_delete(const char* filename);
-int fs_open(const char* filename, uint32_t mode);
+int fs_open(const char* filename, int flags);
 int fs_close(int fd);
 int fs_read(int fd, void* buffer, uint32_t count);
 int fs_write(int fd, const void* buffer, uint32_t count);
 int fs_seek(int fd, uint32_t position);
 int fs_list(const char* dirname);
+int fs_mount(const char* mount_point, void* fs_data,
+             int (*read_func)(uint32_t, void*, uint32_t, uint32_t),
+             int (*write_func)(uint32_t, const void*, uint32_t, uint32_t),
+             int (*open_func)(const char*, int),
+             int (*close_func)(uint32_t),
+             int (*stat_func)(const char*, vfs_stat_t*));
+int fs_list_dir(const char* path, char* buffer, uint32_t buffer_size);
 
 // Block management
 uint32_t alloc_block(void);
