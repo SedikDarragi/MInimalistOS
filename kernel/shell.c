@@ -27,6 +27,7 @@ static void shell_print(const char* str) {
 }
 
 void shell_init(void) {
+    vga_print("Shell: Initializing structures...\n");
     memset(&shell_state, 0, sizeof(shell_state_t));
     memset(&history, 0, sizeof(command_history_t));
     
@@ -36,11 +37,6 @@ void shell_init(void) {
     shell_state.hostname[sizeof(shell_state.hostname) - 1] = '\0';
     strncpy(shell_state.cwd, "/", sizeof(shell_state.cwd) - 1);
     shell_state.cwd[sizeof(shell_state.cwd) - 1] = '\0';
-    
-    shell_print("\n");
-    shell_print("Minimalist OS Shell v0.1\n");
-    shell_print("Type 'help' for a list of commands.\n");
-    shell_print("Ready.\n");
 }
 
 void shell_execute_command(const char* command) {
@@ -65,11 +61,7 @@ void shell_run(void) {
     int buffer_pos = 0;
     char c;
     
-    // Ensure VGA cursor is visible and updated
-    vga_set_cursor(0, 11); // Set to a fresh line below kmain output
-    
-    vga_print("\n[SHELL] Starting interactive loop...\n");
-    serial_print("[SHELL] Starting interactive loop...\n");
+    shell_print("Shell Interactive Loop Started.\n");
 
     while (1) {
         vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
