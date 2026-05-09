@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "context.h"
 
-#define MAX_PROCESSES 32
+#define MAX_PROCESSES 8
 #define MAX_PROCESS_NAME 32
 #define STACK_SIZE 4096
 

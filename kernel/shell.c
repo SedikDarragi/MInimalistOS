@@ -10,10 +10,7 @@ extern char keyboard_getchar(void);
 extern void serial_putchar(uint16_t com, char c);
 
 static void serial_print(const char* str) {
-    while (*str) {
-        if (*str == '\n') serial_putchar(0x3F8, '\r');
-        serial_putchar(0x3F8, *str++);
-    }
+    // Temporarily disabled to prevent potential hangs on hardware polling
 }
 
 static char shell_serial_getchar(void) {
@@ -29,7 +26,10 @@ static void shell_print(const char* str) {
 void shell_init(void) {
     vga_print("Shell: Initializing structures...\n");
     memset(&shell_state, 0, sizeof(shell_state_t));
+    vga_print("Shell: State initialized.\n");
+    
     memset(&history, 0, sizeof(command_history_t));
+    vga_print("Shell: History initialized.\n");
     
     strncpy(shell_state.username, "root", sizeof(shell_state.username) - 1);
     shell_state.username[sizeof(shell_state.username) - 1] = '\0';
