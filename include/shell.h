@@ -7,7 +7,7 @@
 
 #define SHELL_BUFFER_SIZE 256
 #define MAX_ARGS 32
-#define MAX_HISTORY 32
+#define MAX_HISTORY 8
 #define MAX_ALIASES 16
 #define MAX_PATH_LENGTH 256
 
