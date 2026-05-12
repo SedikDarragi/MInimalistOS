@@ -63,15 +63,26 @@ void process_init(void) {
 }
 
 int process_create(const char* name, void (*entry_point)()) {
-    if (next_pid >= MAX_PROCESSES) {
+    // Find an empty slot instead of just using next_pid
+    int pid_to_assign = -1;
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        if (processes[i].state == PROCESS_ZOMBIE || (i >= next_pid && i < MAX_PROCESSES)) {
+            pid_to_assign = i;
+            break;
+        }
+    }
+
+    if (pid_to_assign == -1 || pid_to_assign >= MAX_PROCESSES) {
         return -1; // No more process slots
     }
-    
-    int pid_to_assign = next_pid++;
+
+    if (pid_to_assign >= next_pid) next_pid = pid_to_assign + 1;
+
     process_t* p = &processes[pid_to_assign];
     p->pid = pid_to_assign;
+    memset(p->name, 0, MAX_PROCESS_NAME);
     strncpy(p->name, name, MAX_PROCESS_NAME - 1);
-    p->name[MAX_PROCESS_NAME - 1] = '\0';
+    
     p->state = PROCESS_READY;
     p->priority = 1;
     p->runtime = 0;
