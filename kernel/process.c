@@ -52,9 +52,10 @@ void __stack_chk_fail_local(void) {
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
     
-    // Create the main kernel process (PID 0). This represents the kmain() thread
-    // which will become the shell. Its context is already active.
-    process_create("kernel_main", NULL);
+    // Create the main kernel process (PID 0). 
+    // If kmain is intended to become the shell runner, we initialize it here.
+    extern void shell_run(void);
+    process_create("kernel_shell", shell_run);
     
     // Set current process to kernel process
     current_process = 0;

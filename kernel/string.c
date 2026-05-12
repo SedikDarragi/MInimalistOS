@@ -84,12 +84,15 @@ char *strncpy(char *dest, const char *src, size_t n) {
 
 // String comparison with limit function
 int strncmp(const char *s1, const char *s2, size_t n) {
-    while (n-- && *s1 && (*s1 == *s2)) {
-        s1++;
-        s2++;
+    for (size_t i = 0; i < n; i++) {
+        if (s1[i] != s2[i]) {
+            return (unsigned char)s1[i] - (unsigned char)s2[i];
+        }
+        if (s1[i] == '\0') {
+            return 0;
+        }
     }
-    if (n == (size_t)-1) return 0;
-    return *(const unsigned char*)s1 - *(const unsigned char*)s2;
+    return 0;
 }
 
 // String length function
