@@ -2,12 +2,14 @@
 #include "../drivers/vga.h"
 #include "../include/string.h"
 #include "io.h"
+#include "../include/idt.h"
 
 shell_state_t shell_state;
 command_history_t history;
 
 extern char keyboard_getchar(void);
 extern void serial_putchar(uint16_t com, char c);
+extern void enable_interrupts(void);
 
 static void serial_print(const char* str) {
     // Temporarily disabled to prevent potential hangs on hardware polling
@@ -37,6 +39,7 @@ void shell_init(void) {
     shell_state.hostname[sizeof(shell_state.hostname) - 1] = '\0';
     strncpy(shell_state.cwd, "/", sizeof(shell_state.cwd) - 1);
     shell_state.cwd[sizeof(shell_state.cwd) - 1] = '\0';
+    vga_print("Shell: Initialization complete.\n");
 }
 
 void shell_execute_command(const char* command) {
@@ -61,6 +64,9 @@ void shell_run(void) {
     int buffer_pos = 0;
     char c;
     
+    // Ensure interrupts are on so keyboard can work
+    enable_interrupts();
+
     shell_print("Shell Interactive Loop Started.\n");
 
     while (1) {
