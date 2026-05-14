@@ -26,20 +26,15 @@ static void shell_print(const char* str) {
 }
 
 void shell_init(void) {
-    vga_print("Shell: Initializing structures...\n");
     memset(&shell_state, 0, sizeof(shell_state_t));
-    vga_print("Shell: State initialized.\n");
-    
     memset(&history, 0, sizeof(command_history_t));
-    vga_print("Shell: History initialized.\n");
-    
+
     strncpy(shell_state.username, "root", sizeof(shell_state.username) - 1);
     shell_state.username[sizeof(shell_state.username) - 1] = '\0';
     strncpy(shell_state.hostname, "minos", sizeof(shell_state.hostname) - 1);
     shell_state.hostname[sizeof(shell_state.hostname) - 1] = '\0';
     strncpy(shell_state.cwd, "/", sizeof(shell_state.cwd) - 1);
     shell_state.cwd[sizeof(shell_state.cwd) - 1] = '\0';
-    vga_print("Shell: Initialization complete.\n");
 }
 
 void shell_execute_command(const char* command) {
@@ -87,8 +82,11 @@ void shell_run(void) {
         while (1) {
             c = keyboard_getchar();
             if (c == 0) c = shell_serial_getchar();
-            
-            if (c == 0) continue;
+
+            if (c == 0) {
+                __asm__ volatile("pause"); // CPU hint for busy loops
+                continue;
+            }
             
             if (c == '\n') {
                 shell_print("\n");

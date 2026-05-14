@@ -55,7 +55,7 @@ void process_init(void) {
     // Create the main kernel process (PID 0). 
     // If kmain is intended to become the shell runner, we initialize it here.
     extern void shell_run(void);
-    process_create("kernel_shell", shell_run);
+    // process_create("kernel_shell", shell_run); // Removed if kmain calls shell_run directly
     
     // Set current process to kernel process
     current_process = 0;

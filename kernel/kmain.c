@@ -86,10 +86,10 @@ void kmain(void) {
     vga_print("Minimalist OS v1.0\n");
     vga_print("------------------\n");
 
-    vga_print("Loading Shell... ");
+    vga_print("Shell: Initializing... ");
     shell_init();
     vga_print("OK\n");
-    
+
     vga_print("Interrupts: ENABLING... ");
     __asm__ volatile("sti");
     vga_print("OK\n");
