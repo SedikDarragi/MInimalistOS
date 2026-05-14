@@ -41,7 +41,7 @@ void network_init(void) {
 
 // Send a network packet
 int network_send_packet(uint32_t dst_ip, uint8_t type, const void* data, uint16_t length) {
-    if (!netif.active || length > NET_BUFFER_SIZE) {
+    if (!netif.active || length > NET_BUFFER_SIZE || (length > 0 && data == NULL)) {
         return -1;
     }
     
