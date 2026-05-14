@@ -82,19 +82,16 @@ void kmain(void) {
     vga_print("All systems initialized. Clearing screen...\n");
     for(volatile int i = 0; i < 2000000; i++); // Short delay to see the text
 
+    log_info("Initializing shell subsystem...");
+    shell_init();
+
     vga_clear();
     vga_print("Minimalist OS v1.0\n");
     vga_print("------------------\n");
-
-    vga_print("Shell: Initializing... ");
-    shell_init();
-    vga_print("OK\n");
-
-    vga_print("Interrupts: ENABLING... ");
-    __asm__ volatile("sti");
-    vga_print("OK\n");
     
-    vga_print("Shell: LAUNCHING...\n");
+    vga_print("Starting interactive session...\n");
+    __asm__ volatile("sti");
+
     shell_run();
 
     while (1) {

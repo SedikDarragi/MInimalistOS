@@ -26,19 +26,17 @@ static void shell_print(const char* str) {
 }
 
 void shell_init(void) {
-    memset(&shell_state, 0, sizeof(shell_state_t));
-    memset(&history, 0, sizeof(command_history_t));
-
-    strncpy(shell_state.username, "root", sizeof(shell_state.username) - 1);
-    shell_state.username[sizeof(shell_state.username) - 1] = '\0';
-    strncpy(shell_state.hostname, "minos", sizeof(shell_state.hostname) - 1);
-    shell_state.hostname[sizeof(shell_state.hostname) - 1] = '\0';
-    strncpy(shell_state.cwd, "/", sizeof(shell_state.cwd) - 1);
-    shell_state.cwd[sizeof(shell_state.cwd) - 1] = '\0';
+    // Initialize state with safe defaults
+    strcpy(shell_state.username, "root");
+    strcpy(shell_state.hostname, "minos");
+    strcpy(shell_state.cwd, "/");
+    
+    // Initialize history index but don't memset the whole thing yet
+    history.count = 0;
 }
 
 void shell_execute_command(const char* command) {
-    if (strcmp(command, "help") == 0) {
+    if (strcmp(command, "help") == 0 || strcmp(command, "?") == 0) {
         shell_print("Minimalist OS Shell Commands:\n");
         shell_print("  help     - Show this help message\n");
         shell_print("  clear    - Clear the screen\n");
@@ -59,10 +57,10 @@ void shell_run(void) {
     int buffer_pos = 0;
     char c;
     
-    // Ensure interrupts are on so keyboard can work
-    enable_interrupts();
-
     shell_print("Shell Interactive Loop Started.\n");
+
+    // Ensure interrupts are on so keyboard can work
+    __asm__ volatile("sti");
 
     while (1) {
         vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
@@ -79,19 +77,20 @@ void shell_run(void) {
         buffer_pos = 0;
         memset(input_buffer, 0, SHELL_BUFFER_SIZE);
         
-        while (1) {
+        int waiting = 1;
+        while (waiting) {
             c = keyboard_getchar();
             if (c == 0) c = shell_serial_getchar();
 
             if (c == 0) {
-                __asm__ volatile("pause"); // CPU hint for busy loops
+                __asm__ volatile("pause"); 
                 continue;
             }
             
             if (c == '\n') {
                 shell_print("\n");
                 shell_execute_command(input_buffer);
-                break;
+                waiting = 0;
             } else if (c == '\b') {
                 if (buffer_pos > 0) {
                     buffer_pos--;
