@@ -26,12 +26,10 @@ static void shell_print(const char* str) {
 }
 
 void shell_init(void) {
-    // Initialize state with safe defaults
+    memset(&shell_state, 0, sizeof(shell_state_t));
     strcpy(shell_state.username, "root");
     strcpy(shell_state.hostname, "minos");
     strcpy(shell_state.cwd, "/");
-    
-    // Initialize history index but don't memset the whole thing yet
     history.count = 0;
 }
 
@@ -57,11 +55,6 @@ void shell_run(void) {
     int buffer_pos = 0;
     char c;
     
-    shell_print("Shell Interactive Loop Started.\n");
-
-    // Ensure interrupts are on so keyboard can work
-    __asm__ volatile("sti");
-
     while (1) {
         vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
         shell_print(shell_state.username);

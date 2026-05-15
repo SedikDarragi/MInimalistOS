@@ -79,19 +79,21 @@ void kmain(void) {
         vga_print("Program Loader: FAILED\n");
     }
     
-    vga_print("All systems initialized. Clearing screen...\n");
-    for(volatile int i = 0; i < 2000000; i++); // Short delay to see the text
-
-    log_info("Initializing shell subsystem...");
+    // Initialize the shell state before the final jump
     shell_init();
 
+    // Clear the screen for the final interactive session
     vga_clear();
     vga_print("Minimalist OS v1.0\n");
     vga_print("------------------\n");
     
-    vga_print("Starting interactive session...\n");
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    vga_print("System Ready. Type 'help' for commands.\n\n");
+
+    // Enable interrupts so keyboard input works
     __asm__ volatile("sti");
 
+    // Jump into the shell loop
     shell_run();
 
     while (1) {
