@@ -26,10 +26,12 @@ static void shell_print(const char* str) {
 }
 
 void shell_init(void) {
-    memset(&shell_state, 0, sizeof(shell_state_t));
+    // Initialize state with safe defaults
     strcpy(shell_state.username, "root");
     strcpy(shell_state.hostname, "minos");
     strcpy(shell_state.cwd, "/");
+    
+    // Initialize history index but don't memset the whole thing yet
     history.count = 0;
 }
 
@@ -70,20 +72,20 @@ void shell_run(void) {
         buffer_pos = 0;
         memset(input_buffer, 0, SHELL_BUFFER_SIZE);
         
-        int waiting = 1;
-        while (waiting) {
+        while (1) {
             c = keyboard_getchar();
             if (c == 0) c = shell_serial_getchar();
 
             if (c == 0) {
-                __asm__ volatile("pause"); 
+                // Efficiently wait for the next interrupt (keyboard)
+                __asm__ volatile("hlt"); 
                 continue;
             }
             
             if (c == '\n') {
                 shell_print("\n");
                 shell_execute_command(input_buffer);
-                waiting = 0;
+                break;
             } else if (c == '\b') {
                 if (buffer_pos > 0) {
                     buffer_pos--;

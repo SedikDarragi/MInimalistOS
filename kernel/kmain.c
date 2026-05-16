@@ -79,21 +79,21 @@ void kmain(void) {
         vga_print("Program Loader: FAILED\n");
     }
     
-    // Initialize the shell state before the final jump
+    vga_print("Finalizing system state...\n");
+    
+    // Prepare the shell structures
     shell_init();
 
-    // Clear the screen for the final interactive session
+    // Clear the screen BEFORE the final jump to prevent scrolling issues
     vga_clear();
-    vga_print("Minimalist OS v1.0\n");
-    vga_print("------------------\n");
-    
     vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-    vga_print("System Ready. Type 'help' for commands.\n\n");
+    vga_print("Minimalist OS v1.0\n");
+    vga_print("System ready. Type 'help' for commands.\n\n");
 
-    // Enable interrupts so keyboard input works
+    // Globally enable interrupts so the keyboard driver works
     __asm__ volatile("sti");
 
-    // Jump into the shell loop
+    // Enter the shell loop - this function should not return
     shell_run();
 
     while (1) {
