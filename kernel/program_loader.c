@@ -53,7 +53,6 @@ static uint32_t program_memory_used = 0;
 // Initialize program loader
 int program_loader_init(void) {
     program_memory_used = 0;
-    log_info("Program loader initialized");
     return 0;
 }
 

@@ -71,13 +71,7 @@ void kmain(void) {
     vga_print("Initializing power management...\n");
     vga_print("Power management: READY\n");
     
-    vga_print("Initializing program loader...\n");
-    if (program_loader_init() == 0) {
-        vga_print("Program Loader: OK\n");
-        log_info("Program loader initialized");
-    } else {
-        vga_print("Program Loader: FAILED\n");
-    }
+    program_loader_init();
     
     vga_print("Finalizing system state...\n");
     

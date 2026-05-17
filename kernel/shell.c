@@ -57,6 +57,10 @@ void shell_run(void) {
     int buffer_pos = 0;
     char c;
     
+    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+    shell_print("Minimalist OS Shell\n");
+    shell_print("Type 'help' for a list of commands.\n\n");
+
     while (1) {
         vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
         shell_print(shell_state.username);
