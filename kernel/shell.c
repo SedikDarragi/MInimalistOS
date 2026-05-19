@@ -57,9 +57,8 @@ void shell_run(void) {
     int buffer_pos = 0;
     char c;
     
-    vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-    shell_print("Minimalist OS Shell\n");
-    shell_print("Type 'help' for a list of commands.\n\n");
+    // Force an initial prompt display
+    vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
 
     while (1) {
         vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
@@ -81,8 +80,8 @@ void shell_run(void) {
             if (c == 0) c = shell_serial_getchar();
 
             if (c == 0) {
-                // Efficiently wait for the next interrupt (keyboard)
-                __asm__ volatile("hlt"); 
+                // Hint to the CPU that we are in a spin loop
+                __asm__ volatile("pause");
                 continue;
             }
             

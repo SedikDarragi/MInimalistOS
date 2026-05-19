@@ -38,6 +38,7 @@ void vga_init(void) {
     vga_enable_cursor(0, 15);
     vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
     vga_clear();
+    vga_update_cursor();
 }
 
 void vga_clear(void) {
@@ -108,13 +109,19 @@ void vga_print_at(const char* str, int x, int y) {
 }
 
 void vga_scroll(void) {
-    volatile uint16_t* vga = (volatile uint16_t*)VGA_MEMORY;
+    volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
+    
+    // Safety check to prevent scrolling if the cursor is within bounds
+    if (cursor_y < VGA_HEIGHT) return;
+
+    // Shift lines up
     for (int y = 0; y < VGA_HEIGHT - 1; y++) {
         for (int x = 0; x < VGA_WIDTH; x++) {
             vga[y * VGA_WIDTH + x] = vga[(y + 1) * VGA_WIDTH + x];
         }
     }
     
+    // Clear the bottom line
     for (int x = 0; x < VGA_WIDTH; x++) {
         vga_putchar_at(' ', current_color, x, VGA_HEIGHT - 1);
     }
