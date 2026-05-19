@@ -66,23 +66,18 @@ void kmain(void) {
     
     vga_print("Enabling IRQ 1...\n");
     enable_irq(1);
-    vga_print("Interrupts: UNMASKED\n");
     
-    vga_print("Initializing power management...\n");
-    vga_print("Power management: READY\n");
-    
+    // Perform final initializations
+    power_init();
     program_loader_init();
     
-    vga_print("Finalizing system state...\n");
-    
-    // Prepare the shell structures
+    // Clear screen and initialize shell
+    vga_clear();
     shell_init();
 
-    // Clear the screen BEFORE the final jump to prevent scrolling issues
-    vga_clear();
     vga_set_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
-    vga_print("Minimalist OS v1.0\n");
-    vga_print("System ready. Type 'help' for commands.\n\n");
+    vga_print("Minimalist OS v1.0 - Welcome\n");
+    vga_print("----------------------------\n");
 
     // Globally enable interrupts so the keyboard driver works
     __asm__ volatile("sti");

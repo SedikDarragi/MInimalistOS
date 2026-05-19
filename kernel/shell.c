@@ -58,11 +58,12 @@ void shell_run(void) {
     char c;
     
     // Force an initial prompt display
-    vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
+    vga_clear();
+    vga_set_cursor(0, 0);
 
     while (1) {
         vga_set_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
-        shell_print(shell_state.username);
+        vga_print(shell_state.username);
         shell_print("@");
         shell_print(shell_state.hostname);
         vga_set_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);

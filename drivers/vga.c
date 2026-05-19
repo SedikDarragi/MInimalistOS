@@ -109,10 +109,12 @@ void vga_print_at(const char* str, int x, int y) {
 }
 
 void vga_scroll(void) {
-    volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
+    volatile uint16_t* vga = (volatile uint16_t*)VGA_MEMORY;
     
     // Safety check to prevent scrolling if the cursor is within bounds
-    if (cursor_y < VGA_HEIGHT) return;
+    if (cursor_y < VGA_HEIGHT) {
+        return;
+    }
 
     // Shift lines up
     for (int y = 0; y < VGA_HEIGHT - 1; y++) {
