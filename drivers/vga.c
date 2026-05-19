@@ -20,7 +20,7 @@ static void vga_update_cursor(void) {
 }
 
 static inline void vga_putchar_at(char c, uint8_t color, int x, int y) {
-    uint16_t* vga = (uint16_t*)VGA_MEMORY;
+    volatile uint16_t* vga = (volatile uint16_t*)VGA_MEMORY;
     vga[y * VGA_WIDTH + x] = (uint16_t)c | (uint16_t)color << 8;
 }
 
@@ -108,7 +108,7 @@ void vga_print_at(const char* str, int x, int y) {
 }
 
 void vga_scroll(void) {
-    uint16_t* vga = (uint16_t*)VGA_MEMORY;
+    volatile uint16_t* vga = (volatile uint16_t*)VGA_MEMORY;
     for (int y = 0; y < VGA_HEIGHT - 1; y++) {
         for (int x = 0; x < VGA_WIDTH; x++) {
             vga[y * VGA_WIDTH + x] = vga[(y + 1) * VGA_WIDTH + x];
