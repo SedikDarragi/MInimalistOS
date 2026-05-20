@@ -1,7 +1,7 @@
 #include "../include/power.h"
 #include "../include/syscall.h"
 #include "../include/vga.h"
-#include "string.h"
+#include "../include/string.h"
 
 // Current power state
 static uint32_t current_power_state = POWER_STATE_ON;
