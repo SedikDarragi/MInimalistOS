@@ -57,11 +57,9 @@ void vga_set_color(vga_color_t fg, vga_color_t bg) {
 }
 
 void vga_putchar(char c) {
-    if (c == '\n') {
+    if (c == '\n' || c == '\r') {
         cursor_x = 0;
-        cursor_y++;
-    } else if (c == '\r') {
-        cursor_x = 0;
+        if (c == '\n') cursor_y++;
     } else if (c == '\b') {
         if (cursor_x > 0) {
             cursor_x--;

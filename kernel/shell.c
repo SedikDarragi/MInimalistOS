@@ -26,11 +26,17 @@ static void shell_print(const char* str) {
 }
 
 void shell_init(void) {
+    // Drain any pending keyboard data to ensure IRQ 1 can trigger
+    // Bit 0 of port 0x64 is the Output Buffer Full flag
+    int timeout = 1000;
+    while ((inb(0x64) & 0x01) && timeout-- > 0) {
+        inb(0x60);
+    }
+
     // Initialize state with safe defaults
     strcpy(shell_state.username, "root");
     strcpy(shell_state.hostname, "minos");
     strcpy(shell_state.cwd, "/");
-    
     // Initialize history index but don't memset the whole thing yet
     history.count = 0;
 }
@@ -82,7 +88,7 @@ void shell_run(void) {
                 continue;
             }
             
-            if (c == '\n') {
+            if (c == '\n' || c == '\r') {
                 shell_print("\n");
                 shell_execute_command(input_buffer);
                 break;

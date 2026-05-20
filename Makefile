@@ -65,7 +65,7 @@ KERNEL_SRCS := kernel/kmain.c kernel/log.c kernel/string.c kernel/memory.c \
                kernel/context.c kernel/idt.c kernel/isr.c kernel/pci.c \
                kernel/net_core.c kernel/network.c kernel/process.c \
                kernel/syscall.c kernel/program_loader.c kernel/monitor.c \
-               kernel/device.c kernel/shell.c \
+               kernel/device.c kernel/shell.c kernel/power.c \
                kernel/security.c kernel/usermode.c \
                kernel/test_process.c kernel/user_process.c \
                kernel/memory_test.c kernel/user_program.c \
