@@ -6,19 +6,7 @@
 
 // Local VGA functions for process system
 static void proc_vga_print(const char* str) {
-    volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
-    static int pos = 80 * 10; // Start at line 10
-    
-    while (*str) {
-        if (*str == '\n') {
-            pos = ((pos / 80) + 1) * 80;
-            if (pos >= 80 * 25) pos = 0;
-        } else {
-            vga[pos++] = (0x0F << 8) | *str;
-            if (pos >= 80 * 25) pos = 0;
-        }
-        str++;
-    }
+    vga_print(str);
 }
 
 // Suppress unused parameter warnings
@@ -189,12 +177,6 @@ void schedule(void) {
             current_process = next;
             current_process_ptr = &processes[current_process];
             current_process_ptr->state = PROCESS_RUNNING;
-            
-            // Show scheduler activity every 100 ticks
-            if (scheduler_ticks % 100 == 0) {
-                volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
-                vga[80*24 + 75] = 0x0F00 + ((current_process % 10) + '0');
-            }
             
             // Perform context switch if we have a different process
             if (old_process != current_process_ptr && old_process && current_process_ptr) {

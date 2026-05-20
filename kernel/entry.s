@@ -4,8 +4,8 @@
 .set VGA_WIDTH, 80
 .set VGA_HEIGHT, 25
 
-/* Stack configuration */
-.set STACK_SIZE, 0x4000  /* 16KB stack */
+/* Stack configuration - 32KB dedicated stack */
+.set STACK_SIZE, 0x8000
 
 .section .text
 .global _start
@@ -41,8 +41,9 @@ msg_hello:
 msg_cpuid:
     .asciz "CPU: "
 
-.section .bss
-.align 16
+/* Dedicated stack section to prevent collision with .data/.rodata */
+.section .stack, "aw", @nobits
+.align 4096
 stack_bottom:
     .space STACK_SIZE
 stack_top:

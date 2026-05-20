@@ -84,7 +84,6 @@ KERNEL_ASM_SRCS := kernel/entry.s kernel/interrupts.s kernel/context_switch.asm
 # Combine all source files
 # Main kernel should NOT include test sources; keep tests only in TEST_ALL_SRCS
 ALL_SRCS := $(KERNEL_SRCS) $(DRIVER_SRCS) $(FS_SRCS)
-TEST_ALL_SRCS := $(KERNEL_SRCS) $(TEST_SRCS) $(KERNEL_TEST_SRCS) $(DRIVER_SRCS) $(FS_SRCS)
 
 # Generate dependencies
 DEPS := $(ALL_SRCS:.c=.d) $(patsubst %.s,%.d,$(filter %.s,$(KERNEL_ASM_SRCS)))
@@ -184,7 +183,7 @@ boot/debug_boot.bin: boot/debug_boot.asm
 	@echo "Bootloader size: $$(wc -c < "$@") bytes"
 
 kernel.bin: kernel.elf
-	objcopy -O binary $< $@ --pad-to 0x5000
+	objcopy -O binary $< $@ --pad-to 0x8000
 
 # Linker flags
 LDFLAGS += -Map=$(BUILD_DIR)/kernel.map --gc-sections

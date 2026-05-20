@@ -10,6 +10,11 @@ static int cursor_x = 0;
 static int cursor_y = 0;
 static uint8_t current_color = 0x07;
 
+// Expose cursor position for external use
+int vga_get_cursor_y(void) {
+    return cursor_y;
+}
+
 static void vga_update_cursor(void) {
     uint16_t pos = (uint16_t)(cursor_y * VGA_WIDTH + cursor_x);
     
@@ -57,33 +62,36 @@ void vga_set_color(vga_color_t fg, vga_color_t bg) {
 }
 
 void vga_putchar(char c) {
+    // Ensure cursor is within bounds before processing
+    if (cursor_x >= VGA_WIDTH) cursor_x = 0;
+    if (cursor_y >= VGA_HEIGHT) cursor_y = VGA_HEIGHT - 1;
+
     if (c == '\n' || c == '\r') {
         cursor_x = 0;
-        if (c == '\n') cursor_y++;
+        cursor_y++;
     } else if (c == '\b') {
         if (cursor_x > 0) {
             cursor_x--;
-            vga_putchar_at(' ', current_color, cursor_x, cursor_y);
         } else if (cursor_y > 0) {
             cursor_y--;
             cursor_x = VGA_WIDTH - 1;
-            vga_putchar_at(' ', current_color, cursor_x, cursor_y);
         }
+        vga_putchar_at(' ', current_color, cursor_x, cursor_y);
     } else if (c == '\t') {
         cursor_x = (cursor_x + 8) & ~7;
     } else if (c >= ' ') {
+        // If we're at the end of a line, automatically wrap
+        if (cursor_x >= VGA_WIDTH) {
+            cursor_x = 0;
+            cursor_y++;
+        }
         vga_putchar_at(c, current_color, cursor_x, cursor_y);
         cursor_x++;
     }
     
-    if (cursor_x >= VGA_WIDTH) {
-        cursor_x = 0;
-        cursor_y++;
-    }
-    
-    if (cursor_y >= VGA_HEIGHT) {
+    while (cursor_y >= VGA_HEIGHT) {
         vga_scroll();
-        cursor_y = VGA_HEIGHT - 1;
+        cursor_y--;
     }
 
     vga_update_cursor();
@@ -108,11 +116,6 @@ void vga_print_at(const char* str, int x, int y) {
 
 void vga_scroll(void) {
     volatile uint16_t* vga = (volatile uint16_t*)VGA_MEMORY;
-    
-    // Safety check to prevent scrolling if the cursor is within bounds
-    if (cursor_y < VGA_HEIGHT) {
-        return;
-    }
 
     // Shift lines up
     for (int y = 0; y < VGA_HEIGHT - 1; y++) {

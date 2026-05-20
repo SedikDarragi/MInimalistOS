@@ -13,7 +13,7 @@ static uint32_t total_pages = MAX_PAGES;
 static uint32_t used_pages = 0;
 
 // Simple heap implementation
-#define HEAP_SIZE 0x100000  // 1MB heap
+#define HEAP_SIZE 0x8000    // 32KB heap for extra safety
 static uint8_t heap[HEAP_SIZE];
 static uint32_t heap_pos = 0;
 
@@ -22,11 +22,11 @@ void memory_init(void) {
     // Clear page bitmap
     memset(page_bitmap, 0, sizeof(page_bitmap));
     
-    // Mark first 4MB as used (kernel space)
-    for (uint32_t i = 0; i < 1024; i++) {
+    // Mark first 1MB as used (Kernel + BIOS + VGA holes)
+    for (uint32_t i = 0; i < 256; i++) {
         page_bitmap[i / 32] |= (1 << (i % 32));
     }
-    used_pages = 1024;
+    used_pages = 256;
     
     // Initialize heap
     heap_init();

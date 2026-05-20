@@ -3,18 +3,18 @@
 #include "../include/idt.h"
 
 static const char scancode_to_ascii_us[] = {
-    0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
-    '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
-    0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`',
-    0, '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0,
+    0, 0, '&', 'e', '"', '\'', '(', '-', 'e', '_', 'c', 'a', ')', '=', '\b',
+    '\t', 'a', 'z', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '^', '$', '\n',
+    0, 'q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'u', '*',
+    0, '<', 'w', 'x', 'c', 'v', 'b', 'n', ',', ';', ':', '!', 0,
     '*', 0, ' '
 };
 
 static const char scancode_to_ascii_us_shift[] = {
-    0, 0, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '\b',
-    '\t', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n',
-    0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~',
-    0, '|', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 0,
+    0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'o', '+', '\b',
+    '\t', 'A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '..', '$', '\n',
+    0, 'Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', '%', 'u',
+    0, '>', 'W', 'X', 'C', 'V', 'B', 'N', '?', '.', '/', '!', 0,
     '*', 0, ' '
 };
 
@@ -43,49 +43,32 @@ static void keyboard_interrupt_handler(struct regs* r) {
 }
 
 void keyboard_init(void) {
-    int timeout;
-
-    // Disable devices
-    outb(KEYBOARD_STATUS_PORT, 0xAD);
-    outb(KEYBOARD_STATUS_PORT, 0xA7);
-    
-    // Flush output buffer
-    timeout = 100000;
-    while((inb(KEYBOARD_STATUS_PORT) & 1) && timeout--) {
-        inb(KEYBOARD_DATA_PORT);
-    }
-
     // Initialize buffer
     kb_write_ptr = 0;
     kb_read_ptr = 0;
 
-    // Enable IRQ1 in the Configuration Byte (safe version with timeouts)
-    outb(KEYBOARD_STATUS_PORT, 0x20); // Read Command Byte
-    timeout = 100000;
-    while((!(inb(KEYBOARD_STATUS_PORT) & 1)) && timeout--); // Wait for data
-    
-    if (timeout > 0) {
-        uint8_t status = inb(KEYBOARD_DATA_PORT);
-        status |= 0x01; // Enable IRQ1
-        status |= 0x40; // Enable translation (Scancode Set 2 -> 1)
-        
-        outb(KEYBOARD_STATUS_PORT, 0x60); // Write Command Byte
-        timeout = 100000;
-        while((inb(KEYBOARD_STATUS_PORT) & 2) && timeout--); // Wait for input buffer empty
-        outb(KEYBOARD_DATA_PORT, status);
+    // Drain any existing data in the controller to reset the IRQ line
+    for(int i = 0; i < 10; i++) {
+        if (!(inb(KEYBOARD_STATUS_PORT) & 0x01)) break;
+        inb(KEYBOARD_DATA_PORT);
     }
+
+    // Register the interrupt handler for IRQ1 (Vector 33)
+    register_interrupt_handler(33, keyboard_interrupt_handler);
     
-    // Enable keyboard device
-    outb(KEYBOARD_STATUS_PORT, 0xAE);
+    // Set the command byte: Enable IRQ1 and Translation
+    outb(KEYBOARD_STATUS_PORT, 0x20); // Read Command Byte command
+    while(!(inb(KEYBOARD_STATUS_PORT) & 0x01)); // Wait for output buffer full
+    uint8_t cb = inb(KEYBOARD_DATA_PORT);
+    cb |= 0x01;  // Bit 0: Keyboard Interrupt
+    cb |= 0x40;  // Bit 6: Scancode Translation (Set 2 to 1)
     
-    // Enable keyboard scanning (Send 0xF4 to Data Port)
-    // This is critical for many keyboards to start sending interrupts
+    outb(KEYBOARD_STATUS_PORT, 0x60); // Write Command Byte command
+    while(inb(KEYBOARD_STATUS_PORT) & 0x02); // Wait for input buffer empty
+    outb(KEYBOARD_DATA_PORT, cb);
+
+    // Final command to keyboard: Enable scanning
     outb(KEYBOARD_DATA_PORT, 0xF4);
-    timeout = 100000;
-    while((!(inb(KEYBOARD_STATUS_PORT) & 1)) && timeout--); // Wait for ACK
-    if (timeout > 0) inb(KEYBOARD_DATA_PORT); // Consume ACK (0xFA)
-    
-    register_interrupt_handler(33, keyboard_interrupt_handler); // Register IRQ1 (INT 33)
 }
 
 int keyboard_available(void) {
@@ -99,10 +82,18 @@ static void keyboard_update_leds(void) {
 
 // Interrupt handler called by ISR
 void keyboard_handler(void) {
-    // In an interrupt handler, we don't need to check the status port.
-    // The IRQ itself tells us data is ready to be read from the data port.
     uint8_t scancode = inb(KEYBOARD_DATA_PORT);
-    
+
+    // Explicitly handle Backspace scancode (Set 1: 0x0E)
+    if (scancode == 0x0E) {
+        int next_write = (kb_write_ptr + 1) % KB_BUFFER_SIZE;
+        if (next_write != kb_read_ptr) {
+            kb_buffer[kb_write_ptr] = '\b';
+            kb_write_ptr = next_write;
+        }
+        return;
+    }
+
     // Handle modifier keys
     switch (scancode) {
         case 0x2A: // Left shift pressed
