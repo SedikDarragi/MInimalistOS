@@ -11,6 +11,8 @@ extern char keyboard_getchar(void);
 extern void serial_putchar(uint16_t com, char c);
 extern void enable_interrupts(void);
 extern int vga_get_cursor_y(void);
+extern void process_print_list(void);
+extern uint32_t timer_get_ticks(void);
 
 static void serial_print(const char* str) {
     // Temporarily disabled to prevent potential hangs on hardware polling
@@ -45,11 +47,28 @@ void shell_init(void) {
 void shell_execute_command(const char* command) {
     if (strcmp(command, "help") == 0 || strcmp(command, "?") == 0) {
         shell_print("\nMinimalist OS Shell Commands:\n");
-        shell_print("  help     - Show this help message\n");
-        shell_print("  clear    - Clear the screen\n");
-        shell_print("  testcmd  - test command\n");
+        shell_print("  help      - Show this help message\n");
+        shell_print("  clear     - Clear the screen\n");
+        shell_print("  ps        - List running processes\n");
+        shell_print("  whoami    - Show current user\n");
+        shell_print("  ver       - Show OS version\n");
+        shell_print("  uptime    - Show system uptime (ticks)\n");
+        shell_print("  testcmd   - Run test command\n");
     } else if (strcmp(command, "clear") == 0) {
         vga_clear();
+    } else if (strcmp(command, "ps") == 0) {
+        process_print_list();
+    } else if (strcmp(command, "whoami") == 0) {
+        shell_print(shell_state.username);
+        shell_print("\n");
+    } else if (strcmp(command, "ver") == 0) {
+        shell_print("Minimalist OS v1.0\n");
+    } else if (strcmp(command, "uptime") == 0) {
+        char buf[32];
+        shell_print("Uptime: ");
+        itoa((int)timer_get_ticks(), buf, 10);
+        shell_print(buf);
+        shell_print(" ticks\n");
     } else if (strcmp(command, "testcmd") == 0) {
         shell_print("Test command executed!\n");
     } else if (strlen(command) > 0) {
@@ -94,7 +113,7 @@ void shell_run(void) {
                 vga_putchar('\n');
                 if (buffer_pos > 0) {
                     shell_execute_command(input_buffer);
-                    vga_putchar('\n');
+                    shell_print("\n");
                 }
 
                 // Drain potential \n after \r (common CRLF sequence)

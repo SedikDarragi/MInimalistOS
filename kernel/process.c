@@ -40,15 +40,16 @@ void __stack_chk_fail_local(void) {
 void process_init(void) {
     memset(processes, 0, sizeof(processes));
     
-    // Create the main kernel process (PID 0). 
-    // If kmain is intended to become the shell runner, we initialize it here.
-    extern void shell_run(void);
-    // process_create("kernel_shell", shell_run); // Removed if kmain calls shell_run directly
-    
+    // Initialize the main kernel process (PID 0)
+    processes[0].pid = 0;
+    strncpy(processes[0].name, "kernel", MAX_PROCESS_NAME - 1);
+    processes[0].state = PROCESS_RUNNING;
+    processes[0].priority = 1;
+
     // Set current process to kernel process
+    next_pid = 1; 
     current_process = 0;
     current_process_ptr = &processes[current_process];
-    current_process_ptr->state = PROCESS_RUNNING;
 }
 
 int process_create(const char* name, void (*entry_point)()) {

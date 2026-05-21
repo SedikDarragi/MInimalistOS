@@ -49,7 +49,8 @@ void kmain(void) {
     vga_print("Process management: READY\n");
     
     vga_print("Initializing timer...\n");
-    vga_print("Timer: SKIPPED\n");
+    timer_init();
+    vga_print("Timer: READY\n");
     
     vga_print("Initializing filesystem...\n");
     fs_init();
