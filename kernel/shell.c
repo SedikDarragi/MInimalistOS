@@ -45,19 +45,24 @@ void shell_init(void) {
 }
 
 void shell_execute_command(const char* command) {
+    // Basic trimming: ignore empty commands or just spaces
+    if (strlen(command) == 0) return;
+
     if (strcmp(command, "help") == 0 || strcmp(command, "?") == 0) {
-        shell_print("\nMinimalist OS Shell Commands:\n");
+        shell_print("Minimalist OS Shell Commands:\n");
         shell_print("  help      - Show this help message\n");
         shell_print("  clear     - Clear the screen\n");
         shell_print("  ps        - List running processes\n");
         shell_print("  whoami    - Show current user\n");
         shell_print("  ver       - Show OS version\n");
-        shell_print("  uptime    - Show system uptime (ticks)\n");
+        shell_print("  uptime    - Show system uptime\n");
         shell_print("  testcmd   - Run test command\n");
     } else if (strcmp(command, "clear") == 0) {
         vga_clear();
     } else if (strcmp(command, "ps") == 0) {
+        shell_print("Process List:\n");
         process_print_list();
+        shell_print("\n");
     } else if (strcmp(command, "whoami") == 0) {
         shell_print(shell_state.username);
         shell_print("\n");
@@ -72,7 +77,9 @@ void shell_execute_command(const char* command) {
     } else if (strcmp(command, "testcmd") == 0) {
         shell_print("Test command executed!\n");
     } else if (strlen(command) > 0) {
-        shell_print("Command not found\n");
+        shell_print("Unknown command: '");
+        shell_print(command);
+        shell_print("'\n");
     }
 }
 
@@ -111,9 +118,15 @@ void shell_run(void) {
 
             if (c == '\n' || c == '\r') {
                 vga_putchar('\n');
+                input_buffer[buffer_pos] = '\0';
+                
+                // Trim trailing carriage returns or spaces
+                while (buffer_pos > 0 && (input_buffer[buffer_pos-1] <= ' ')) {
+                    input_buffer[--buffer_pos] = '\0';
+                }
+
                 if (buffer_pos > 0) {
                     shell_execute_command(input_buffer);
-                    shell_print("\n");
                 }
 
                 // Drain potential \n after \r (common CRLF sequence)

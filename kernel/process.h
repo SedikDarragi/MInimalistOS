@@ -9,6 +9,7 @@
 #define STACK_SIZE 4096
 
 typedef enum {
+    PROCESS_EMPTY = 0,
     PROCESS_RUNNING,
     PROCESS_READY,
     PROCESS_BLOCKED,

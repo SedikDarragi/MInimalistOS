@@ -38,16 +38,20 @@ void __stack_chk_fail_local(void) {
 }
 
 void process_init(void) {
-    memset(processes, 0, sizeof(processes));
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        processes[i].state = PROCESS_EMPTY;
+    }
     
-    // Initialize the main kernel process (PID 0)
-    processes[0].pid = 0;
-    strncpy(processes[0].name, "kernel", MAX_PROCESS_NAME - 1);
-    processes[0].state = PROCESS_RUNNING;
-    processes[0].priority = 1;
+    // Create the first process slot properly
+    process_t* p = &processes[0];
+    p->pid = 0;
+    p->state = PROCESS_RUNNING;
+    p->priority = 1;
+    p->runtime = 0;
+    strncpy(p->name, "kernel", MAX_PROCESS_NAME - 1);
 
-    // Set current process to kernel process
-    next_pid = 1; 
+    // next_pid must be 1 so process_print_list loops correctly
+    next_pid = 1;
     current_process = 0;
     current_process_ptr = &processes[current_process];
 }
@@ -56,7 +60,7 @@ int process_create(const char* name, void (*entry_point)()) {
     // Find an empty slot instead of just using next_pid
     int pid_to_assign = -1;
     for (int i = 0; i < MAX_PROCESSES; i++) {
-        if (processes[i].state == PROCESS_ZOMBIE || (i >= next_pid && i < MAX_PROCESSES)) {
+        if (processes[i].state == PROCESS_EMPTY || processes[i].state == PROCESS_ZOMBIE) {
             pid_to_assign = i;
             break;
         }
@@ -110,7 +114,7 @@ void process_print_list(void) {
     proc_vga_print("  ---  --------  -------  --------  ----\n");
     
     for (int i = 0; i < next_pid; i++) {
-        if (processes[i].pid == 0 && i > 0) continue; // Skip unused slots, but show PID 0
+        if (processes[i].state == PROCESS_EMPTY) continue;
         
         // Print PID
         char pid_str[8];

@@ -183,7 +183,7 @@ boot/debug_boot.bin: boot/debug_boot.asm
 	@echo "Bootloader size: $$(wc -c < "$@") bytes"
 
 kernel.bin: kernel.elf
-	objcopy -O binary $< $@ --pad-to 0x8000
+	objcopy -O binary $< $@ --pad-to 0x10000
 
 # Linker flags
 LDFLAGS += -Map=$(BUILD_DIR)/kernel.map --gc-sections

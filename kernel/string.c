@@ -77,8 +77,11 @@ void *memcpy(void *dest, const void *src, size_t n) {
 
 // String copy with limit function
 char *strncpy(char *dest, const char *src, size_t n) {
-    char *d = dest;
-    while (n-- && (*d++ = *src++));
+    size_t i;
+    for (i = 0; i < n && src[i] != '\0'; i++)
+        dest[i] = src[i];
+    for ( ; i < n; i++)
+        dest[i] = '\0';
     return dest;
 }
 
@@ -106,43 +109,36 @@ size_t strlen(const char *str) {
 
 // Integer to string conversion function
 char* itoa(int value, char* str, int base) {
-    char *rc;
-    char *ptr;
-    char *low;
+    char *ptr = str;
+    char *ptr1 = str, tmp_char;
+    int tmp_value;
     
-    // Check for supported base
     if (base < 2 || base > 36) {
         *str = '\0';
         return str;
     }
-    
-    rc = ptr = str;
-    
-    // Set negative sign for base 10
+
     if (value < 0 && base == 10) {
         *ptr++ = '-';
+        ptr1++;
     }
-    
-    // Remember where the numbers start
-    low = ptr;
-    
-    // The actual conversion
+
+    tmp_value = value;
     do {
-        *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz"[35 + value % base];
-        value /= base;
-    } while (value);
+        int rem = tmp_value % base;
+        if (rem < 0) rem = -rem;
+        *ptr++ = (rem < 10) ? (rem + '0') : (rem - 10 + 'a');
+        tmp_value /= base;
+    } while (tmp_value != 0);
     
-    // Terminate the string
     *ptr-- = '\0';
-    
-    // Invert the numbers
-    while (low < ptr) {
-        char tmp = *low;
-        *low++ = *ptr;
-        *ptr-- = tmp;
+    while(ptr1 < ptr) {
+        tmp_char = *ptr;
+        *ptr--= *ptr1;
+        *ptr1++ = tmp_char;
     }
     
-    return rc;
+    return str;
 }
 
 // Memory comparison function

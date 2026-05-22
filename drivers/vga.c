@@ -89,9 +89,9 @@ void vga_putchar(char c) {
         cursor_x++;
     }
     
-    while (cursor_y >= VGA_HEIGHT) {
+    if (cursor_y >= VGA_HEIGHT) {
         vga_scroll();
-        cursor_y--;
+        cursor_y = VGA_HEIGHT - 1;
     }
 
     vga_update_cursor();

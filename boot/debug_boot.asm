@@ -36,7 +36,7 @@ main:
     mov ax, 0x0800
     mov es, ax
     mov bx, 0x0000
-    mov dh, 65  ; Load 65 sectors (33KB kernel)
+    mov dh, 127 ; Load 127 sectors (~64KB kernel)
     mov dl, [boot_drive]
     
     ; Reset disk system
@@ -44,9 +44,9 @@ main:
     int 0x13
     jc .disk_error
     
-    ; Read 65 sectors from sector 2 (sector 1 is the bootloader)
+    ; Read 127 sectors from sector 2 (sector 1 is the bootloader)
     mov ah, 0x02
-    mov al, 65
+    mov al, 127
     mov ch, 0x00
     mov dh, 0x00
     mov cl, 2
