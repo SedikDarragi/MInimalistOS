@@ -8,9 +8,11 @@ A minimalist operating system written in C and Assembly with kernel, bootloader,
 ## Features
 
 - **Custom Bootloader**: 16-bit to 32-bit transition with GDT setup
-- **Kernel**: 32-bit protected mode kernel with memory management
+- **Multitasking Kernel**: 32-bit protected mode kernel with round-robin scheduling and process management
 - **Shell System**: Interactive command-line interface with built-in commands
 - **File Manager**: Basic filesystem with file operations
+- **Power Management**: Simulated battery, thermal monitoring, and CPU throttling
+- **Internationalization**: Support for US QWERTY, German QWERTZ, and French AZERTY keyboard layouts
 - **Network Stack**: TCP/IP stack with ping and network configuration
 
 ## Getting Started
@@ -109,13 +111,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This is a educational/demonstration OS with the following limitations:
 
-- No multitasking or process management
 - Simple memory allocator (no free)
 - Basic filesystem (in-memory only)
 - Limited network functionality (simulation)
 - Text-mode GUI only
 - No disk I/O beyond bootloader
-
 ## Future Enhancements
 
 - Real filesystem with disk I/O
