@@ -79,7 +79,7 @@ DRIVER_SRCS := drivers/vga.c drivers/keyboard.c drivers/keyboard_intl.c \
 FS_SRCS := fs/ramfs.c fs/vfs_simple.c
 
 # Assembly sources (both .s and .asm) 
-KERNEL_ASM_SRCS := kernel/entry.s kernel/interrupts.s kernel/context_switch.asm
+KERNEL_ASM_SRCS := kernel/entry.s kernel/interrupts.s kernel/context_switch.s
 
 # Combine all source files
 # Main kernel should NOT include test sources; keep tests only in TEST_ALL_SRCS
