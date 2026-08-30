@@ -1,130 +1,149 @@
 # MinimalistOS
 
-A minimalist operating system written in C and Assembly with kernel, bootloader, and modern features.
-
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Build Status](https://github.com/YOUR_USERNAME/MinimalOS/actions/workflows/build.yml/badge.svg)](https://github.com/YOUR_USERNAME/MinimalOS/actions)
+A from-scratch operating system built in C and x86 Assembly, targeting i386 (32-bit protected mode). Runs in QEMU with zero external dependencies.
 
 ## Features
 
-- **Custom Bootloader**: 16-bit to 32-bit transition with GDT setup
-- **Multitasking Kernel**: 32-bit protected mode kernel with round-robin scheduling and process management
-- **Shell System**: Interactive command-line interface with built-in commands
-- **File Manager**: Basic filesystem with file operations
-- **Power Management**: Simulated battery, thermal monitoring, and CPU throttling
-- **Internationalization**: Support for US QWERTY, German QWERTZ, and French AZERTY keyboard layouts
-- **Network Stack**: TCP/IP stack with ping and network configuration
+- **Custom Bootloader** — 512-byte MBR that transitions from 16-bit real mode to 32-bit protected mode
+- **Preemptive Multitasking** — Round-robin scheduler with context switching at 100Hz
+- **Memory Management** — Physical page allocator with bitmap, identity-mapped paging, kernel heap
+- **System Calls** — INT 0x80 interface with 35 syscalls covering process, file, device, and security operations
+- **Interactive Shell** — Built-in commands for process management, file operations, and system info
+- **VFS + RAMFS** — In-memory filesystem with create, read, write, and seek support
+- **Device Drivers** — VGA text mode, PS/2 keyboard (QWERTY/QWERTZ/AZERTY), PIT timer, serial port, PCI bus
+- **ELF Loader** — Parses and executes ELF32 binaries
+- **Security Model** — UID/GID-based access control, authentication, and ACLs
+- **Power Management** — Simulated battery, thermal monitoring, and CPU throttling
+- **Network Stack** — Device abstraction with NE2000 PCI detection and packet buffering (skeleton)
+- **Monitoring** — System stats, performance metrics, and multi-level logging
 
-## Getting Started
+## Prerequisites
 
-### Prerequisites
-
-- GCC with 32-bit support
+- GCC with 32-bit support (`-m32`)
 - NASM (Netwide Assembler)
 - GNU Make
-- QEMU (for testing)
+- GNU ld
+- QEMU (`qemu-system-i386`)
 
-### Installation
+### Install Dependencies
 
-#### Arch Linux
+<details>
+<summary>Arch Linux</summary>
+
 ```bash
-sudo pacman -S --needed base-devel qemu-full nasm
+sudo pacman -S --needed base-devel nasm qemu-full
 ```
+</details>
 
-#### Ubuntu/Debian
+<details>
+<summary>Ubuntu / Debian</summary>
+
 ```bash
-sudo apt-get install gcc-multilib nasm make qemu-system-x86
+sudo apt install gcc-multilib nasm make qemu-system-x86
 ```
+</details>
 
-### Building
+<details>
+<summary>Fedora</summary>
 
 ```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/MinimalOS.git
-cd MinimalOS
+sudo dnf install gcc glibc-devel.i686 nasm make qemu-system-x86
+```
+</details>
 
-# Build the OS
-make
+## Building & Running
 
-# Run in QEMU
-make run
-
-# Run with VNC (view at localhost:5901)
-make run-vnc
-
-# Run with debug output
-make run-debug
+```bash
+make            # Build the OS (creates os.img)
+make run        # Launch in QEMU
+make run-debug  # Serial debug output in terminal
+make run-vnc    # Headless with VNC (connect via vncviewer localhost:1)
 ```
 
 ## Project Structure
 
 ```
-MinimalOS/
-├── boot/           # Bootloader
-│   └── boot.asm    # 16-bit bootloader
-├── kernel/         # Kernel core
-│   ├── start.asm   # Assembly entry point
-│   ├── kernel.c    # Main kernel
-│   ├── kernel.h    # Kernel headers
-│   ├── shell.c     # Shell implementation
-│   ├── shell.h     # Shell headers
-│   └── utils.c     # Utility functions
-├── drivers/        # Hardware drivers
-│   ├── vga.c       # VGA text mode driver
-│   ├── vga.h       # VGA headers
-│   ├── keyboard.c  # Keyboard driver
-│   ├── keyboard.h  # Keyboard headers
-│   ├── timer.c     # Timer driver
-│   └── timer.h     # Timer headers
-├── fs/             # Filesystem
-│   ├── filesystem.c # File operations
-│   └── filesystem.h # Filesystem headers
-├── net/            # Network stack
-│   ├── network.c   # Network implementation
-│   └── network.h   # Network headers
-├── ui/             # User interface
-│   ├── ui.c        # GUI implementation
-│   └── ui.h        # UI headers
-├── .gitignore      # Git ignore file
-├── Makefile        # Build configuration
-├── link.ld         # Linker script
-└── README.md       # This file
+.
+├── boot/
+│   └── debug_boot.asm       # Bootloader (real → protected mode)
+├── kernel/
+│   ├── entry.s              # Assembly entry point (_start)
+│   ├── kmain.c              # Kernel initialization
+│   ├── idt.c                # Interrupt Descriptor Table
+│   ├── interrupts.s         # ISR/IRQ stubs
+│   ├── process.c            # Process management & scheduler
+│   ├── context.c            # Context switching logic
+│   ├── context_switch.s     # Context switch assembly
+│   ├── memory.c             # Physical pages, paging, heap
+│   ├── syscall.c            # System call dispatcher
+│   ├── shell.c              # Interactive shell
+│   ├── string.c             # Freestanding string library
+│   ├── log.c                # Multi-level logging
+│   ├── device.c             # Device abstraction layer
+│   ├── program_loader.c     # ELF32 loader
+│   ├── security.c           # Users, permissions, ACLs
+│   ├── monitor.c            # System monitoring
+│   ├── power.c              # Power management (simulated)
+│   ├── network.c            # Network stack
+│   ├── net_core.c           # Network device registry
+│   ├── pci.c                # PCI bus scanning
+│   ├── usermode.c           # Ring 3 transition
+│   └── *_test.c             # Subsystem test files
+├── drivers/
+│   ├── vga.c                # VGA text-mode driver
+│   ├── keyboard.c           # PS/2 keyboard driver
+│   ├── keyboard_intl.c      # International layouts
+│   ├── timer.c              # PIT timer (100Hz)
+│   ├── serial.c             # COM1 serial driver
+│   └── net_ne2k.c           # NE2000 NIC skeleton
+├── fs/
+│   ├── vfs_simple.c         # VFS layer
+│   └── ramfs.c              # In-memory filesystem
+├── include/                 # System headers
+├── Makefile                 # Build system
+├── link.ld                  # Linker script (kernel at 0x8000)
+└── os.img                   # Generated bootable disk image
 ```
 
-## Contributing
+## Architecture
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+```
+┌─────────────────────────────────────┐
+│           Shell (shell.c)           │
+├─────────────────────────────────────┤
+│  Security │ Monitor │ Power │ ELF   │
+├─────────────────────────────────────┤
+│ Process │ Memory │ IDT │ Syscalls  │
+├─────────────────────────────────────┤
+│ VGA │ Keyboard │ Timer │ Serial │ PCI│
+├─────────────────────────────────────┤
+│     Boot → Protected Mode Entry     │
+└─────────────────────────────────────┘
+```
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## Boot Sequence
 
-## Acknowledgments
-
-- [OSDev Wiki](https://wiki.osdev.org/) for invaluable OS development resources
-- [BrokenThorn Entertainment](http://www.brokenthorn.com/Resources/) for OS development tutorials
-- [JamesM's kernel development tutorials](http://www.jamesmolloy.co.uk/tutorial_html/)
+1. BIOS loads bootloader from MBR to `0x7C00` (16-bit real mode)
+2. Bootloader loads kernel to `0x8000`, sets up GDT, enables protected mode
+3. Kernel entry (`_start`) initializes stack, calls `kmain()`
+4. `kmain()` initializes all subsystems, enables interrupts, launches shell
 
 ## Limitations
 
-This is a educational/demonstration OS with the following limitations:
+This is an educational OS. Notable limitations:
 
-- Simple memory allocator (no free)
-- Basic filesystem (in-memory only)
-- Limited network functionality (simulation)
-- Text-mode GUI only
-- No disk I/O beyond bootloader
-## Future Enhancements
+- No `kfree()` — heap allocator is bump-only
+- RAMFS is in-memory only (no disk I/O)
+- Network stack is a skeleton (no real packet transmission)
+- Fixed process table (max 8 processes)
+- VGA text mode only (no graphics)
 
-- Real filesystem with disk I/O
-- Multitasking and process scheduling
-- Advanced memory management
-- Real network driver integration
-- Graphics mode support
-- More applications and utilities
+## Acknowledgments
+
+- [OSDev Wiki](https://wiki.osdev.org/) — Essential OS development reference
+- [JamesM's Kernel Development Tutorials](http://www.jamesmolloy.co.uk/tutorial_html/)
+- [BrokenThorn Entertainment OS Development Series](http://www.brokenthorn.com/Resources/)
 
 ## License
 
-This project is licensed under the Central National d'informatique (CNI) and is for educational purposes and should be used for commercial reasons without my permission first , Feel free to use and modify as needed.
+Educational use. Contact for commercial licensing.
