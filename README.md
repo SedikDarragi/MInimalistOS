@@ -1,5 +1,9 @@
 # MinimalistOS
 
+<p align="center">
+  <img src="demo.png" alt="My Image" width="800">
+</p>
+
 > A from-scratch operating system built in C and x86 Assembly, targeting i386 (32-bit protected mode). Runs in QEMU with zero external dependencies.
 
 ---
